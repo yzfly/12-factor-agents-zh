@@ -28,7 +28,7 @@ Agents, at least the good ones, don't follow the "here's your prompt, here's a b
 
 **So if this magical "here's your prompt, here's your tools, go figure it out"** workflow that we see everywhere isn't the answer, then what makes an agent an agent? That is,
 
-> **What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?**
+> ### **What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?**
 
 Welcome to 12-factor agents. As every Chicago mayor since Daley has consistently plastered all over the city's major airports, we're glad you're here.
 
