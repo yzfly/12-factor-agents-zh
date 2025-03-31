@@ -1,4 +1,4 @@
-BF Preview - this is a draft of everything I've learned in a year working with agents, and I imagine it may evolve a bit as we go.
+Preview - this is a draft of everything I've learned in a year working with agents, and I imagine it may evolve a bit as we go.
 
 The source is public at github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!
 
