@@ -21,7 +21,7 @@ I've talked to a lot of really strong founders, in and out of YC, who are all bu
 
 **I've been surprised to find** that most of the products out there billing themselves as "AI Agents" are not  all that agentic. A lot of them are mostly deterministic code, with LLM steps sprinkled in at just the right points to make the experience truly magical.
 
-Agents, at least the good ones, don't follow the "here's your prompt, here's a bag of tools, loop until you hit the goal" pattern. They are mostly just software.
+Agents, at least the good ones, don't follow the "here's your prompt, here's a bag of tools, loop until you hit the goal" pattern. Rather, they are comprised of mostly just software.
 
 
 **So if this magical "here's your prompt, here's your tools, go figure it out"** workflow that we see everywhere isn't the answer, then what makes an agent an agent? That is,
@@ -46,9 +46,9 @@ Around 20 years ago, we started to see DAG orchestrators become popular. We're t
 
 ![015-dag-orchestrators](./img/015-dag-orchestrators.png)
 
-### 15 years ago
+### 10-15 years ago
 
-When ML models started to get good enough to be useful, we started to see DAGs with ML models sprinkled in. You might imagine steps like "summarize the text in this field into that field" or "classify the support issues by severity or sentiment".
+When ML models started to get good enough to be useful, we started to see DAGs with ML models sprinkled in. You might imagine steps like "summarize the text in this column into a new column" or "classify the support issues by severity or sentiment".
 
 ![020-dags-with-ml](./img/020-dags-with-ml.png)
 
@@ -64,22 +64,29 @@ And let the LLM make decisions in real time to figure out the path
 
 ![026-agent-dag-lines](./img/026-agent-dag-lines.png)
 
+The promise here is that you write less software, you just give the LLM the "edges" of the graph and let it figure out the nodes. You can recover from errors, you can write less code, and you may find that LLMs find novel solutions to problems.
+
+### agents as loops
+
 Put another way, you've got this loop consisting of 3 steps:
 
 1. LLM determines the next step in the workflow, outputting structured json ("tool calling")
-2. The code executes the tool call
+2. Deterministic code executes the tool call
 3. The result is appended to the context window 
+4. repeat until the next step is determined to be "done"
+
+![027-agent-loop](./img/027-agent-loop.png)
 
 Our initial context is just the starting event (maybe a user message, maybe a cron fired, maybe a webhook, etc),
 and we ask the llm to choose the next step (tool) or to determine that we're done.
 
-![027-agent-loop](./img/027-agent-loop.png)
 
 After a few steps we are passing in longer context to the LLM, telling it what happened so far and asking it to choose the next step.
 
 ![027-agent-loop-animation](./img/027-agent-loop-animation.gif)
+![027-agent-loop-animation](./img/027-agent-loop-animation.mp4)
 
-([view as webm](todo))
+([view as webm](./img/027-agent-loop-animation.mp4))
 
 This is a pretty common mental model, and you could see how this leads to a lot of interesting end states where agents build whole complex software DAGs in real time, just knowing which **edges** are available.
 
