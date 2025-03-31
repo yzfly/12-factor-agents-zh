@@ -143,7 +143,8 @@ Here's an example of how deterministic code might run one micro agent responsibl
 * **Deterministic code** run the end-to-end tests against production
 * **Deterministic code** task completed, OR pass to rollback agent to review failures and potentially roll back
 
-[![033-deploybot-animation](./img/033-deploybot.gif)](https://github.com/user-attachments/assets/0d54a581-24e8-4032-8c01-491c72fa14f4)
+[![033-deploybot-animation](./img/033-deploybot.gif)](https://github.com/user-attachments/assets/deb356e9-0198-45c2-9767-231cb569ae13)
+
 
 
 This example is based on a real life [OSS agent we've shipped to manage our deployments at Humanlayer](https://github.com/got-agents/agents/tree/main/deploybot-ts) - here is a real conversation I had with it last week:
