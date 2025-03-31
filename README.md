@@ -106,7 +106,7 @@ Even if you haven't hand-rolled an agent, you've probable seen this long-context
 
 I'll even perhaps posit something I've heard in passing quite a bit, and that YOU probably have developed your own intuition around:
 
-> ### **Even as model context windows get longer, you'll ALWAYS get better results with a small, focused prompt and context**
+> ### **Even as models support longer and longer context windows, you'll ALWAYS get better results with a small, focused prompt and context**
 
 Most builders I've talked to pushed the "tool calling loop" idea to the side when they realized that anything more than 10-20 turns becomes a big mess that the LLM can't recover from. Even if the agent gets it right 90% of the time, that's miles away from "good enough to put in customer hands". Can you imagine a web app that crashed on 10% of page loads?
 
