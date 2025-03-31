@@ -83,14 +83,13 @@ and we ask the llm to choose the next step (tool) or to determine that we're don
 
 After a few steps we are passing in longer context to the LLM, telling it what happened so far and asking it to choose the next step.
 
-![027-agent-loop-animation](./img/027-agent-loop-animation.gif)
+<!-- > note - other platforms, etc, use the gif, otherwise use the webm  -->
+
+[![027-agent-loop-animation](./img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
+
 
 https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd
 
-
-![asset](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
-
-([view as webm](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd))
 
 This is a pretty common mental model, and you could see how this leads to a lot of interesting end states where agents build whole complex software DAGs in real time, just knowing which **edges** are available.
 
@@ -101,20 +100,23 @@ The biggest problems with this pattern:
 - Agents get lost when the context window gets too long - they spin out trying the same broken approach over and over again
 - literally thats it, but that's enough to kneecap the approach
 
-Most of us put the "tool calling loop" idea to the side when we realized that anything more than 10-20 turns becomes a big mess that the LLM can't recover from.
-
 Even if you haven't hand-rolled an agent, you've probable seen this long-context problem in working with agentic coding tools. They just get lost after a while and you need to start a new chat.
 
-I'll even perhaps posit something I've heard in passing quite a bit:
+I'll even perhaps posit something I've heard in passing quite a bit, and that YOU probably have developed your own intuition around:
 
-> **Even as model context windows get longer, you'll ALWAYS get better results with a small, focused prompt and context**
+> ### **Even as model context windows get longer, you'll ALWAYS get better results with a small, focused prompt and context**
+
+Most builders I've talked to pushed the "tool calling loop" idea to the side when they realized that anything more than 10-20 turns becomes a big mess that the LLM can't recover from. Even if the agent gets it right 90% of the time, that's miles away from "good enough to put in customer hands". Can you imagine a web app that crashed on 10% of page loads?
 
 ### what actually works - micro agents
 
-One thing that I **have** seen in the wild quite a bit is taking the agent pattern and sprinkling it into a broader more deterministic DAG. Having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps.
+One thing that I **have** seen in the wild quite a bit is taking the agent pattern and sprinkling it into a broader more deterministic DAG. 
 
 ![micro-agent-dag](./img/028-micro-agent-dag.png)
 
+You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps. ([factor 1](#1-natural-language-tool-calls), [factor 4](#4-use-tools-for-human-interaction)).
+
+> ### having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback
 
 ### a real life micro agent 
 
@@ -124,14 +126,14 @@ Here's an example of how deterministic code might run one micro agent responsibl
 * **Deterministic Code** Deploys to staging env
 * **Deterministic Code** Runs end-to-end (e2e) tests against staging
 * **Deterministic Code** Hands to agent for prod deployment, with initial context: "deploy SHA 4af9ec0 to production"
-* **Agent** calls `deploy_frontend(4af9ec0)`
+* **Agent** calls `deploy_frontend_to_prod(4af9ec0)`
 * **Deterministic code** requests human approval on this action
 * **Human** Rejects the action with feedback "can you deploy the backend first?"
-* **Agent** calls `deploy_backend(4af9ec0)`
+* **Agent** calls `deploy_backend_to_prod(4af9ec0)`
 * **Deterministic code** requests human approval on this action
 * **Human** approves the action
 * **Deterministic code** executed the backend deployment
-* **Agent** calls `deploy_frontend(4af9ec0)`
+* **Agent** calls `deploy_frontend_to_prod(4af9ec0)`
 * **Deterministic code** requests human approval on this action
 * **Human** approves the action
 * **Deterministic code** executed the frontend deployment
