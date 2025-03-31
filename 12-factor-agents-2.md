@@ -84,15 +84,13 @@ and we ask the llm to choose the next step (tool) or to determine that we're don
 After a few steps we are passing in longer context to the LLM, telling it what happened so far and asking it to choose the next step.
 
 ![027-agent-loop-animation](./img/027-agent-loop-animation.gif)
-![027-agent-loop-animation](./img/027-agent-loop-animation.mp4)
-
-
 
 https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd
 
 
+![asset](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
 
-([view as webm](./img/027-agent-loop-animation.mp4))
+([view as webm](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd))
 
 This is a pretty common mental model, and you could see how this leads to a lot of interesting end states where agents build whole complex software DAGs in real time, just knowing which **edges** are available.
 
