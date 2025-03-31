@@ -86,6 +86,10 @@ After a few steps we are passing in longer context to the LLM, telling it what h
 
 [![027-agent-loop-animation](./img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
 
+And the "materialized" DAG that was generated would look something like:
+
+![027-agent-loop-dag](./img/027-agent-loop-dag.png)
+
 
 This is a pretty common mental model, and you could see how this leads to a lot of interesting end states where agents build whole complex software DAGs in real time, just knowing which **edges** are available.
 
@@ -110,13 +114,15 @@ One thing that I **have** seen in the wild quite a bit is taking the agent patte
 
 ![micro-agent-dag](./img/028-micro-agent-dag.png)
 
-You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps. ([factor 1](#1-natural-language-tool-calls), [factor 4](#4-use-tools-for-human-interaction)).
+You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps without spinning out into context error loops. ([factor 1](#1-natural-language-tool-calls), [factor 4](#4-use-tools-for-human-interaction)).
 
-> ### having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback
+> ### having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback...without spinning out into context error loops
 
 ### a real life micro agent 
 
 Here's an example of how deterministic code might run one micro agent responsible for handling the human-in-the-loop steps for deployment. 
+
+![029-deploybot-high-level](./img/029-deploybot-high-level.png)
 
 * **Human** Merges PR to GitHub main branch
 * **Deterministic Code** Deploys to staging env
@@ -134,40 +140,36 @@ Here's an example of how deterministic code might run one micro agent responsibl
 * **Human** approves the action
 * **Deterministic code** executed the frontend deployment
 * **Agent** determines that the task was completed successfully, we're done!
-* **Deterministic code** 
+* **Deterministic code** run the end-to-end tests against production
+* **Deterministic code** task completed, OR pass to rollback agent to review failures and potentially roll back
 
 ![031-deploybot-animation](./img/031-deploybot-animation-5.gif)
 
 
 This example is based on a real life [OSS agent we've shipped to manage our deployments at Humanlayer](https://github.com/got-agents/agents/tree/main/deploybot-ts) - here is a real conversation I had with it last week:
 
+![035-deploybot-conversation](./img/035-deploybot-conversation.png)
+
 
 We haven't given this agent a huge pile of tools or tasks. The primary value in the LLM is parsing the human's plaintext feedback and proposing an updated course of action. We isolate tasks and contexts as much as possible to keep
 
-Another [more classic support / chatbot demo](https://x.com/chainlit_io/status/1858613325921480922).
-
-### what actually works - full control vs. black boxes
-
-You'll notice we're doing a copule things that are not compatible with the more black-boxy frameworks out there.
-
-
-!black box - tool-calling loop
+Here's another [more classic support / chatbot demo](https://x.com/chainlit_io/status/1858613325921480922).
 
 ### so what's an agent really?
 
-prompt
-switch statement + control flow
-for loop
-accumlated context
+- **prompt** - tell an LLM how to behave, and what "tools" it has available. The output of the prompt is a JSON object that describe the next step in the workflow (the "tool call" or "function call").
+- **switch statement** - based on the JSON that the LLM returns, decide what to do with it.
+- **accumulated context** - store the list of steps that have happened and their results
+- **for loop** - until the LLM emits some sort of "Terminal" tool call (or plaintext response), add the result of the switch statement to the context window and ask the LLM to choose the next step.
 
-!prompt-switch-loop-context
+![040-4-components](./img/040-4-components.png)
 
 In the "deploybot" example, we gain a couple benefits from owning the control flow and context accumulation:
 
-- We can hijack control flow to pause for human input or to wait for completion of long-running tasks
-- We can serialize the context window trivially for pause+resume
-- We can add arbitrary steps in between any step
-- We can optimize the heck out of how we pass "what happened so far" to the LLM
+- In our **switch statement** and **for loop**, we can hijack control flow to pause for human input or to wait for completion of long-running tasks
+- We can trivially serialize the **context** window for pause+resume
+- In our **prompt**, we can optimize the heck out of how we pass instructions and "what happened so far" to the LLM
+
 
 [Part II](#12-factor-agents) will **formalize these patterns** so they can be applied to add impressive AI features to any software project, without needing to go all in on conventional implementations/definitions of "AI agent".
 
