@@ -83,12 +83,8 @@ and we ask the llm to choose the next step (tool) or to determine that we're don
 
 After a few steps we are passing in longer context to the LLM, telling it what happened so far and asking it to choose the next step.
 
-<!-- > note - other platforms, etc, use the gif, otherwise use the webm  -->
 
 [![027-agent-loop-animation](./img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
-
-
-https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd
 
 
 This is a pretty common mental model, and you could see how this leads to a lot of interesting end states where agents build whole complex software DAGs in real time, just knowing which **edges** are available.
@@ -142,6 +138,7 @@ Here's an example of how deterministic code might run one micro agent responsibl
 
 ![031-deploybot-animation](./img/031-deploybot-animation-5.gif)
 
+
 This example is based on a real life [OSS agent we've shipped to manage our deployments at Humanlayer](https://github.com/got-agents/agents/tree/main/deploybot-ts) - here is a real conversation I had with it last week:
 
 
@@ -163,16 +160,18 @@ switch statement + control flow
 for loop
 accumlated context
 
-In the above example, we gain a couple benefits from owning the control flow and context accumulation:
+!prompt-switch-loop-context
+
+In the "deploybot" example, we gain a couple benefits from owning the control flow and context accumulation:
 
 - We can hijack control flow to pause for human input or to wait for completion of long-running tasks
 - We can serialize the context window trivially for pause+resume
 - We can add arbitrary steps in between any step
 - We can optimize the heck out of how we pass "what happened so far" to the LLM
 
-Anyways, if that's interesting, the rest of this will formalize these patterns into a methodology that can be applied to add impressive AI features to any software project.
+[Part II](#12-factor-agents) will **formalize these patterns** so they can be applied to add impressive AI features to any software project, without needing to go all in on conventional implementations/definitions of "AI agent".
 
-## Enter 12-factor agents
+## 12-factor agents
 
 In building HumanLayer, I've talked to at least 100 SaaS builders (mostly technical founders) looking to make their existing product more agentic. The journey usually goes something like:
 
@@ -199,14 +198,14 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 1. There are some core things that make agents great
 2. Going all in on a framework and building what is essentially a greenfield rewrite may be counter-productive
 3. There are some core principles that make agents great, and you will get most/all of them if you pull in a framework
-4. The fastest way I've seen for builders to get good AI software in the hands of customers is to take small, modular concepts from agent building, and incorporate them into their existing product
+4. BUT, the fastest way I've seen for builders to get high-quality AI software in the hands of customers is to take small, modular concepts from agent building, and incorporate them into their existing product
 5. These modular concepts from agents can be defined and applied by most skilled software engineers, even if they don't have an AI background
 
 > ### The fastest way I've seen for builders to get good AI software in the hands of customers is to take small, modular concepts from agent building, and incorporate them into their existing product
 
 ## the twelve factors
 
-enough with the fluff, let's dig into the 12 factors that define our methodology.
+OK. After 5 pages of preamble, lets get into it
 
 ### 1. Natural Language → Tool Calls
 
@@ -234,7 +233,7 @@ to a structured object that describes a Stripe API call like
 }
 ```
 
-**Note**: this is greatly simplified, a [real agent that does this](https://github.com/dexhorthy/mailcrew) ([video](https://www.youtube.com/watch?v=f_cKnoPC_Oo)) would list customers, list products, list prices, etc to build this payload with the proper ids, or include those ids in the prompt/context window (we'll see below how those are kinda the same thing though!)
+**Note**: in reality the stripe API is a bit more complex, a [real agent that does this](https://github.com/dexhorthy/mailcrew) ([video](https://www.youtube.com/watch?v=f_cKnoPC_Oo)) would list customers, list products, list prices, etc to build this payload with the proper ids, or include those ids in the prompt/context window (we'll see below how those are kinda the same thing though!)
 
 From there, deterministic code can pick up the payload and do something with it.
 
@@ -1152,3 +1151,157 @@ What else did I miss? Where can we collab?
 The code referenced uses 
 
 - []
+
+## Factor 13 - pre-fetch all the context you might need
+
+If there's a high chance that your model will call tool X, don't waste token round trips telling the model to fetch it, that is, instead of a pseudo-prompt like:
+
+```
+When looking at deployments, you will likely want to fetch the list of published git tags,
+so you can use it to deploy to prod.
+
+Here's what happened so far:
+
+{{ thread.events }}
+
+What's the next step?
+
+Answer in JSON format with one of the following intents:
+
+{
+  intent: 'deploy_backend_to_prod',
+  tag: string
+} OR {
+  intent: 'list_git_tags'
+} OR {
+  intent: 'done_for_now',
+  message: string
+}
+```
+
+and your code looks like
+
+```
+thread = [inital_message]
+const nextStep = await determineNextStep(thread)
+
+while (true) {
+  switch (nextStep.intent) {
+    case 'list_git_tags':
+      const tags = await fetch_git_tags()
+      thread.events.push({
+        type: 'list_git_tags',
+        data: tags,
+      })
+    case 'deploy_backend_to_prod':
+      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
+      thread.events.push({
+        type: 'deploy_backend_to_prod',
+        data: deploy_result,
+      })
+    case 'done_for_now':
+      await notify_human(nextStep.message)
+      break
+    // ...
+  }
+}
+```
+
+You might as well just fetch the tags and include them in the context window, like:
+
+```jinja
+When looking at deployments, you will likely want to fetch the list of published git tags,
+so you can use it to deploy to prod.
+
+The current git tags are:
+
+{{ git_tags }}
+
+
+Here's what happened so far:
+
+{{ thread.events }}
+
+What's the next step?
+
+Answer in JSON format with one of the following intents:
+
+{
+  intent: 'deploy_backend_to_prod',
+  tag: string
+} OR {
+  intent: 'list_git_tags'
+} OR {
+  intent: 'done_for_now',
+  message: string
+}
+
+```
+
+and your code looks like
+
+```typescript
+const thread = {events: [inital_message]}
+const git_tags = await fetch_git_tags()
+
+const nextStep = await determineNextStep(thread, git_tags)
+
+while (true) {
+  switch (nextStep.intent) {
+    case 'deploy_backend_to_prod':
+      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
+      thread.events.push({
+        type: 'deploy_backend_to_prod',
+        data: deploy_result,
+      })
+    case 'done_for_now':
+      await notify_human(nextStep.message)
+      break
+    // ...
+  }
+}
+```
+
+or even just include the tags in the thread and remove the specific parameter:
+
+```typescript
+const thread = {events: [inital_message]}
+thread.events.push({
+  type: 'list_git_tags',
+  data: git_tags,
+})
+
+const git_tags = await fetch_git_tags()
+thread.events.push({
+  type: 'list_git_tags_result',
+  data: git_tags,
+})
+const nextStep = await determineNextStep(thread)
+
+while (true) {
+  switch (nextStep.intent) {
+    case 'deploy_backend_to_prod':
+      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
+      thread.events.push({
+        type: 'deploy_backend_to_prod',
+        data: deploy_result,
+      })
+    case 'done_for_now':
+      await notify_human(nextStep.message)
+      break
+    // ...
+  }
+}
+```
+
+Overall:
+
+> ### If you already know what tools you'll want the model to call, just call them DETERMINISTICALLY and let the model do the hard part of figuring out how to use their outputs
+
+Again, AI engineering is all about Context Engineering - 
+
+!context-engineering-prompt-engineering-plus-rag-plus-other-context-sources
+
+
+
+
