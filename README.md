@@ -2,7 +2,7 @@
 
 Preview - this is a draft of everything I've learned in a year working with agents, and I imagine it may evolve a bit as we go.
 
-The source is public at github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!
+The source is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!
 
 
 ## 12 Factor Agents OR "Agents the Hard Way"
@@ -31,6 +31,28 @@ Agents, at least the good ones, don't follow the "here's your prompt, here's a b
 > ### **What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?**
 
 Welcome to 12-factor agents. As every Chicago mayor since Daley has consistently plastered all over the city's major airports, we're glad you're here.
+
+## The Short Version: The 12 Factors
+
+Jump to Part II: [12-Factor Agents](#12-factor-agents), or into any of the particular factors below.
+
+- [Factor 1: Natural Language to Tool Calls](#1-natural-language-to-tool-calls)
+- [Factor 2: Own your prompts](#2-own-your-prompts)
+- [Factor 3: Own your context window](#3-own-your-context-window)
+- [Factor 4: Tools are just structured outputs](#4-tools-are-just-structured-outputs)
+- [Factor 5: All state in context window](#5-all-state-in-context-window)
+- [Factor 6: Launch/Pause/Resume with simple APIs](#6-launch-pause-resume-with-simple-apis)
+- [Factor 7: Contact humans with tool calls](#7-contact-humans-with-tool-calls)
+- [Factor 8: Own your control flow](#8-own-your-control-flow)
+- [Factor 9: Compact Errors into Context Window](#9-compact-errors-into-context-window)
+- [Factor 10: Small, Focused Agents](#10-small-focused-agents)
+- [Factor 11: Trigger from anywhere, meet users where they are](#11-trigger-from-anywhere-meet-users-where-they-are)
+- [Factor 12: Make your agent a stateless reducer](#12-make-your-agent-a-stateless-reducer)
+
+<!-- ![12 factors in a grid](./img/12-factors-in-a-grid.png) -->
+
+
+## The longer version: how we got here
 
 ## agents are software, and a brief history thereof
 
@@ -116,7 +138,7 @@ One thing that I **have** seen in the wild quite a bit is taking the agent patte
 
 ![micro-agent-dag](./img/028-micro-agent-dag.png)
 
-You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps without spinning out into context error loops. ([factor 1](#1-natural-language-tool-calls), [factor 4](#4-use-tools-for-human-interaction)).
+You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps without spinning out into context error loops. ([factor 1](#1-natural-language-to-tool-calls), [factor 4](#4-use-tools-for-human-interaction)).
 
 > ### having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback...without spinning out into context error loops
 
@@ -182,7 +204,7 @@ In building HumanLayer, I've talked to at least 100 SaaS builders (mostly techni
 
 1. Decide you want to build an agent
 2. Product design, UX mapping, what problems to solve
-3. Want to move fast, so grab $FRAMEWORK and get to building*
+3. Want to move fast, so grab $FRAMEWORK and *get to building*
 4. Get to 80-90% quality bar 
 5a. Realize that 90% isn't good enough for most customer-facing features
 5b. Realize that getting past 90% requires reverse-engineering the framework, prompts, flow, etc
@@ -190,9 +212,13 @@ In building HumanLayer, I've talked to at least 100 SaaS builders (mostly techni
 
 **DISCLAIMER**: I'm not sure the exact right place to say this, but here seems as good as any: **this in BY NO MEANS meant to be a dig on either the many frameworks out there, or the pretty dang smart people who work on them**. They enable incredible things and have accelerated the AI ecosystem. 
 
-I hope that one outcome of this post is that agent framework builders can learn from the journeys of myself and others, and make frameworks even better. Especially for builders who wanna move fast but need deep control.
+I hope that one outcome of this post is that agent framework builders can learn from the journeys of myself and others, and make frameworks even better. 
+
+Especially for builders who want to move fast but need deep control.
 
 **DISCLAIMER 2**: I'm not going to talk about MCP. I'm sure you can see where it fits in.
+
+**DISCLAIMER 3**: I'm using mostly typescript, for [reasons](https://www.linkedin.com/posts/dexterihorthy_llms-typescript-aiagents-activity-7290858296679313408-Lh9e?utm_source=share&utm_medium=member_desktop&rcm=ACoAAA4oHTkByAiD-wZjnGsMBUL_JT6nyyhOh30) but all this stuff works in python or any other language you prefer (in fact, that's probably factor 13 if there was one).
 
 Anyways back to the thing...
 
@@ -212,10 +238,10 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 
 OK. After 5 pages of preamble, lets get into it
 
-- [Factor 1: Natural Language → Tool Calls](#1-natural-language-tool-calls)
+- [Factor 1: Natural Language to Tool Calls](#1-natural-language-to-tool-calls)
 - [Factor 2: Own your prompts](#2-own-your-prompts)
 - [Factor 3: Own your context window](#3-own-your-context-window)
-- [Factor 4: Tools are Structured Outputs](#4-tools-are-structured-outputs)
+- [Factor 4: Tools are just structured outputs](#4-tools-are-just-structured-outputs)
 - [Factor 5: All state in context window](#5-all-state-in-context-window)
 - [Factor 6: Launch/Pause/Resume with simple APIs](#6-launch-pause-resume-with-simple-apis)
 - [Factor 7: Contact humans with tool calls](#7-contact-humans-with-tool-calls)
@@ -225,7 +251,7 @@ OK. After 5 pages of preamble, lets get into it
 - [Factor 11: Trigger from anywhere, meet users where they are](#11-trigger-from-anywhere-meet-users-where-they-are)
 - [Factor 12: Make your agent a stateless reducer](#12-make-your-agent-a-stateless-reducer)
 
-### 1. Natural Language → Tool Calls
+### 1. Natural Language to Tool Calls 
 
 One of the most common patterns in agent building is to convert natural language to structured tool calls. This is a powerful pattern that allows you to build agents that can reason about tasks and execute them.
 
@@ -281,7 +307,12 @@ switch (nextStep.function) {
 
 ### 2. Own your prompts
 
-Don't outsource your prompt engineering to a framework. Most frameworks provide a "black box" approach like this:
+
+Don't outsource your prompt engineering to a framework. 
+
+![120-own-your-prompts](./img/120-own-your-prompts.png)
+
+Some frameworks provide a "black box" approach like this:
 
 ```typescript
 const agent = new Agent({
@@ -307,27 +338,34 @@ This is great for pulling in some TOP NOTCH prompt engineering to get you starte
 
 Instead, own your prompts and treat them as first-class code:
 
-```typescript
-function DetermineNextStep(thread: string) {
+```rust
+function DetermineNextStep(thread: string) -> DoneForNow | ListGitTags | DeployBackend | DeployFrontend | RequestMoreInformation {
   prompt #"
     {{ _.role("system") }}
     
-    You are a helpful assistant that helps the user with their linear issue management.
-    You work hard for whoever sent the inbound initial email, and want to do your best
-    to help them do their job by carrying out tasks against the linear api.
+    You are a helpful assistant that manages deployments for frontend and backend systems.
+    You work diligently to ensure safe and successful deployments by following best practices
+    and proper deployment procedures.
     
-    Before creating an issue, you should ensure you have accurate team/user/project ids.
-    You can list_teams and list_users and list_projects functions to get ids.
+    Before deploying any system, you should check:
+    - The deployment environment (staging vs production)
+    - The correct tag/version to deploy
+    - The current system status
     
-    If you are BCC'd on a thread, assume that the user is asking you to look up the related issue and
+    You can use tools like deploy_backend, deploy_frontend, and check_deployment_status
+    to manage deployments. For sensitive deployments, use request_approval to get
+    human verification.
     
     Always think about what to do first, like:
-    - ...
-    - ...
-    - ...
+    - Check current deployment status
+    - Verify the deployment tag exists
+    - Request approval if needed
+    - Deploy to staging before production
+    - Monitor deployment progress
     
     {{ _.role("user") }}
-    ${thread}
+
+    {{ thread }}
     
     What should the next step be?
   "#
@@ -336,18 +374,32 @@ function DetermineNextStep(thread: string) {
 
 (the above example uses [BAML](https://github.com/boundaryml/baml) to generate the prompt, but you can do this with any prompt engineering tool you want, or even just template it manually)
 
+If the signature looks a little funny, we'll get to that in [factor 4 - tools are just structured outputs](#4-tools-are-just-structured-outputs)
+
+```typescript
+function DetermineNextStep(thread: string) -> DoneForNow | ListGitTags | DeployBackend | DeployFrontend | RequestMoreInformation {
+```
+
 Key benefits of owning your prompts:
 
 1. **Full Control**: Write exactly the instructions your agent needs, no black box abstractions
 2. **Version Control**: Keep prompts in your codebase alongside other code
 3. **Iteration**: Quickly modify prompts based on real-world performance
 4. **Transparency**: Know exactly what instructions your agent is working with
+5. **Role Hacking**: take advantage of APIs that support nonstandard usage of user/assistant roles - for example, the now-deprecated non-chat flavor of OpenAI "completions" API. This includes some so-called "model gaslighting" techniques
 
-Remember: Your prompts are the primary interface between your application logic and the LLM. The framework approach might seem easier at first ("I don't know what's better, but I know you want to be able to try EVERYTHING"), but having full control over your prompts gives you the flexibility and prompt control you need for production-grade agents.
+Remember: Your prompts are the primary interface between your application logic and the LLM. The framework approach might seem easier at first. ), but having full control over your prompts gives you the flexibility and prompt control you need for production-grade agents.
+
+I don't know what's the best prompt, but I know you want the flexibility to be able to try EVERYTHING.
 
 ### 3. Own your context window
 
-Don't let frameworks dictate how you build and manage your context window. The way you structure and present information to your LLM is crucial for its performance. Here's how to take control:
+You don't necessarily need to use standard message-based formats for conveying context to an LLM.
+
+> ### At any given point, your input to an LLM in an agent is "here's what's happened so far, what's the next step"
+
+Again, I don't know what's the best way to hand context to an LLM, but I know you want the flexibility to be able to try EVERYTHING.
+
 
 #### Standard vs Custom Context Formats
 
@@ -383,24 +435,27 @@ While this works for simple chat applications, it has limitations:
 Instead, build your own context format that's optimized for your use case:
 
 ```typescript
+
+interface Thread {
+  events: Event[]
+}
+
+interface Event {
+  // could just use string, or could be explicit - up to you
+  type: "list_git_tags" | "deploy_backend" | "deploy_frontend" | "request_more_information" | "done_for_now" |
+        "list_git_tags_result" | "deploy_backend_result" | "deploy_frontend_result" | "request_more_information_result" | "done_for_now_result" |
+        "error"
+  // could just use any, or could be explicit - up to you
+  data: ListGitTags | DeployBackend | DeployFrontend | RequestMoreInformation |  
+        ListGitTagsResult | DeployBackendResult | DeployFrontendResult | RequestMoreInformationResult | string
+}
+
 const eventToPrompt = (event: Event) => {
-  switch (event.type) {
-    case 'slack_message':
-      const message = event.data as SlackMessage
-      return `<${event.type}>
-            From: ${message.user}
-            Channel: ${message.channel}
-            Text: ${message.text}
-            Thread: ${stringifyToYaml(message.thread)}
+    const data = typeof event.data !== 'string' ? stringifyToYaml(event.data) : event.data
+    return `<${event.type}>
+        ${data}
 </${event.type}>
-        `
-    default:
-      const data = typeof event.data !== 'string' ? stringifyToYaml(event.data) : event.data
-      return `<${event.type}>
-          ${data}
-</${event.type}>
-      `
-  }
+    `
 }
 
 const threadToPrompt = (thread: Thread) => {
@@ -490,7 +545,9 @@ Key benefits of owning your context window:
 
 Remember: The context window is your primary interface with the LLM. Taking control of how you structure and present information can dramatically improve your agent's performance.
 
-### 4. Tools are Structured Outputs
+Recurring theme here: I don't know what's the best context window, but I know you want the flexibility to be able to try EVERYTHING.
+
+### 4. Tools are just structured outputs
 
 ### 5. All state in context window
 
