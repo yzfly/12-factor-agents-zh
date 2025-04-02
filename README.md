@@ -537,12 +537,25 @@ Here's how context windows might look with this approach:
 </human_response>
 ```
 
-The XML-style format is just one example - the point is you can build your own format that makes sense for your application. You'll get better quality if you have the flexibility to experiment with different context structures.
+From here your next step might be: 
+
+```typescript
+const nextStep = await determineNextStep(thread)
+```
+
+```typescript
+{
+  "intent": "get_workflow_status",
+  "workflow_name": "tag_push_prod.yaml",
+}
+```
+
+The XML-style format is just one example - the point is you can build your own format that makes sense for your application. You'll get better quality if you have the flexibility to experiment with different context structures and what you store vs. what you pass to the LLM. 
 
 Key benefits of owning your context window:
 1. **Information Density**: Structure information in ways that maximize the LLM's understanding
 2. **Error Handling**: Include error information in a format that helps the LLM recover
-3. **Tool Results**: Present tool results in a clear, structured way
+3. **Safety**: Control what information gets passed to the LLM, filtering out sensitive data
 4. **Flexibility**: Adapt the format as you learn what works best for your use case
 
 Remember: The context window is your primary interface with the LLM. Taking control of how you structure and present information can dramatically improve your agent's performance.
@@ -597,9 +610,26 @@ switch (nextStep.intent) {
 
 **Note**: there has been a lot said about the benefits of "plain prompting" vs. "tool calling" vs. "JSON mode" and the performance tradeoffs of each. We'll link some resources to that stuff soon, but not gonna get into it here.
 
-The "next step" might not be as atomic as just "run a pure function and return the result". You unlock a lot of flexibility when you think of "tool calls" as just a model outputting JSON describing what deterministic code should do. 
+The "next step" might not be as atomic as just "run a pure function and return the result". You unlock a lot of flexibility when you think of "tool calls" as just a model outputting JSON describing what deterministic code should do. Put this together with [factor 8 own your control flow](#8-own-your-control-flow).
 
 ### 5. All state in context window
+
+Many frameworks try to separate "execution state" from "business state", creating complex abstractions to track things like current step, next step, waiting status, retry counts, etc. This separation creates complexity that may be worthwhile, but may be overkill for your use case.
+
+![150-all-state-in-context-window](./img/150-all-state-in-context-window.png)
+
+In reality, you can engineer your application so that you can infer all execution state from the context window. In many cases, execution state (current step, waiting status, etc.) is just metadata about what has happened so far.
+
+You may have things that can't going in the context window, like session ids, password contexts, etc, but your goal should be to minimize those things. BY embracing [factor 3](#3-own-your-context-window) you can control what actually goes into the LLM 
+
+This approach has several benefits:
+
+1. **Simplicity**: One source of truth for all state
+2. **Serialization**: The thread is trivially serializable/deserializable
+3. **Debugging**: The entire history is visible in one place
+4. **Flexibility**: Easy to add new state by just adding new event types
+5. **Recovery**: Can resume from any point by just loading the thread
+6. **Forking**: Can fork the thread at any point by copying some subset of the thread into a new context / state ID
 
 ### 6. Launch/Pause/Resume with simple APIs
 
