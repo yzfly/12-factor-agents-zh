@@ -643,7 +643,7 @@ This approach has several benefits:
 
 Agents are just programs, and we have things we expect from how to launch, query, resume, and stop them.
 
-[![pause-resume animation](./165-pause-resume-animation.gif)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+[![pause-resume animation](./img/165-pause-resume-animation.gif)](https://github.com/user-attachments/assets/feb1a425-cb96-4009-a133-8bd29480f21f)
 
 
 It should be easy for users, apps, pipelines, and other agents to launch an agent with a simple API.
@@ -655,6 +655,12 @@ External triggers like webhooks should enable agents to resume from where they l
 Closely related to [factor 5](#5-unify-execution-state-and-business-state) and [factor 8](#8-own-your-control-flow), but can be implemented independently.
 
 ![160-pause-resume-with-simple-apis](./img/160-pause-resume-with-simple-apis.png)
+
+
+
+
+
+
 
 **Note** - often AI orchestrators will allow for pause and resume, but not between the moment of tool selection and tool execution. See also [factor 7 - contact humans with tool calls](#7-contact-humans-with-tool-calls) and [factor 11 - trigger from anywhere, meet users where they are](#11-trigger-from-anywhere-meet-users-where-they-are).
 
