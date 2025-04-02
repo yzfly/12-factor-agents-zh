@@ -40,7 +40,7 @@ Jump to Part II: [12-Factor Agents](#12-factor-agents), or into any of the parti
 - [Factor 2: Own your prompts](#2-own-your-prompts)
 - [Factor 3: Own your context window](#3-own-your-context-window)
 - [Factor 4: Tools are just structured outputs](#4-tools-are-just-structured-outputs)
-- [Factor 5: All state in context window](#5-all-state-in-context-window)
+- [Factor 5: Unify execution state and business state](#5-unify-execution-state-and-business-state)
 - [Factor 6: Launch/Pause/Resume with simple APIs](#6-launch-pause-resume-with-simple-apis)
 - [Factor 7: Contact humans with tool calls](#7-contact-humans-with-tool-calls)
 - [Factor 8: Own your control flow](#8-own-your-control-flow)
@@ -242,7 +242,7 @@ OK. After 5 pages of preamble, lets get into it
 - [Factor 2: Own your prompts](#2-own-your-prompts)
 - [Factor 3: Own your context window](#3-own-your-context-window)
 - [Factor 4: Tools are just structured outputs](#4-tools-are-just-structured-outputs)
-- [Factor 5: All state in context window](#5-all-state-in-context-window)
+- [Factor 5: Unify execution state and business state](#5-unify-execution-state-and-business-state)
 - [Factor 6: Launch/Pause/Resume with simple APIs](#6-launch-pause-resume-with-simple-apis)
 - [Factor 7: Contact humans with tool calls](#7-contact-humans-with-tool-calls)
 - [Factor 8: Own your control flow](#8-own-your-control-flow)
@@ -608,15 +608,22 @@ switch (nextStep.intent) {
 }
 ```
 
-**Note**: there has been a lot said about the benefits of "plain prompting" vs. "tool calling" vs. "JSON mode" and the performance tradeoffs of each. We'll link some resources to that stuff soon, but not gonna get into it here.
+**Note**: there has been a lot said about the benefits of "plain prompting" vs. "tool calling" vs. "JSON mode" and the performance tradeoffs of each. We'll link some resources to that stuff soon, but not gonna get into it here. See [Prompting vs JSON Mode vs Function Calling vs Constrained Generation vs SAP](https://www.boundaryml.com/blog/schema-aligned-parsing), [When should I use function calling, structured outputs, or JSON mode?](https://www.vellum.ai/blog/when-should-i-use-function-calling-structured-outputs-or-json-mode#:~:text=We%20don%27t%20recommend%20using%20JSON,always%20use%20Structured%20Outputs%20instead) and [OpenAI JSON vs Function Calling](https://docs.llamaindex.ai/en/stable/examples/llm/openai_json_vs_function_calling/).
 
 The "next step" might not be as atomic as just "run a pure function and return the result". You unlock a lot of flexibility when you think of "tool calls" as just a model outputting JSON describing what deterministic code should do. Put this together with [factor 8 own your control flow](#8-own-your-control-flow).
 
-### 5. All state in context window
+### 5. Unify execution state and business state
 
 Many frameworks try to separate "execution state" from "business state", creating complex abstractions to track things like current step, next step, waiting status, retry counts, etc. This separation creates complexity that may be worthwhile, but may be overkill for your use case.
 
-![150-all-state-in-context-window](./img/150-all-state-in-context-window.png)
+More clearly:
+
+- **Execution state**: current step, next step, waiting status, retry counts, etc. 
+- **Business state**: What's happened in the agent workflow so far (e.g. list of OpenAI messages, list of tool calls and results, etc.)
+
+If possible, SIMPLIFY - unify these as much as possible. 
+
+![150-unify-state](./img/150-unify-state.png)
 
 In reality, you can engineer your application so that you can infer all execution state from the context window. In many cases, execution state (current step, waiting status, etc.) is just metadata about what has happened so far.
 
@@ -630,10 +637,30 @@ This approach has several benefits:
 4. **Flexibility**: Easy to add new state by just adding new event types
 5. **Recovery**: Can resume from any point by just loading the thread
 6. **Forking**: Can fork the thread at any point by copying some subset of the thread into a new context / state ID
+7. **Human Interfaces and Observability**: Trivial to convert a thread into a human-readable markdown or a rich Web app UI
 
 ### 6. Launch/Pause/Resume with simple APIs
 
+Agents are just programs, and we have things we expect from how to launch, query, resume, and stop them.
+
+![160-pause-resume-with-simple-apis](./img/160-pause-resume-with-simple-apis.png)
+
+
+It should be easy for users, apps, pipelines, and other agents to launch an agent with a simple API.
+
+Agents and their orchestrating deterministic code should be able to pause an agent when a long-running operation is needed.
+
+External triggers like webhooks should enable agents to resume from where they left off without deep integration with the agent orchestrator.
+
+Closely related to [factor 5](#5-unify-execution-state-and-business-state) and [factor 8](#8-own-your-control-flow), but can be implemented independently.
+
+**Note** - often AI orchestrators will allow for pause and resume, but not between the moment of tool selection and tool execution. See also [factor 7 - contact humans with tool calls](#7-contact-humans-with-tool-calls) and [factor 11 - trigger from anywhere, meet users where they are](#11-trigger-from-anywhere-meet-users-where-they-are).
+
 ### 7. Contact humans with tool calls
+
+
+
+
 
 ### 8. Own your control flow
 
