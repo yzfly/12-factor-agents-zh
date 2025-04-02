@@ -398,6 +398,8 @@ You don't necessarily need to use standard message-based formats for conveying c
 
 > ### At any given point, your input to an LLM in an agent is "here's what's happened so far, what's the next step"
 
+![130-own-your-context-building](./img/130-own-your-context-building.png)
+
 Again, I don't know what's the best way to hand context to an LLM, but I know you want the flexibility to be able to try EVERYTHING.
 
 
