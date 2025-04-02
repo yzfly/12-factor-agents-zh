@@ -470,7 +470,7 @@ const threadToPrompt = (thread: Thread) => {
 Here's how context windows might look with this approach:
 
 **Initial Slack Request:**
-```
+```xml
 <slack_message>
     From: @alex
     Channel: #deployments
@@ -480,7 +480,7 @@ Here's how context windows might look with this approach:
 ```
 
 **After Listing Git Tags:**
-```
+```xml
 <slack_message>
     From: @alex
     Channel: #deployments
@@ -508,7 +508,7 @@ Here's how context windows might look with this approach:
 ```
 
 **After Error and Recovery:**
-```
+```xml
 <slack_message>
     From: @alex
     Channel: #deployments
@@ -547,9 +547,57 @@ Key benefits of owning your context window:
 
 Remember: The context window is your primary interface with the LLM. Taking control of how you structure and present information can dramatically improve your agent's performance.
 
-Recurring theme here: I don't know what's the best context window, but I know you want the flexibility to be able to try EVERYTHING.
+Recurring theme here: I don't know what's the best approach, but I know you want the flexibility to be able to try EVERYTHING.
 
 ### 4. Tools are just structured outputs
+
+Tools don't need to be complex. At their core, they're just structured output from your LLM that triggers deterministic code.
+
+![140-tools-are-just-structured-outputs](./img/140-tools-are-just-structured-outputs.png)
+
+```typescript
+class CreateIssue {
+  intent: "create_issue"
+  issue: {
+    title: string
+    description: string
+    team_id: string
+    assignee_id: string
+  }
+}
+
+class SearchIssues {
+  intent: "search_issues"
+  query: string
+  what_youre_looking_for: string
+}
+```
+
+The pattern is simple:
+1. LLM outputs structured JSON
+2. Your code validates the structure
+3. Deterministic code executes the appropriate action (like calling an external API)
+4. Results are captured and fed back into the context
+
+This creates a clean separation between the LLM's decision-making and your application's actions. The LLM decides what to do, but your code controls how it's done. This separation makes your system more reliable and easier to debug when things go wrong.
+
+If you recall our switch statement from above
+
+```typescript
+switch (nextStep.intent) {
+  case 'create_payment_link':
+    stripe.paymentlinks.create(nextStep.parameters)
+    return // or whatever you want, see below
+  case 'wait_for_a_while': 
+    // do something monadic idk
+  default: //... the model didn't call a tool we know about
+    // do something else
+}
+```
+
+**Note**: there has been a lot said about the benefits of "plain prompting" vs. "tool calling" vs. "JSON mode" and the performance tradeoffs of each. We'll link some resources to that stuff soon, but not gonna get into it here.
+
+The "next step" might not be as atomic as just "run a pure function and return the result". You unlock a lot of flexibility when you think of "tool calls" as just a model outputting JSON describing what deterministic code should do. 
 
 ### 5. All state in context window
 
