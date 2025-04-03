@@ -635,7 +635,13 @@ More clearly:
 
 If possible, SIMPLIFY - unify these as much as possible. 
 
-[![155-unify-state](./img/155-unify-state-animation.gif)](todo)
+[![155-unify-state](./img/155-unify-state-animation.gif)](https://github.com/user-attachments/assets/e5a851db-f58f-43d8-8b0c-1926c99fc68d)
+
+
+
+
+
+
 
 <details>
 <summary> GIF version </summary>
