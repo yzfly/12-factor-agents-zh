@@ -110,6 +110,13 @@ After a few steps we are passing in longer context to the LLM, telling it what h
 
 [![027-agent-loop-animation](./img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
 
+<details>
+<summary> GIF version </summary>
+
+![027-agent-loop-animation](./img/027-agent-loop-animation.gif)]
+
+</details>
+
 And the "materialized" DAG that was generated would look something like:
 
 ![027-agent-loop-dag](./img/027-agent-loop-dag.png)
@@ -169,7 +176,12 @@ Here's an example of how deterministic code might run one micro agent responsibl
 
 [![033-deploybot-animation](./img/033-deploybot.gif)](https://github.com/user-attachments/assets/deb356e9-0198-45c2-9767-231cb569ae13)
 
+<details>
+<summary> GIF version </summary>
 
+![033-deploybot-animation](./img/033-deploybot.gif)]
+
+</details>
 
 This example is based on a real life [OSS agent we've shipped to manage our deployments at Humanlayer](https://github.com/got-agents/agents/tree/main/deploybot-ts) - here is a real conversation I had with it last week:
 
@@ -623,7 +635,14 @@ More clearly:
 
 If possible, SIMPLIFY - unify these as much as possible. 
 
-![150-unify-state](./img/150-unify-state.png)
+[![155-unify-state](./img/155-unify-state-animation.gif)](todo)
+
+<details>
+<summary> GIF version </summary>
+
+![155-unify-state](./img/155-unify-state-animation.gif)]
+
+</details>
 
 In reality, you can engineer your application so that you can infer all execution state from the context window. In many cases, execution state (current step, waiting status, etc.) is just metadata about what has happened so far.
 
@@ -645,6 +664,13 @@ Agents are just programs, and we have things we expect from how to launch, query
 
 [![pause-resume animation](./img/165-pause-resume-animation.gif)](https://github.com/user-attachments/assets/feb1a425-cb96-4009-a133-8bd29480f21f)
 
+<details>
+<summary> GIF version </summary>
+
+![pause-resume animation](./img/165-pause-resume-animation.gif)]
+
+</details>
+
 
 It should be easy for users, apps, pipelines, and other agents to launch an agent with a simple API.
 
@@ -653,12 +679,6 @@ Agents and their orchestrating deterministic code should be able to pause an age
 External triggers like webhooks should enable agents to resume from where they left off without deep integration with the agent orchestrator.
 
 Closely related to [factor 5](#5-unify-execution-state-and-business-state) and [factor 8](#8-own-your-control-flow), but can be implemented independently.
-
-![160-pause-resume-with-simple-apis](./img/160-pause-resume-with-simple-apis.png)
-
-
-
-
 
 
 
