@@ -15,7 +15,7 @@ Again, I don't know what's the best way to hand context to an LLM, but I know yo
 
 Most LLM clients use a standard message-based format like this:
 
-```json
+```yaml
 [
   {
     "role": "system",
@@ -50,6 +50,49 @@ While this works great for most use cases, if you want to really get THE MOST ou
 As an alternative to the standard message-based format, you can build your own context format that's optimized for your use case. For example, you can using custom objects and pack/spread them into one or more user, system, assistant, or tool messages as makes sense.
 
 Here's an example of putting the whole context window into a single user message:
+```yaml
+
+[
+  {
+    "role": "system",
+    "content": "You are a helpful assistant..."
+  },
+  {
+    "role": "user",
+    "content": |
+            Here's everything that happened so far:
+        
+        <slack_message>
+            From: @alex
+            Channel: #deployments
+            Text: Can you deploy the backend?
+        </slack_message>
+        
+        <list_git_tags>
+            intent: "list_git_tags"
+        </list_git_tags>
+        
+        <list_git_tags_result>
+            tags:
+              - name: "v1.2.3"
+                commit: "abc123"
+                date: "2024-03-15T10:00:00Z"
+              - name: "v1.2.2"
+                commit: "def456"
+                date: "2024-03-14T15:30:00Z"
+              - name: "v1.2.1"
+                commit: "ghi789"
+                date: "2024-03-13T09:15:00Z"
+        </list_git_tags_result>
+        
+        what's the next step?
+    }
+]
+```
+
+Not that the model may infer that you're asking it `what's the next step` but it never hurts to roll it into your prompt template.
+
+We can build this with something like: 
 
 ```python
 
