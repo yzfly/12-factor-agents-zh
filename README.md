@@ -10,13 +10,15 @@ The source is public at https://github.com/humanlayer/12-factor-agents, and I we
 
 ## 12 Factor Agents - Principles for building great LLM applications
 
-I've been hacking on agents for a while. 
+*In the spirit of [12 Factor Apps](https://12factor.net/)*
+
+Hi, I'm Dex. I've been hacking on AI agents for a while. 
 
 **I've tried every agent framework out there**, from the plug-and-play crew/langchains to the "minimalist" smolagents of the world to the "production grade" langraph, griptape, etc. 
 
 **I've talked to a lot of really strong founders**, in and out of YC, who are all building really impressive things with AI. Most of them are rolling the stack themselves. Almost none of them are using a "framework".
 
-**I've been surprised to find** that most of the products out there billing themselves as "AI Agents" are not  all that agentic. A lot of them are mostly deterministic code, with LLM steps sprinkled in at just the right points to make the experience truly magical.
+**I've been surprised to find** that most of the products out there billing themselves as "AI Agents" are not all that agentic. A lot of them are mostly deterministic code, with LLM steps sprinkled in at just the right points to make the experience truly magical.
 
 Agents, at least the good ones, don't follow the "here's your prompt, here's a bag of tools, loop until you hit the goal" pattern. Rather, they are comprised of mostly just software. So, I wanted to answer:
 
@@ -99,7 +101,7 @@ Put another way, you've got this loop consisting of 3 steps:
 ```python
 initial_event = {"message": "..."}
 context = [initial_event]
-while (true) {
+while True:
   next_step = await llm.determine_next_step(context)
   context.append(next_step)
 
@@ -108,7 +110,6 @@ while (true) {
 
   result = await execute_step(next_step)
   context.append(result)
-}
 ```
 
 Our initial context is just the starting event (maybe a user message, maybe a cron fired, maybe a webhook, etc),
@@ -227,6 +228,9 @@ In building HumanLayer, I've talked to at least 100 SaaS builders (mostly techni
 5b. Realize that getting past 80% requires reverse-engineering the framework, prompts, flow, etc
 6. Start over from scratch
 
+<details>
+<summary>Random Disclaimers</summary>
+
 **DISCLAIMER**: I'm not sure the exact right place to say this, but here seems as good as any: **this in BY NO MEANS meant to be a dig on either the many frameworks out there, or the pretty dang smart people who work on them**. They enable incredible things and have accelerated the AI ecosystem. 
 
 I hope that one outcome of this post is that agent framework builders can learn from the journeys of myself and others, and make frameworks even better. 
@@ -235,11 +239,14 @@ Especially for builders who want to move fast but need deep control.
 
 **DISCLAIMER 2**: I'm not going to talk about MCP. I'm sure you can see where it fits in.
 
-**DISCLAIMER 3**: I'm using mostly typescript, for [reasons](https://www.linkedin.com/posts/dexterihorthy_llms-typescript-aiagents-activity-7290858296679313408-Lh9e?utm_source=share&utm_medium=member_desktop&rcm=ACoAAA4oHTkByAiD-wZjnGsMBUL_JT6nyyhOh30) but all this stuff works in python or any other language you prefer (in fact, that's probably factor 13 if there was one).
+**DISCLAIMER 3**: I'm using mostly typescript, for [reasons](https://www.linkedin.com/posts/dexterihorthy_llms-typescript-aiagents-activity-7290858296679313408-Lh9e?utm_source=share&utm_medium=member_desktop&rcm=ACoAAA4oHTkByAiD-wZjnGsMBUL_JT6nyyhOh30) but all this stuff works in python or any other language you prefer. 
+
 
 Anyways back to the thing...
 
-### Goals for the rest of this
+</details>
+
+### why 12 factors?
 
 After digging hundreds of AI libriaries and working with dozens of founders, my instinct is this:
 
