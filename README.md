@@ -49,7 +49,7 @@ Jump to Part II: [12-Factor Agents](#12-factor-agents), or into any of the parti
 - [Factor 11: Trigger from anywhere, meet users where they are](#11-trigger-from-anywhere-meet-users-where-they-are)
 - [Factor 12: Make your agent a stateless reducer](#12-make-your-agent-a-stateless-reducer)
 
-<!-- ![12 factors in a grid](./img/12-factors-in-a-grid.png) -->
+<!-- ![12 factors in a grid](https://github.com/humanlayer/12-factor-agents/blob/main/img/12-factors-in-a-grid.png) -->
 
 
 ## The longer version: how we got here
@@ -60,21 +60,21 @@ let's talk about how we got here
 
 ### 60 years ago
 
-We're gonna talk alot about Directed Graphs (DGs) and their Acyclic friends, DAGs. I'll start by pointing out that...well...software is a directed graph. There's a reason we used to represent programs as flow charts.
+We're gonna talk a lot about Directed Graphs (DGs) and their Acyclic friends, DAGs. I'll start by pointing out that...well...software is a directed graph. There's a reason we used to represent programs as flow charts.
 
-![010-software-dag](./img/010-software-dag.png)
+![010-software-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/010-software-dag.png)
 
 ### 20 years ago
 
 Around 20 years ago, we started to see DAG orchestrators become popular. We're talking classics like [Airflow](https://airflow.apache.org/), [Prefect](https://www.prefect.io/), some predecessors, and some newer ones like ([dagster](https://dagster.io/), [inggest](https://www.inngest.dev/), [windmill](https://www.windmill.dev/)). These followed the same graph pattern, with the added benefit of observability, modularity, retries, administration, etc.
 
-![015-dag-orchestrators](./img/015-dag-orchestrators.png)
+![015-dag-orchestrators](https://github.com/humanlayer/12-factor-agents/blob/main/img/015-dag-orchestrators.png)
 
 ### 10-15 years ago
 
 When ML models started to get good enough to be useful, we started to see DAGs with ML models sprinkled in. You might imagine steps like "summarize the text in this column into a new column" or "classify the support issues by severity or sentiment".
 
-![020-dags-with-ml](./img/020-dags-with-ml.png)
+![020-dags-with-ml](https://github.com/humanlayer/12-factor-agents/blob/main/img/020-dags-with-ml.png)
 
 But at the end of the day, it's still mostly the same good old deterministic software.
 
@@ -82,11 +82,11 @@ But at the end of the day, it's still mostly the same good old deterministic sof
 
 I'm not the first [person to say this](https://youtu.be/Dc99-zTMyMg?si=bcT0hIwWij2mR-40&t=73), but my biggest takeaway when I started learning about agents, was that you get to throw the DAG away. Instead of software engineers coding each step and edge case, you can give the agent a goal and a set of transitions:
 
-![025-agent-dag](./img/025-agent-dag.png)
+![025-agent-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/025-agent-dag.png)
 
 And let the LLM make decisions in real time to figure out the path
 
-![026-agent-dag-lines](./img/026-agent-dag-lines.png)
+![026-agent-dag-lines](https://github.com/humanlayer/12-factor-agents/blob/main/img/026-agent-dag-lines.png)
 
 The promise here is that you write less software, you just give the LLM the "edges" of the graph and let it figure out the nodes. You can recover from errors, you can write less code, and you may find that LLMs find novel solutions to problems.
 
@@ -99,7 +99,7 @@ Put another way, you've got this loop consisting of 3 steps:
 3. The result is appended to the context window 
 4. repeat until the next step is determined to be "done"
 
-![027-agent-loop](./img/027-agent-loop.png)
+![027-agent-loop](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop.png)
 
 Our initial context is just the starting event (maybe a user message, maybe a cron fired, maybe a webhook, etc),
 and we ask the llm to choose the next step (tool) or to determine that we're done.
@@ -108,18 +108,18 @@ and we ask the llm to choose the next step (tool) or to determine that we're don
 After a few steps we are passing in longer context to the LLM, telling it what happened so far and asking it to choose the next step.
 
 
-[![027-agent-loop-animation](./img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
+[![027-agent-loop-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
 
 <details>
 <summary> GIF version </summary>
 
-![027-agent-loop-animation](./img/027-agent-loop-animation.gif)]
+![027-agent-loop-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)]
 
 </details>
 
 And the "materialized" DAG that was generated would look something like:
 
-![027-agent-loop-dag](./img/027-agent-loop-dag.png)
+![027-agent-loop-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-dag.png)
 
 
 This is a pretty common mental model, and you could see how this leads to a lot of interesting end states where agents build whole complex software DAGs in real time, just knowing which **edges** are available.
@@ -143,7 +143,7 @@ Most builders I've talked to pushed the "tool calling loop" idea to the side whe
 
 One thing that I **have** seen in the wild quite a bit is taking the agent pattern and sprinkling it into a broader more deterministic DAG. 
 
-![micro-agent-dag](./img/028-micro-agent-dag.png)
+![micro-agent-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/028-micro-agent-dag.png)
 
 You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps without spinning out into context error loops. ([factor 1](#1-natural-language-to-tool-calls), [factor 4](#4-use-tools-for-human-interaction)).
 
@@ -153,7 +153,7 @@ You might be asking - "why use agents at all in this case?" - we'll get into tha
 
 Here's an example of how deterministic code might run one micro agent responsible for handling the human-in-the-loop steps for deployment. 
 
-![029-deploybot-high-level](./img/029-deploybot-high-level.png)
+![029-deploybot-high-level](https://github.com/humanlayer/12-factor-agents/blob/main/img/029-deploybot-high-level.png)
 
 * **Human** Merges PR to GitHub main branch
 * **Deterministic Code** Deploys to staging env
@@ -174,18 +174,18 @@ Here's an example of how deterministic code might run one micro agent responsibl
 * **Deterministic code** run the end-to-end tests against production
 * **Deterministic code** task completed, OR pass to rollback agent to review failures and potentially roll back
 
-[![033-deploybot-animation](./img/033-deploybot.gif)](https://github.com/user-attachments/assets/deb356e9-0198-45c2-9767-231cb569ae13)
+[![033-deploybot-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/033-deploybot.gif)](https://github.com/user-attachments/assets/deb356e9-0198-45c2-9767-231cb569ae13)
 
 <details>
 <summary> GIF version </summary>
 
-![033-deploybot-animation](./img/033-deploybot.gif)]
+![033-deploybot-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/033-deploybot.gif)]
 
 </details>
 
 This example is based on a real life [OSS agent we've shipped to manage our deployments at Humanlayer](https://github.com/got-agents/agents/tree/main/deploybot-ts) - here is a real conversation I had with it last week:
 
-![035-deploybot-conversation](./img/035-deploybot-conversation.png)
+![035-deploybot-conversation](https://github.com/humanlayer/12-factor-agents/blob/main/img/035-deploybot-conversation.png)
 
 
 We haven't given this agent a huge pile of tools or tasks. The primary value in the LLM is parsing the human's plaintext feedback and proposing an updated course of action. We isolate tasks and contexts as much as possible to keep
@@ -199,7 +199,7 @@ Here's another [more classic support / chatbot demo](https://x.com/chainlit_io/s
 - **accumulated context** - store the list of steps that have happened and their results
 - **for loop** - until the LLM emits some sort of "Terminal" tool call (or plaintext response), add the result of the switch statement to the context window and ask the LLM to choose the next step.
 
-![040-4-components](./img/040-4-components.png)
+![040-4-components](https://github.com/humanlayer/12-factor-agents/blob/main/img/040-4-components.png)
 
 In the "deploybot" example, we gain a couple benefits from owning the control flow and context accumulation:
 
@@ -267,7 +267,7 @@ OK. After 5 pages of preamble, lets get into it
 
 One of the most common patterns in agent building is to convert natural language to structured tool calls. This is a powerful pattern that allows you to build agents that can reason about tasks and execute them.
 
-![110-natural-language-tool-calls](./img/110-natural-language-tool-calls.png)
+![110-natural-language-tool-calls](https://github.com/humanlayer/12-factor-agents/blob/main/img/110-natural-language-tool-calls.png)
 
 This pattern, when applied atomically, is the simple translation of a phrase like
 
@@ -322,7 +322,7 @@ switch (nextStep.function) {
 
 Don't outsource your prompt engineering to a framework. 
 
-![120-own-your-prompts](./img/120-own-your-prompts.png)
+![120-own-your-prompts](https://github.com/humanlayer/12-factor-agents/blob/main/img/120-own-your-prompts.png)
 
 Some frameworks provide a "black box" approach like this:
 
@@ -410,7 +410,7 @@ You don't necessarily need to use standard message-based formats for conveying c
 
 > ### At any given point, your input to an LLM in an agent is "here's what's happened so far, what's the next step"
 
-![130-own-your-context-building](./img/130-own-your-context-building.png)
+![130-own-your-context-building](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png)
 
 Again, I don't know what's the best way to hand context to an LLM, but I know you want the flexibility to be able to try EVERYTHING.
 
@@ -585,7 +585,7 @@ Recurring theme here: I don't know what's the best approach, but I know you want
 
 Tools don't need to be complex. At their core, they're just structured output from your LLM that triggers deterministic code.
 
-![140-tools-are-just-structured-outputs](./img/140-tools-are-just-structured-outputs.png)
+![140-tools-are-just-structured-outputs](https://github.com/humanlayer/12-factor-agents/blob/main/img/140-tools-are-just-structured-outputs.png)
 
 ```typescript
 class CreateIssue {
@@ -644,13 +644,13 @@ More clearly:
 
 If possible, SIMPLIFY - unify these as much as possible. 
 
-[![155-unify-state](./img/155-unify-state-animation.gif)](https://github.com/user-attachments/assets/e5a851db-f58f-43d8-8b0c-1926c99fc68d)
+[![155-unify-state](https://github.com/humanlayer/12-factor-agents/blob/main/img/155-unify-state-animation.gif)](https://github.com/user-attachments/assets/e5a851db-f58f-43d8-8b0c-1926c99fc68d)
 
 
 <details>
 <summary> GIF version </summary>
 
-![155-unify-state](./img/155-unify-state-animation.gif)]
+![155-unify-state](https://github.com/humanlayer/12-factor-agents/blob/main/img/155-unify-state-animation.gif)]
 
 </details>
 
@@ -672,12 +672,12 @@ This approach has several benefits:
 
 Agents are just programs, and we have things we expect from how to launch, query, resume, and stop them.
 
-[![pause-resume animation](./img/165-pause-resume-animation.gif)](https://github.com/user-attachments/assets/feb1a425-cb96-4009-a133-8bd29480f21f)
+[![pause-resume animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/165-pause-resume-animation.gif)](https://github.com/user-attachments/assets/feb1a425-cb96-4009-a133-8bd29480f21f)
 
 <details>
 <summary> GIF version </summary>
 
-![pause-resume animation](./img/165-pause-resume-animation.gif)]
+![pause-resume animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/165-pause-resume-animation.gif)]
 
 </details>
 
@@ -698,7 +698,7 @@ Closely related to [factor 5](#5-unify-execution-state-and-business-state) and [
 
 By default, LLM APIs rely on a fundamental HIGH-STAKES token choice: Are we returning plaintext content, or are we returning structured data?
 
-![170-contact-humans-with-tools](./img/170-contact-humans-with-tools.png)
+![170-contact-humans-with-tools](https://github.com/humanlayer/12-factor-agents/blob/main/img/170-contact-humans-with-tools.png)
 
 You're putting a lot of weight on that choice of first token, and you might get better results by having the LLM first declare it's intent with some natural language tokens. 
 
@@ -809,7 +809,7 @@ Benefits:
 
 [More on Outer Loop Agents over here](https://theouterloop.substack.com/p/openais-realtime-api-is-a-step-towards)
 
-![175-outer-loop-agents](./img/175-outer-loop-agents.png)
+![175-outer-loop-agents](https://github.com/humanlayer/12-factor-agents/blob/main/img/175-outer-loop-agents.png)
 
 Works great with [factor 11 - trigger from anywhere, meet users where they are](#11-trigger-from-anywhere-meet-users-where-they-are)
 
@@ -817,7 +817,7 @@ Works great with [factor 11 - trigger from anywhere, meet users where they are](
 
 If you own your control flow, you can do lots of fun things.
 
-![180-own-your-control-flow](./img/180-own-your-control-flow.png)
+![180-own-your-control-flow](https://github.com/humanlayer/12-factor-agents/blob/main/img/180-own-your-control-flow.png)
 
 
 
@@ -1072,7 +1072,7 @@ Creating great context means:
 - Instructions about what sorts of structured data to output
 
 
-![220-context-engineering](./img/220-context-engineering.png)
+![220-context-engineering](https://github.com/humanlayer/12-factor-agents/blob/main/img/220-context-engineering.png)
 
 
 ### Factor 15 - Other ways to improve
