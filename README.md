@@ -1220,6 +1220,7 @@ This guide is all about getting as much as possible out of today's models Notabl
 
 - Contribute to this guide [here](https://github.com/humanlayer/12-factor-agents)
 - I write about some of this stuff at [The Outer Loop](https://theouterloop.substack.com)
+- I do [webinars about Maximizing LLM Performance](https://github.com/hellovai/ai-that-works/tree/main) with @hellovai 
 - We build OSS agents with this methodology under [got-agents/agents](https://github.com/got-agents/agents)
 - We ignored all our own advice and built a [framework for running distributed agents in the kubernetes](https://github.com/humanlayer/kubechain)
 - Other links from this guide:
