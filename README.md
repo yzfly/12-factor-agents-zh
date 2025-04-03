@@ -1,3 +1,4 @@
+<!--
 ### DRAFT
 
 Preview - this is a draft of everything I've learned in a year working with agents, and I imagine it may evolve a bit as we go.
@@ -5,30 +6,21 @@ Preview - this is a draft of everything I've learned in a year working with agen
 The source is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!
 
 
-## 12 Factor Agents OR "Agents the Hard Way"
+--> 
 
-*An open letter to AI Agent builders and the makers of AI Agent tooling*
-
-## you don't have to listen to me
-
-Whether you're new to agents or an ornery old veteran like me, I'm going to try to convince you to throw out most of what you think about AI Agents, take a step back, and rethink them from first principles. (spoiler alert if you didn't catch the OpenAI responses launch a few weeks back, but pushing MORE agent logic behind an API ain't it)
-
-### but first, some context
+## 12 Factor Agents - Principles for building great LLM applications
 
 I've been hacking on agents for a while. 
 
 **I've tried every agent framework out there**, from the plug-and-play crew/langchains to the "minimalist" smolagents of the world to the "production grade" langraph, griptape, etc. 
 
-I've talked to a lot of really strong founders, in and out of YC, who are all building really impressive things with AI. Most of them are rolling the stack themselves. Almost none of them are using a "framework".
+**I've talked to a lot of really strong founders**, in and out of YC, who are all building really impressive things with AI. Most of them are rolling the stack themselves. Almost none of them are using a "framework".
 
 **I've been surprised to find** that most of the products out there billing themselves as "AI Agents" are not  all that agentic. A lot of them are mostly deterministic code, with LLM steps sprinkled in at just the right points to make the experience truly magical.
 
-Agents, at least the good ones, don't follow the "here's your prompt, here's a bag of tools, loop until you hit the goal" pattern. Rather, they are comprised of mostly just software.
+Agents, at least the good ones, don't follow the "here's your prompt, here's a bag of tools, loop until you hit the goal" pattern. Rather, they are comprised of mostly just software. So, I wanted to answer:
 
-
-**So if this magical "here's your prompt, here's your tools, go figure it out"** workflow that we see everywhere isn't the answer, then what makes an agent an agent? That is,
-
-> #### **What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?**
+> ### **What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?**
 
 Welcome to 12-factor agents. As every Chicago mayor since Daley has consistently plastered all over the city's major airports, we're glad you're here.
 
@@ -53,6 +45,11 @@ Jump to Part II: [12-Factor Agents](#12-factor-agents), or into any of the parti
 
 
 ## The longer version: how we got here
+
+### you don't have to listen to me
+
+Whether you're new to agents or an ornery old veteran like me, I'm going to try to convince you to throw out most of what you think about AI Agents, take a step back, and rethink them from first principles. (spoiler alert if you didn't catch the OpenAI responses launch a few weeks back, but pushing MORE agent logic behind an API ain't it)
+
 
 ## agents are software, and a brief history thereof
 
@@ -99,14 +96,25 @@ Put another way, you've got this loop consisting of 3 steps:
 3. The result is appended to the context window 
 4. repeat until the next step is determined to be "done"
 
-![027-agent-loop](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop.png)
+```python
+initial_event = {"message": "..."}
+context = [initial_event]
+while (true) {
+  next_step = await llm.determine_next_step(context)
+  context.append(next_step)
+
+  if (next_step.intent === "done"):
+    return next_step.final_answer
+
+  result = await execute_step(next_step)
+  context.append(result)
+}
+```
 
 Our initial context is just the starting event (maybe a user message, maybe a cron fired, maybe a webhook, etc),
 and we ask the llm to choose the next step (tool) or to determine that we're done.
 
-
-After a few steps we are passing in longer context to the LLM, telling it what happened so far and asking it to choose the next step.
-
+Here's a multi-step example:
 
 [![027-agent-loop-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
 
@@ -121,9 +129,6 @@ And the "materialized" DAG that was generated would look something like:
 
 ![027-agent-loop-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-dag.png)
 
-
-This is a pretty common mental model, and you could see how this leads to a lot of interesting end states where agents build whole complex software DAGs in real time, just knowing which **edges** are available.
-
 ### the problem with this "loop until you solve it" pattern
 
 The biggest problems with this pattern:
@@ -131,13 +136,13 @@ The biggest problems with this pattern:
 - Agents get lost when the context window gets too long - they spin out trying the same broken approach over and over again
 - literally thats it, but that's enough to kneecap the approach
 
-Even if you haven't hand-rolled an agent, you've probable seen this long-context problem in working with agentic coding tools. They just get lost after a while and you need to start a new chat.
+Even if you haven't hand-rolled an agent, you've probably seen this long-context problem in working with agentic coding tools. They just get lost after a while and you need to start a new chat.
 
 I'll even perhaps posit something I've heard in passing quite a bit, and that YOU probably have developed your own intuition around:
 
-> #### **Even as models support longer and longer context windows, you'll ALWAYS get better results with a small, focused prompt and context**
+> ### **Even as models support longer and longer context windows, you'll ALWAYS get better results with a small, focused prompt and context**
 
-Most builders I've talked to pushed the "tool calling loop" idea to the side when they realized that anything more than 10-20 turns becomes a big mess that the LLM can't recover from. Even if the agent gets it right 90% of the time, that's miles away from "good enough to put in customer hands". Can you imagine a web app that crashed on 10% of page loads?
+Most builders I've talked to **pushed the "tool calling loop" idea to the side** when they realized that anything more than 10-20 turns becomes a big mess that the LLM can't recover from. Even if the agent gets it right 90% of the time, that's miles away from "good enough to put in customer hands". Can you imagine a web app that crashed on 10% of page loads?
 
 ### what actually works - micro agents
 
@@ -211,14 +216,15 @@ In the "deploybot" example, we gain a couple benefits from owning the control fl
 
 ## 12-factor agents
 
+
 In building HumanLayer, I've talked to at least 100 SaaS builders (mostly technical founders) looking to make their existing product more agentic. The journey usually goes something like:
 
 1. Decide you want to build an agent
 2. Product design, UX mapping, what problems to solve
 3. Want to move fast, so grab $FRAMEWORK and *get to building*
-4. Get to 80-90% quality bar 
-5a. Realize that 90% isn't good enough for most customer-facing features
-5b. Realize that getting past 90% requires reverse-engineering the framework, prompts, flow, etc
+4. Get to 70-80% quality bar 
+5a. Realize that 80% isn't good enough for most customer-facing features
+5b. Realize that getting past 80% requires reverse-engineering the framework, prompts, flow, etc
 6. Start over from scratch
 
 **DISCLAIMER**: I'm not sure the exact right place to say this, but here seems as good as any: **this in BY NO MEANS meant to be a dig on either the many frameworks out there, or the pretty dang smart people who work on them**. They enable incredible things and have accelerated the AI ecosystem. 
@@ -284,7 +290,7 @@ to a structured object that describes a Stripe API call like
       "product": "prod_8675309",
       "price": "prc_09874329fds",
       "quantity": 1,
-      "memo": "Hey Terri - see below for the payment link for the february ai tinkerers meetup"
+      "memo": "Hey Jeff - see below for the payment link for the february ai tinkerers meetup"
     }
   }
 }
@@ -296,7 +302,10 @@ From there, deterministic code can pick up the payload and do something with it.
 
 ```typescript
 // The LLM takes natural language and returns a structured object
-const nextStep = await determineNextStep("create a payment link for $750 to Terri for sponsoring the february AI tinkerers meetup")
+const nextStep = await determineNextStep(
+  `create a payment link for $750 to Jeff 
+  for sponsoring the february AI tinkerers meetup`
+  )
 
 // Handle the structured output based on its function
 switch (nextStep.function) {
@@ -495,7 +504,6 @@ Here's how context windows might look with this approach:
     From: @alex
     Channel: #deployments
     Text: Can you deploy the latest backend to production?
-    Thread: []
 </slack_message>
 ```
 
@@ -513,17 +521,16 @@ Here's how context windows might look with this approach:
 </list_git_tags>
 
 <list_git_tags_result>
-    data:
-      tags:
-        - name: "v1.2.3"
-          commit: "abc123"
-          date: "2024-03-15T10:00:00Z"
-        - name: "v1.2.2"
-          commit: "def456"
-          date: "2024-03-14T15:30:00Z"
-        - name: "v1.2.1"
-          commit: "ghi789"
-          date: "2024-03-13T09:15:00Z"
+    tags:
+      - name: "v1.2.3"
+        commit: "abc123"
+        date: "2024-03-15T10:00:00Z"
+      - name: "v1.2.2"
+        commit: "def456"
+        date: "2024-03-14T15:30:00Z"
+      - name: "v1.2.1"
+        commit: "ghi789"
+        date: "2024-03-13T09:15:00Z"
 </list_git_tags_result>
 ```
 
