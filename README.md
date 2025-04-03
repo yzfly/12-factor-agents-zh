@@ -66,7 +66,7 @@ We're gonna talk alot about Directed Graphs (DGs) and their Acyclic friends, DAG
 
 ### 20 years ago
 
-Around 20 years ago, we started to see DAG orchestrators become popular. We're talking [Airflow](https://airflow.apache.org/), [Prefect](https://www.prefect.io/), some predecessors, and some more modern successors ([dagster](https://dagster.io/), [inggest](https://www.inngest.dev/), [windmill](https://www.windmill.dev/)). These followed the same graph pattern, with the added benefit of observability, modularity, retries, administration, etc.
+Around 20 years ago, we started to see DAG orchestrators become popular. We're talking classics like [Airflow](https://airflow.apache.org/), [Prefect](https://www.prefect.io/), some predecessors, and some newer ones like ([dagster](https://dagster.io/), [inggest](https://www.inngest.dev/), [windmill](https://www.windmill.dev/)). These followed the same graph pattern, with the added benefit of observability, modularity, retries, administration, etc.
 
 ![015-dag-orchestrators](./img/015-dag-orchestrators.png)
 
@@ -417,7 +417,7 @@ Again, I don't know what's the best way to hand context to an LLM, but I know yo
 
 #### Standard vs Custom Context Formats
 
-Most frameworks use a standard message-based format like this:
+Most LLM clients use a standard message-based format like this:
 
 ```json
 [
@@ -432,21 +432,28 @@ Most frameworks use a standard message-based format like this:
   {
     "role": "assistant",
     "content": null,
-    "function_call": {
-      "name": "list_git_tags",
-      "arguments": "{}"
-    }
+    "tool_calls": [
+      {
+        "id": "1",
+        "name": "list_git_tags",
+        "arguments": "{}"
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "name": "list_git_tags",
+    "content": "{\"tags\": [{\"name\": \"v1.2.3\", \"commit\": \"abc123\", \"date\": \"2024-03-15T10:00:00Z\"}, {\"name\": \"v1.2.2\", \"commit\": \"def456\", \"date\": \"2024-03-14T15:30:00Z\"}, {\"name\": \"v1.2.1\", \"commit\": \"abe033d\", \"date\": \"2024-03-13T09:15:00Z\"}]}",
+    "tool_call_id": "1"
   }
 ]
 ```
 
-While this works for simple chat applications, it has limitations:
-- Difficult to include structured data
-- Hard to represent tool calls and results
-- Challenging to maintain context across interactions
-- Not optimized for error handling
+While this works great for most use cases, if you want to really get THE MOST out of today's LLMs, you need to get your context into the LLM is the most token- and attention-efficient way you can.
 
-Instead, build your own context format that's optimized for your use case:
+As an alternative to the standard message-based format, you can build your own context format that's optimized for your use case. For example, you can using custom objects and pack/spread them into one or more user, system, assistant, or tool messages as makes sense.
+
+Here's an example of putting the whole context window into a single user message:
 
 ```typescript
 
@@ -552,7 +559,7 @@ Here's how context windows might look with this approach:
 From here your next step might be: 
 
 ```typescript
-const nextStep = await determineNextStep(thread)
+const nextStep = await determineNextStep(threadToPrompt(thread))
 ```
 
 ```typescript
@@ -626,7 +633,9 @@ The "next step" might not be as atomic as just "run a pure function and return t
 
 ### 5. Unify execution state and business state
 
-Many frameworks try to separate "execution state" from "business state", creating complex abstractions to track things like current step, next step, waiting status, retry counts, etc. This separation creates complexity that may be worthwhile, but may be overkill for your use case.
+Even outside the AI world, many infrastructure systems try to separate "execution state" from "business state". For AI apps, this might involve complex abstractions to track things like current step, next step, waiting status, retry counts, etc. This separation creates complexity that may be worthwhile, but may be overkill for your use case. 
+
+As always, it's up to you to decide what's right for your application. But don't think you *have* to manage them separately.
 
 More clearly:
 
@@ -636,11 +645,6 @@ More clearly:
 If possible, SIMPLIFY - unify these as much as possible. 
 
 [![155-unify-state](./img/155-unify-state-animation.gif)](https://github.com/user-attachments/assets/e5a851db-f58f-43d8-8b0c-1926c99fc68d)
-
-
-
-
-
 
 
 <details>
@@ -692,16 +696,416 @@ Closely related to [factor 5](#5-unify-execution-state-and-business-state) and [
 
 ### 7. Contact humans with tool calls
 
+By default, LLM APIs rely on a fundamental HIGH-STAKES token choice: Are we returning plaintext content, or are we returning structured data?
+
+![170-contact-humans-with-tools](./img/170-contact-humans-with-tools.png)
+
+You're putting a lot of weight on that choice of first token, and you might get better results by having the LLM first declare it's intent with some natural language tokens. 
+
+Again, you might not, but you should experiment, and ensure you're free to try weird stuff to get the best results.
+
+```typescript
+
+// Tool definition for human interaction
+interface RequestHumanInput {
+  intent: "request_human_input"
+  question: string
+  context: string
+  options?: {
+    urgency: "low" | "medium" | "high"
+    format?: "free_text" | "yes_no" | "multiple_choice"
+    choices?: string[]
+  }
+}
+
+// Example usage in the agent loop
+switch (nextStep.intent) {
+  case 'request_human_input':
+    thread.events.push({
+      type: 'human_input_requested',
+      data: nextStep
+    })
+    const threadId = await saveState(thread)
+    await notifyHuman(nextStep, threadId)
+    return // Break loop and wait for response to come back with thread ID
+  case '...':
+    // ... other cases
+}
+```
+
+Later, you might receive a webhook from a system that handles slack, email, sms, or other events.
+
+```typescript
+
+app.post('/webhook', async (req, res) => {
+  const threadId = req.body.threadId
+  const thread = await loadState(threadId)
+  thread.events.push({
+    type: 'response_from_human',
+    data: req.body
+  })
+  // ... simplified for brevity, you likely don't want to block the web worker here
+  const nextStep = await determineNextStep(threadToPrompt(thread))
+  await handleNextStep(thread, nextStep)
+  // todo - loop or break or whatever you want
+
+  res.json({"status": "ok"})
+})
+```
+
+The above includes patterns from [factor 5](#5-unify-execution-state-and-business-state) and [factor 8](#8-own-your-control-flow), [factor 3](#3-own-your-context-window), and [factor 4](#4-tools-are-just-structured-outputs), and several others.
+
+If we were using the XML-y formatted from [factor 3](#3-own-your-context-window), our context window after a few turns might look like this:
+
+```xml
+
+(snipped for brevity)
+
+<slack_message>
+    From: @alex
+    Channel: #deployments
+    Text: Can you deploy backend v1.2.3 to production?
+    Thread: []
+</slack_message>
+
+<request_human_input>
+    intent: "request_human_input"
+    question: "Would you like to proceed with deploying v1.2.3 to production?"
+    context: "This is a production deployment that will affect live users."
+    options: {
+        urgency: "high"
+        format: "yes_no"
+    }
+</request_human_input>
+
+<human_response>
+    response: "yes please proceed"
+    approved: true
+    timestamp: "2024-03-15T10:30:00Z"
+    user: "alex@company.com"
+</human_response>
+
+<deploy_backend>
+    intent: "deploy_backend"
+    tag: "v1.2.3"
+    environment: "production"
+</deploy_backend>
+
+<deploy_backend_result>
+    status: "success"
+    message: "Deployment v1.2.3 to production completed successfully."
+    timestamp: "2024-03-15T10:30:00Z"
+</deploy_backend_result>
+```
 
 
+Benefits:
 
+1. **Clear Instructions**: Tools for different types of human contact allow for more specifity from the LLM 
+2. **Inner vs Outer Loop**: Enables agents workflows **outside** of the traditional chatGPT-style interface, where the control flow and context initialization may be Agent->Human rather than Human->Agent (think, agents kicked off on a cron or an event)
+3. **Multiple Human Access**: Can easily track and coordinate input from different humans through structured events
+4. **Multi-Agent**: Simple abstraction can be easily extended to support Agent->Agent requests and responses. 
+5. **Durable**: Combined with [factor 6 - pause and resume](#6-launchpauseresume-with-simple-apis), this makes for durable, reliable, and introspectable multiplayer workflows.
+
+[More on Outer Loop Agents over here](https://theouterloop.substack.com/p/openais-realtime-api-is-a-step-towards)
+
+![175-outer-loop-agents](./img/175-outer-loop-agents.png)
+
+Works great with [factor 11 - trigger from anywhere, meet users where they are](#11-trigger-from-anywhere-meet-users-where-they-are)
 
 ### 8. Own your control flow
 
+If you own your control flow, you can do lots of fun things.
+
+![180-own-your-control-flow](./img/180-own-your-control-flow.png)
+
+
+
+Build your own control structures that make sense for your specific use case. Specifically, certain types of tool calls may be reason to break out of the loop and wait for a response from a human or another long-running task like a training pipeline. The below example shows three possible control flow patterns:
+
+
+- request_clarification: model asked for more info, break the loop and wait for a response from a human
+- fetch_git_tags: model asked for a list of git tags, fetch the tags, append to context window, and pass straight back to the model
+- deploy_backend: model asked to deploy a backend, this is a high-stakes thing, so break the loop and wait for human approval
+
+```typescript
+const handleNextStep = async (thread: Thread): Promise<void> => {
+
+  while (true) {
+    const nextStep = await b.DetermineNextStep(threadToPrompt(nextThread))
+    
+    // inlined for clarity - in reality you could put 
+    // this in a method, use exceptions for control flow, or whatever you want
+    switch (nextStep.intent) {
+      case 'request_clarification':
+        thread.events.push({
+          type: 'request_clarification',
+          data: nextStep,
+        })
+
+        await sendMessageToHuman(nextStep)
+        await db.saveThread(thread)
+        // async step - break the loop, we'll get a webhook later
+        break
+      case 'fetch_open_issues':
+        thread.events.push({
+          type: 'fetch_open_issues',
+          data: nextStep,
+        })
+
+        const issues = await linearClient.issues()
+
+        thread.events.push({
+          type: 'fetch_open_issues_result',
+          data: issues,
+        })
+        // sync step - pass the new context to the LLM to determine the NEXT next step
+        continue
+      case 'create_issue':
+        thread.events.push({
+          type: 'create_issue',
+          data: nextStep,
+        })
+
+        await requestHumanApproval(nextStep)
+        await db.saveThread(thread)
+        // async step - break the loop, we'll get a webhook later
+        break
+      
+    }
+    
+    
+  }
+}
+```
+
+This pattern allows you to interrupt and resume your agent's flow as needed, creating more natural conversations and workflows.
+
+**Example** - the number one feature request I have for every AI framework out there is we need to be able to interrupt 
+a working agent and resume later, ESPECIALLY between the moment of tool **selection** and the moment of tool **invocation**.
+
+Without this level of resumability/granularity, there's no way to review/approve the tool call before it runs, which means
+you're forced to either:
+
+1. Pause the task in memory while waiting for the long-running thing to complete (think `while...sleep`) and restart it from the beginning if the process is interrupted.
+2. Restrict the agent to only low-stakes, low-risk calls like research and summarization
+3. Give the agent access to do bigger, more useful things, and just yolo hope it doesn't screw up
+
+
+You may notice this is closely related to [factor 5 - unify execution state and business state](#5-unify-execution-state-and-business-state) and [factor 6 - launch/pause/resume with simple APIs](#6-launchpauseresume-with-simple-apis), but can be implemented independently.
+
 ### 9. Compact Errors into Context Window
+
+
 
 ### 10. Small, Focused Agents
 
 ### 11. Trigger from anywhere, meet users where they are
 
 ### 12. Make your agent a stateless reducer
+
+
+
+## Honorable Mentions / other advice
+
+### Factor 13 - pre-fetch all the context you might need
+
+If there's a high chance that your model will call tool X, don't waste token round trips telling the model to fetch it, that is, instead of a pseudo-prompt like:
+
+```jinja
+When looking at deployments, you will likely want to fetch the list of published git tags,
+so you can use it to deploy to prod.
+
+Here's what happened so far:
+
+{{ thread.events }}
+
+What's the next step?
+
+Answer in JSON format with one of the following intents:
+
+{
+  intent: 'deploy_backend_to_prod',
+  tag: string
+} OR {
+  intent: 'list_git_tags'
+} OR {
+  intent: 'done_for_now',
+  message: string
+}
+```
+
+and your code looks like
+
+```typescript
+const thread = {events: [inital_message]}
+const nextStep = await determineNextStep(thread)
+
+while (true) {
+  switch (nextStep.intent) {
+    case 'list_git_tags':
+      const tags = await fetch_git_tags()
+      thread.events.push({
+        type: 'list_git_tags',
+        data: tags,
+      })
+    case 'deploy_backend_to_prod':
+      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
+      thread.events.push({
+        type: 'deploy_backend_to_prod',
+        data: deploy_result,
+      })
+    case 'done_for_now':
+      await notify_human(nextStep.message)
+      break
+    // ...
+  }
+}
+```
+
+You might as well just fetch the tags and include them in the context window, like:
+
+```jinja
+When looking at deployments, you will likely want to fetch the list of published git tags,
+so you can use it to deploy to prod.
+
+The current git tags are:
+
+{{ git_tags }}
+
+
+Here's what happened so far:
+
+{{ thread.events }}
+
+What's the next step?
+
+Answer in JSON format with one of the following intents:
+
+{
+  intent: 'deploy_backend_to_prod',
+  tag: string
+} OR {
+  intent: 'list_git_tags'
+} OR {
+  intent: 'done_for_now',
+  message: string
+}
+
+```
+
+and your code looks like
+
+```typescript
+const thread = {events: [inital_message]}
+const git_tags = await fetch_git_tags()
+
+const nextStep = await determineNextStep(thread, git_tags)
+
+while (true) {
+  switch (nextStep.intent) {
+    case 'deploy_backend_to_prod':
+      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
+      thread.events.push({
+        type: 'deploy_backend_to_prod',
+        data: deploy_result,
+      })
+    case 'done_for_now':
+      await notify_human(nextStep.message)
+      break
+    // ...
+  }
+}
+```
+
+or even just include the tags in the thread and remove the specific parameter from your prompt template:
+
+```typescript
+const thread = {events: [inital_message]}
+thread.events.push({
+  type: 'list_git_tags',
+  data: git_tags,
+})
+
+const git_tags = await fetch_git_tags()
+thread.events.push({
+  type: 'list_git_tags_result',
+  data: git_tags,
+})
+const nextStep = await determineNextStep(thread)
+
+while (true) {
+  switch (nextStep.intent) {
+    case 'deploy_backend_to_prod':
+      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
+      thread.events.push({
+        type: 'deploy_backend_to_prod',
+        data: deploy_result,
+      })
+    case 'done_for_now':
+      await notify_human(nextStep.message)
+      break
+    // ...
+  }
+}
+```
+
+Overall:
+
+> ### If you already know what tools you'll want the model to call, just call them DETERMINISTICALLY and let the model do the hard part of figuring out how to use their outputs
+
+Again, AI engineering is all about Context Engineering - 
+
+!context-engineering-prompt-engineering-plus-rag-plus-other-context-sources
+
+
+### Factor 14 - everything is context engineering
+
+Everything is context engineering. LLMs are stateless functions that turn inputs into outputs. To get the best outputs, you need to give them the best inputs.
+
+Creating great context means:
+
+- The prompt and instructions you give to the model
+- Any documents or external data you retrieve (e.g. RAG)
+- Any past state, tool calls, results, or other history 
+- Any past messages or events from related but separate histories/conversations (Memory)
+- Instructions about what sorts of structured data to output
+
+
+![220-context-engineering](./img/220-context-engineering.png)
+
+
+### Factor 15 - Other ways to improve
+
+This guide is all about getting as much as possible out of today's models Notably not mentioned are 
+
+- changes to the models parameters- parameters like temperature, top_p, frequency_penalty, presence_penalty, etc.
+- training your own completion or embedding models
+- Fine-tuning existing models
+- All kinds of other tricks probably
+
+
+## Related Resources
+
+- Contribute to this guide [here](https://github.com/humanlayer/12-factor-agents)
+- I write about some of this stuff at [The Outer Loop](https://theouterloop.substack.com)
+- We build OSS agents with this methodology under [got-agents/agents](https://github.com/got-agents/agents)
+- We ignored all our own advice and built a [framework for running distributed agents in the kubernetes](https://github.com/humanlayer/kubechain)
+- Other links from this guide:
+  - [BAML](https://github.com/boundaryml/baml)
+  - [Schema Aligned Parsing](https://www.boundaryml.com/blog/schema-aligned-parsing)
+  - [Function Calling vs Structured Outputs vs JSON Mode](https://www.vellum.ai/blog/when-should-i-use-function-calling-structured-outputs-or-json-mode)
+  - [OpenAI JSON vs Function Calling](https://docs.llamaindex.ai/en/stable/examples/llm/openai_json_vs_function_calling/)
+  - [Mailcrew Agent](https://github.com/dexhorthy/mailcrew)
+  - [Mailcrew Demo Video](https://www.youtube.com/watch?v=f_cKnoPC_Oo)
+  - [Chainlit Demo](https://x.com/chainlit_io/status/1858613325921480922)
+  - [TypeScript for LLMs](https://www.linkedin.com/posts/dexterihorthy_llms-typescript-aiagents-activity-7290858296679313408-Lh9e)
+  - [Outer Loop Agents](https://theouterloop.substack.com/p/openais-realtime-api-is-a-step-towards)
+  - [Airflow](https://airflow.apache.org/)
+  - [Prefect](https://www.prefect.io/)
+  - [Dagster](https://dagster.io/)
+  - [Inngest](https://www.inngest.dev/)
+  - [Windmill](https://www.windmill.dev/)
+
+
+
