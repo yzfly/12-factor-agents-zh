@@ -5,9 +5,13 @@ Preview - this is a draft of everything I've learned in a year working with agen
 
 --> 
 
+
 # 12 Factor Agents - Principles for building great LLM applications
 
 *In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
+
+<img width="907" alt="Screenshot 2025-04-03 at 2 49 07 PM" src="https://github.com/user-attachments/assets/23286ad8-7bef-4902-b371-88ff6a22e998" />
+
 
 Hi, I'm Dex. I've been hacking on AI agents for a while. 
 
