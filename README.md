@@ -307,23 +307,25 @@ to a structured object that describes a Stripe API call like
 
 From there, deterministic code can pick up the payload and do something with it. (More on this in [factor 3](#))
 
-```typescript
-// The LLM takes natural language and returns a structured object
-const nextStep = await determineNextStep(
-  `create a payment link for $750 to Jeff 
-  for sponsoring the february AI tinkerers meetup`
+```python
+# The LLM takes natural language and returns a structured object
+nextStep = await llm.determineNextStep(
+  """
+  create a payment link for $750 to Jeff 
+  for sponsoring the february AI tinkerers meetup
+  """
   )
 
 // Handle the structured output based on its function
-switch (nextStep.function) {
-  case 'create_payment_link':
+if nextStep.function == 'create_payment_link':
     stripe.paymentlinks.create(nextStep.parameters)
-    return // or whatever you want, see below
-  case 'something_else': 
-    // ... more cases
-  default: //... the model didn't call a tool we know about
-    // do something else
-}
+    return  # or whatever you want, see below
+elif nextStep.function == 'something_else':
+    # ... more cases
+    pass
+else:  # the model didn't call a tool we know about
+    # do something else
+    pass
 ```
 
 **NOTE**: While a full agent would then receive the API call result and loop with it, eventually returning something like
@@ -341,24 +343,20 @@ Don't outsource your prompt engineering to a framework.
 
 Some frameworks provide a "black box" approach like this:
 
-```typescript
-const agent = new Agent({
-  role: "...",
-  goal: "...",
-  personality: "...",
-  tools: [tool1, tool2, tool3]
-})
+```python
+agent = Agent(
+  role="...",
+  goal="...",
+  personality="...",
+  tools=[tool1, tool2, tool3]
+)
 
-const task = {
-  instructions: "...",
-  expected_output: z.object({
-    field1: z.string(),
-    field2: z.string(),
-    field3: z.string(),
-  })
-}
+task = Task(
+  instructions="...",
+  expected_output=OutputModel
+)
 
-const result = agent.run(task)
+result = agent.run(task)
 ```
 
 This is great for pulling in some TOP NOTCH prompt engineering to get you started, but it is often difficult to tune and/or reverse engineer to get exactly the right tokens into your model.
@@ -427,7 +425,8 @@ You don't necessarily need to use standard message-based formats for conveying c
 
 > #### At any given point, your input to an LLM in an agent is "here's what's happened so far, what's the next step"
 
-![130-own-your-context-building](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png)
+<!-- todo syntax highlighting -->
+<!-- ![130-own-your-context-building](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png) -->
 
 Again, I don't know what's the best way to hand context to an LLM, but I know you want the flexibility to be able to try EVERYTHING.
 
@@ -472,33 +471,26 @@ As an alternative to the standard message-based format, you can build your own c
 
 Here's an example of putting the whole context window into a single user message:
 
-```typescript
+```python
 
-interface Thread {
-  events: Event[]
-}
+class Thread:
+  events: List[Event]
 
-interface Event {
-  // could just use string, or could be explicit - up to you
-  type: "list_git_tags" | "deploy_backend" | "deploy_frontend" | "request_more_information" | "done_for_now" |
-        "list_git_tags_result" | "deploy_backend_result" | "deploy_frontend_result" | "request_more_information_result" | "done_for_now_result" |
-        "error"
-  // could just use any, or could be explicit - up to you
+class Event:
+  # could just use string, or could be explicit - up to you
+  type: Literal["list_git_tags", "deploy_backend", "deploy_frontend", "request_more_information", "done_for_now", "list_git_tags_result", "deploy_backend_result", "deploy_frontend_result", "request_more_information_result", "done_for_now_result", "error"]
   data: ListGitTags | DeployBackend | DeployFrontend | RequestMoreInformation |  
         ListGitTagsResult | DeployBackendResult | DeployFrontendResult | RequestMoreInformationResult | string
-}
 
-const eventToPrompt = (event: Event) => {
-    const data = typeof event.data !== 'string' ? stringifyToYaml(event.data) : event.data
-    return `<${event.type}>
-        ${data}
-</${event.type}>
-    `
-}
+def event_to_prompt(event: Event) -> str:
+    data = event.data if isinstance(event.data, str) \
+           else stringifyToYaml(event.data)
 
-const threadToPrompt = (thread: Thread) => {
-  return thread.events.map(eventToPrompt).join('\n\n')
-}
+    return f"<{event.type}>\n{data}\n</{event.type}>"
+
+
+def thread_to_prompt(thread: Thread) -> str:
+  return '\n\n'.join(event_to_prompt(event) for event in thread.events)
 ```
 
 #### Example Context Windows
@@ -573,11 +565,11 @@ Here's how context windows might look with this approach:
 
 From here your next step might be: 
 
-```typescript
-const nextStep = await determineNextStep(threadToPrompt(thread))
+```python
+nextStep = await determine_next_step(thread_to_prompt(thread))
 ```
 
-```typescript
+```python
 {
   "intent": "get_workflow_status",
   "workflow_name": "tag_push_prod.yaml",
@@ -602,27 +594,26 @@ Tools don't need to be complex. At their core, they're just structured output fr
 
 ![140-tools-are-just-structured-outputs](https://github.com/humanlayer/12-factor-agents/blob/main/img/140-tools-are-just-structured-outputs.png)
 
-```typescript
-class CreateIssue {
-  intent: "create_issue"
-  issue: {
-    title: string
-    description: string
-    team_id: string
-    assignee_id: string
-  }
-}
+```python
 
-class SearchIssues {
+class Issue:
+  title: str
+  description: str
+  team_id: str
+  assignee_id: str
+
+class CreateIssue:
+  intent: "create_issue"
+  issue: Issue
+
+class SearchIssues:
   intent: "search_issues"
-  query: string
-  what_youre_looking_for: string
-}
+  query: str
+  what_youre_looking_for: str
 ```
 
 The pattern is simple:
 1. LLM outputs structured JSON
-2. Your code validates the structure
 3. Deterministic code executes the appropriate action (like calling an external API)
 4. Results are captured and fed back into the context
 
@@ -630,16 +621,14 @@ This creates a clean separation between the LLM's decision-making and your appli
 
 If you recall our switch statement from above
 
-```typescript
-switch (nextStep.intent) {
-  case 'create_payment_link':
+```python
+if nextStep.intent == 'create_payment_link':
     stripe.paymentlinks.create(nextStep.parameters)
-    return // or whatever you want, see below
-  case 'wait_for_a_while': 
-    // do something monadic idk
-  default: //... the model didn't call a tool we know about
-    // do something else
-}
+    return # or whatever you want, see below
+elif nextStep.intent == 'wait_for_a_while': 
+    # do something monadic idk
+else: #... the model didn't call a tool we know about
+    # do something else
 ```
 
 **Note**: there has been a lot said about the benefits of "plain prompting" vs. "tool calling" vs. "JSON mode" and the performance tradeoffs of each. We'll link some resources to that stuff soon, but not gonna get into it here. See [Prompting vs JSON Mode vs Function Calling vs Constrained Generation vs SAP](https://www.boundaryml.com/blog/schema-aligned-parsing), [When should I use function calling, structured outputs, or JSON mode?](https://www.vellum.ai/blog/when-should-i-use-function-calling-structured-outputs-or-json-mode#:~:text=We%20don%27t%20recommend%20using%20JSON,always%20use%20Structured%20Outputs%20instead) and [OpenAI JSON vs Function Calling](https://docs.llamaindex.ai/en/stable/examples/llm/openai_json_vs_function_calling/).
@@ -728,53 +717,52 @@ You might get better results by having the LLM *always* output json, and then de
 
 Again, you might not get any performance boost from this, but you should experiment, and ensure you're free to try weird stuff to get the best results.
 
-```typescript
+```python
 
-// Tool definition for human interaction
-interface RequestHumanInput {
+class Options:
+  urgency: Literal["low", "medium", "high"]
+  format: Literal["free_text", "yes_no", "multiple_choice"]
+  choices: List[str]
+
+# Tool definition for human interaction
+class RequestHumanInput:
   intent: "request_human_input"
-  question: string
-  context: string
-  options?: {
-    urgency: "low" | "medium" | "high"
-    format?: "free_text" | "yes_no" | "multiple_choice"
-    choices?: string[]
-  }
-}
+  question: str
+  context: str
+  options: Options
 
-// Example usage in the agent loop
-switch (nextStep.intent) {
-  case 'request_human_input':
-    thread.events.push({
-      type: 'human_input_requested',
-      data: nextStep
-    })
-    const threadId = await saveState(thread)
-    await notifyHuman(nextStep, threadId)
-    return // Break loop and wait for response to come back with thread ID
-  case '...':
-    // ... other cases
-}
+# Example usage in the agent loop
+if nextStep.intent == 'request_human_input':
+  thread.events.append({
+    type: 'human_input_requested',
+    data: nextStep
+  })
+  thread_id = await save_state(thread)
+  await notify_human(nextStep, thread_id)
+  return # Break loop and wait for response to come back with thread ID
+else:
+  # ... other cases
 ```
 
 Later, you might receive a webhook from a system that handles slack, email, sms, or other events.
 
-```typescript
+```python
 
-app.post('/webhook', async (req, res) => {
-  const threadId = req.body.threadId
-  const thread = await loadState(threadId)
+@app.post('/webhook')
+def webhook(req: Request):
+  thread_id = req.body.threadId
+  thread = await load_state(thread_id)
   thread.events.push({
     type: 'response_from_human',
     data: req.body
   })
-  // ... simplified for brevity, you likely don't want to block the web worker here
-  const nextStep = await determineNextStep(threadToPrompt(thread))
-  await handleNextStep(thread, nextStep)
-  // todo - loop or break or whatever you want
+  # ... simplified for brevity, you likely don't want to block the web worker here
+  next_step = await determine_next_step(thread_to_prompt(thread))
+  thread.events.append(next_step)
+  result = await handle_next_step(thread, next_step)
+  # todo - loop or break or whatever you want
 
-  res.json({"status": "ok"})
-})
+  return {"status": "ok"}
 ```
 
 The above includes patterns from [factor 5](#5-unify-execution-state-and-business-state) and [factor 8](#8-own-your-control-flow), [factor 3](#3-own-your-context-window), and [factor 4](#4-tools-are-just-structured-outputs), and several others.
@@ -861,55 +849,48 @@ The below example shows three possible control flow patterns:
 - fetch_git_tags: model asked for a list of git tags, fetch the tags, append to context window, and pass straight back to the model
 - deploy_backend: model asked to deploy a backend, this is a high-stakes thing, so break the loop and wait for human approval
 
-```typescript
-const handleNextStep = async (thread: Thread): Promise<void> => {
+```python
+def handle_next_step(thread: Thread):
 
-  while (true) {
-    const nextStep = await b.DetermineNextStep(threadToPrompt(nextThread))
+  while True:
+    next_step = await determine_next_step(thread_to_prompt(thread))
     
-    // inlined for clarity - in reality you could put 
-    // this in a method, use exceptions for control flow, or whatever you want
-    switch (nextStep.intent) {
-      case 'request_clarification':
-        thread.events.push({
-          type: 'request_clarification',
+    # inlined for clarity - in reality you could put 
+    # this in a method, use exceptions for control flow, or whatever you want
+    if next_step.intent == 'request_clarification':
+      thread.events.append({
+        type: 'request_clarification',
           data: nextStep,
         })
 
-        await sendMessageToHuman(nextStep)
-        await db.saveThread(thread)
-        // async step - break the loop, we'll get a webhook later
-        break
-      case 'fetch_open_issues':
-        thread.events.push({
-          type: 'fetch_open_issues',
-          data: nextStep,
-        })
+      await send_message_to_human(next_step)
+      await db.save_thread(thread)
+      # async step - break the loop, we'll get a webhook later
+      break
+    elif next_step.intent == 'fetch_open_issues':
+      thread.events.append({
+        type: 'fetch_open_issues',
+        data: next_step,
+      })
 
-        const issues = await linearClient.issues()
+      issues = await linear_client.issues()
 
-        thread.events.push({
-          type: 'fetch_open_issues_result',
-          data: issues,
-        })
-        // sync step - pass the new context to the LLM to determine the NEXT next step
-        continue
-      case 'create_issue':
-        thread.events.push({
-          type: 'create_issue',
-          data: nextStep,
-        })
+      thread.events.append({
+        type: 'fetch_open_issues_result',
+        data: issues,
+      })
+      # sync step - pass the new context to the LLM to determine the NEXT next step
+      continue
+    elif next_step.intent == 'create_issue':
+      thread.events.append({
+        type: 'create_issue',
+        data: next_step,
+      })
 
-        await requestHumanApproval(nextStep)
-        await db.saveThread(thread)
-        // async step - break the loop, we'll get a webhook later
-        break
-      
-    }
-    
-    
-  }
-}
+      await request_human_approval(next_step)
+      await db.save_thread(thread)
+      # async step - break the loop, we'll get a webhook later
+      break
 ```
 
 This pattern allows you to interrupt and resume your agent's flow as needed, creating more natural conversations and workflows.
@@ -935,56 +916,54 @@ This one is a little short but is worth mentioning. One of these benefits of age
 Most frameworks implement this, but you can do JUST THIS without doing any of the other 11 factors. Here's an example of 
 
 
-```typescript
-const thread = {events: [inital_message]}
+```python
+thread = {"events": [inital_message]}
 
-while (true) {
-  const nextStep = await determineNextStep(threadToPrompt(thread))
-  thread.events.push({
-    type: nextStep.intent,
-    data: nextStep,
+while True:
+  next_step = await determine_next_step(thread_to_prompt(thread))
+  thread["events"].append({
+    "type": next_step.intent,
+    "data": next_step,
   })
-  try {
-    const result = await handleNextStep(thread, nextStep) // our switch statement
-  } catch (e) {
-    // if we get an error, we can add it to the context window and try again
-    thread.events.push({
-      type: 'error',
-      data: formatError(e),
+  try:
+    result = await handle_next_step(thread, next_step) # our switch statement
+  except Exception as e:
+    # if we get an error, we can add it to the context window and try again
+    thread["events"].append({
+      "type": 'error',
+      "data": format_error(e),
     })
-    // loop, or do whatever else here to try to recover
-  }
-}
+    # loop, or do whatever else here to try to recover
 ```
 
 You may want to implement an errorCounter for a specific tool call, to limit to ~3 attempts of a single tool, or whatever other logic makes sense for your use case.
 
-```typescript
-let consecutiveErrors = 0
+```python
+consecutive_errors = 0
 
-while (true) {
+while True:
 
-  // ... existing code ...
+  # ... existing code ...
 
-  try {
-    const result = await handleNextStep(thread, nextStep)
-    thread.events.push({
-      type: nextStep.intent + '_result',
+  try:
+    result = await handle_next_step(thread, next_step)
+    thread["events"].append({
+      "type": next_step.intent + '_result',
       data: result,
     })
-    // success! reset the error counter
-    consecutiveErrors = 0
-  } catch (e) {
-    consecutiveErrors++
-    if (consecutiveErrors < 3) {
-      // do the loop and try again
-      thread.events.push({
-        type: 'error',
-        data: formatError(e),
+    # success! reset the error counter
+    consecutive_errors = 0
+  except Exception as e:
+    consecutive_errors += 1
+    if consecutive_errors < 3:
+      # do the loop and try again
+      thread["events"].append({
+        "type": 'error',
+        "data": format_error(e),
       })
-    } else {
-      // break the loop, reset parts of the context window, or whatever else you want to do
-    }
+    else:
+      # break the loop, reset parts of the context window, or whatever else you want to do
+      break
   }
 }
 ```
@@ -1084,30 +1063,28 @@ Answer in JSON format with one of the following intents:
 
 and your code looks like
 
-```typescript
-const thread = {events: [inital_message]}
-const nextStep = await determineNextStep(thread)
+```python
+thread = {"events": [inital_message]}
+next_step = await determine_next_step(thread)
 
-while (true) {
-  switch (nextStep.intent) {
+while True:
+  switch next_step.intent:
     case 'list_git_tags':
-      const tags = await fetch_git_tags()
-      thread.events.push({
+      tags = await fetch_git_tags()
+      thread["events"].append({
         type: 'list_git_tags',
         data: tags,
       })
     case 'deploy_backend_to_prod':
-      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
-      thread.events.push({
-        type: 'deploy_backend_to_prod',
-        data: deploy_result,
+      deploy_result = await deploy_backend_to_prod(next_step.data.tag)
+      thread["events"].append({
+        "type": 'deploy_backend_to_prod',
+        "data": deploy_result,
       })
     case 'done_for_now':
-      await notify_human(nextStep.message)
+      await notify_human(next_step.message)
       break
-    // ...
-  }
-}
+    # ...
 ```
 
 You might as well just fetch the tags and include them in the context window, like:
@@ -1143,58 +1120,51 @@ Answer in JSON format with one of the following intents:
 
 and your code looks like
 
-```typescript
-const thread = {events: [inital_message]}
-const git_tags = await fetch_git_tags()
+```python
+thread = {"events": [inital_message]}
+git_tags = await fetch_git_tags()
 
-const nextStep = await determineNextStep(thread, git_tags)
+next_step = await determine_next_step(thread, git_tags)
 
-while (true) {
-  switch (nextStep.intent) {
+while True:
+  switch next_step.intent:
     case 'deploy_backend_to_prod':
-      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
-      thread.events.push({
-        type: 'deploy_backend_to_prod',
-        data: deploy_result,
+      deploy_result = await deploy_backend_to_prod(next_step.data.tag)
+      thread["events"].append({
+        "type": 'deploy_backend_to_prod',
+        "data": deploy_result,
       })
     case 'done_for_now':
-      await notify_human(nextStep.message)
+      await notify_human(next_step.message)
       break
-    // ...
-  }
-}
+    # ...
 ```
 
 or even just include the tags in the thread and remove the specific parameter from your prompt template:
 
-```typescript
-const thread = {events: [inital_message]}
-thread.events.push({
-  type: 'list_git_tags',
-  data: git_tags,
+```python
+thread = {"events": [inital_message]}
+thread["events"].append({
+  "type": 'list_git_tags',
+  "data": git_tags,
 })
 
 const git_tags = await fetch_git_tags()
-thread.events.push({
-  type: 'list_git_tags_result',
-  data: git_tags,
+thread["events"].append({
+  "type": 'list_git_tags_result',
+  "data": git_tags,
 })
-const nextStep = await determineNextStep(thread)
+next_step = await determine_next_step(thread)
 
-while (true) {
-  switch (nextStep.intent) {
+while True:
+  switch next_step.intent:
     case 'deploy_backend_to_prod':
-      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
-      thread.events.push({
-        type: 'deploy_backend_to_prod',
-        data: deploy_result,
-      })
+      deploy_result = await deploy_backend_to_prod(next_step.data.tag)
+      thread["events"].append(deploy_result)
     case 'done_for_now':
-      await notify_human(nextStep.message)
+      await notify_human(next_step.message)
       break
-    // ...
-  }
-}
+    # ...
 ```
 
 Overall:
