@@ -827,7 +827,7 @@ Works great with [factor 11 - trigger from anywhere, meet users where they are](
 
 If you own your control flow, you can do lots of fun things.
 
-![180-own-your-control-flow](https://github.com/humanlayer/12-factor-agents/blob/main/img/180-own-your-control-flow.png)
+![180-control-flow](https://github.com/humanlayer/12-factor-agents/blob/main/img/180-control-flow.png)
 
 
 Build your own control structures that make sense for your specific use case. Specifically, certain types of tool calls may be reason to break out of the loop and wait for a response from a human or another long-running task like a training pipeline. You may also want to incorporate custom implementation of:
