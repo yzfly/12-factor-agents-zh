@@ -76,9 +76,10 @@ And let the LLM make decisions in real time to figure out the path
 
 The promise here is that you write less software, you just give the LLM the "edges" of the graph and let it figure out the nodes. You can recover from errors, you can write less code, and you may find that LLMs find novel solutions to problems.
 
-It turns out this doesn't quite work
 
 ### agents as loops
+
+As we'll see later, it turns out this doesn't quite work.
 
 Let's dive one step deeper - with agents you've got this loop consisting of 3 steps:
 
