@@ -26,18 +26,18 @@ Welcome to 12-factor agents. As every Chicago mayor since Daley has consistently
 
 ## The Short Version: The 12 Factors
 
-- [Factor 1: Natural Language to Tool Calls](#1-natural-language-to-tool-calls)
-- [Factor 2: Own your prompts](#2-own-your-prompts)
-- [Factor 3: Own your context window](#3-own-your-context-window)
-- [Factor 4: Tools are just structured outputs](#4-tools-are-just-structured-outputs)
-- [Factor 5: Unify execution state and business state](#5-unify-execution-state-and-business-state)
-- [Factor 6: Launch/Pause/Resume with simple APIs](#6-launch-pause-resume-with-simple-apis)
-- [Factor 7: Contact humans with tool calls](#7-contact-humans-with-tool-calls)
-- [Factor 8: Own your control flow](#8-own-your-control-flow)
-- [Factor 9: Compact Errors into Context Window](#9-compact-errors-into-context-window)
-- [Factor 10: Small, Focused Agents](#10-small-focused-agents)
-- [Factor 11: Trigger from anywhere, meet users where they are](#11-trigger-from-anywhere-meet-users-where-they-are)
-- [Factor 12: Make your agent a stateless reducer](#12-make-your-agent-a-stateless-reducer)
+- [Factor 1: Natural Language to Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md)
+- [Factor 2: Own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
+- [Factor 3: Own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
+- [Factor 4: Tools are just structured outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md)
+- [Factor 5: Unify execution state and business state](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-5-unify-execution-state.md)
+- [Factor 6: Launch/Pause/Resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)
+- [Factor 7: Contact humans with tool calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md)
+- [Factor 8: Own your control flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md)
+- [Factor 9: Compact Errors into Context Window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md)
+- [Factor 10: Small, Focused Agents](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
+- [Factor 11: Trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
+- [Factor 12: Make your agent a stateless reducer](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md)
 
 <!-- ![12 factors in a grid](https://github.com/humanlayer/12-factor-agents/blob/main/img/12-factors-in-a-grid.png) -->
 
@@ -163,18 +163,18 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 ## The 12 Factors (again)
 
 
-- [Factor 1: Natural Language to Tool Calls](#1-natural-language-to-tool-calls)
-- [Factor 2: Own your prompts](#2-own-your-prompts)
-- [Factor 3: Own your context window](#3-own-your-context-window)
-- [Factor 4: Tools are just structured outputs](#4-tools-are-just-structured-outputs)
-- [Factor 5: Unify execution state and business state](#5-unify-execution-state-and-business-state)
-- [Factor 6: Launch/Pause/Resume with simple APIs](#6-launch-pause-resume-with-simple-apis)
-- [Factor 7: Contact humans with tool calls](#7-contact-humans-with-tool-calls)
-- [Factor 8: Own your control flow](#8-own-your-control-flow)
-- [Factor 9: Compact Errors into Context Window](#9-compact-errors-into-context-window)
-- [Factor 10: Small, Focused Agents](#10-small-focused-agents)
-- [Factor 11: Trigger from anywhere, meet users where they are](#11-trigger-from-anywhere-meet-users-where-they-are)
-- [Factor 12: Make your agent a stateless reducer](#12-make-your-agent-a-stateless-reducer)
+- [Factor 1: Natural Language to Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md)
+- [Factor 2: Own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
+- [Factor 3: Own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
+- [Factor 4: Tools are just structured outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md)
+- [Factor 5: Unify execution state and business state](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-5-unify-execution-state.md)
+- [Factor 6: Launch/Pause/Resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)
+- [Factor 7: Contact humans with tool calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md)
+- [Factor 8: Own your control flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md)
+- [Factor 9: Compact Errors into Context Window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md)
+- [Factor 10: Small, Focused Agents](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
+- [Factor 11: Trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
+- [Factor 12: Make your agent a stateless reducer](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md)
 
 ## Honorable Mentions / other advice
 
