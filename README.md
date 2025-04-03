@@ -191,7 +191,7 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 - We build OSS agents with this methodology under [got-agents/agents](https://github.com/got-agents/agents)
 - We ignored all our own advice and built a [framework for running distributed agents in the kubernetes](https://github.com/humanlayer/kubechain)
 - Other links from this guide:
-  - [The AI Agent Index (MIT)](https://aiagentindex.mit.edu/)
+  - [Prompts are Functions](https://thedataexchange.media/baml-revolution-in-ai-engineering/ )
   - [Mailcrew Agent](https://github.com/dexhorthy/mailcrew)
   - [Mailcrew Demo Video](https://www.youtube.com/watch?v=f_cKnoPC_Oo)
   - [Chainlit Demo](https://x.com/chainlit_io/status/1858613325921480922)
@@ -206,6 +206,8 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
   - [Dagster](https://dagster.io/)
   - [Inngest](https://www.inngest.dev/)
   - [Windmill](https://www.windmill.dev/)
+  - [The AI Agent Index (MIT)](https://aiagentindex.mit.edu/)
+
 
 
 
