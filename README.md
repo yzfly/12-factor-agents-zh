@@ -28,7 +28,7 @@ Agents, at least the good ones, don't follow the "here's your prompt, here's a b
 
 **So if this magical "here's your prompt, here's your tools, go figure it out"** workflow that we see everywhere isn't the answer, then what makes an agent an agent? That is,
 
-> ### **What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?**
+> #### **What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?**
 
 Welcome to 12-factor agents. As every Chicago mayor since Daley has consistently plastered all over the city's major airports, we're glad you're here.
 
@@ -135,7 +135,7 @@ Even if you haven't hand-rolled an agent, you've probable seen this long-context
 
 I'll even perhaps posit something I've heard in passing quite a bit, and that YOU probably have developed your own intuition around:
 
-> ### **Even as models support longer and longer context windows, you'll ALWAYS get better results with a small, focused prompt and context**
+> #### **Even as models support longer and longer context windows, you'll ALWAYS get better results with a small, focused prompt and context**
 
 Most builders I've talked to pushed the "tool calling loop" idea to the side when they realized that anything more than 10-20 turns becomes a big mess that the LLM can't recover from. Even if the agent gets it right 90% of the time, that's miles away from "good enough to put in customer hands". Can you imagine a web app that crashed on 10% of page loads?
 
@@ -147,7 +147,7 @@ One thing that I **have** seen in the wild quite a bit is taking the agent patte
 
 You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps without spinning out into context error loops. ([factor 1](#1-natural-language-to-tool-calls), [factor 4](#4-use-tools-for-human-interaction)).
 
-> ### having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback...without spinning out into context error loops
+> #### having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback...without spinning out into context error loops
 
 ### a real life micro agent 
 
@@ -244,7 +244,7 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 4. BUT, the fastest way I've seen for builders to get high-quality AI software in the hands of customers is to take small, modular concepts from agent building, and incorporate them into their existing product
 5. These modular concepts from agents can be defined and applied by most skilled software engineers, even if they don't have an AI background
 
-> ### The fastest way I've seen for builders to get good AI software in the hands of customers is to take small, modular concepts from agent building, and incorporate them into their existing product
+> #### The fastest way I've seen for builders to get good AI software in the hands of customers is to take small, modular concepts from agent building, and incorporate them into their existing product
 
 ## the twelve factors
 
@@ -408,7 +408,7 @@ I don't know what's the best prompt, but I know you want the flexibility to be a
 
 You don't necessarily need to use standard message-based formats for conveying context to an LLM.
 
-> ### At any given point, your input to an LLM in an agent is "here's what's happened so far, what's the next step"
+> #### At any given point, your input to an LLM in an agent is "here's what's happened so far, what's the next step"
 
 ![130-own-your-context-building](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png)
 
@@ -896,6 +896,24 @@ You may notice this is closely related to [factor 5 - unify execution state and 
 
 ### 9. Compact Errors into Context Window
 
+This one is a little short but is worth mentioning. One of these benefits of agents is "self-healing" - for short tasks, an LLM might call a tool that fails. Good LLMs have a fairly good chance of reading an error message or stack trace and figuring out what to change in a subsequent tool call.
+
+[![195-factor-9-errors](https://github.com/humanlayer/12-factor-agents/blob/main/img/195-factor-9-errors.gif)](todo)
+
+<details>
+<summary>GIF Version</summary>
+
+![195-factor-9-errors](https://github.com/humanlayer/12-factor-agents/blob/main/img/195-factor-9-errors.gif)
+
+</details>
+
+
+Most frameworks implement this, but you can do JUST THIS without doing any of the other 11 factors.
+
+
+
+
+
 
 
 ### 10. Small, Focused Agents
@@ -1052,11 +1070,9 @@ while (true) {
 
 Overall:
 
-> ### If you already know what tools you'll want the model to call, just call them DETERMINISTICALLY and let the model do the hard part of figuring out how to use their outputs
+> #### If you already know what tools you'll want the model to call, just call them DETERMINISTICALLY and let the model do the hard part of figuring out how to use their outputs
 
-Again, AI engineering is all about Context Engineering - 
-
-!context-engineering-prompt-engineering-plus-rag-plus-other-context-sources
+Again, AI engineering is all about Context Engineering - to wit:
 
 
 ### Factor 14 - everything is context engineering
@@ -1075,7 +1091,7 @@ Creating great context means:
 ![220-context-engineering](https://github.com/humanlayer/12-factor-agents/blob/main/img/220-context-engineering.png)
 
 
-### Factor 15 - Other ways to improve
+### Factor 15 - Good things that are not context engineering
 
 This guide is all about getting as much as possible out of today's models Notably not mentioned are 
 
