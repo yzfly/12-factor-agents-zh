@@ -294,6 +294,24 @@ Remember: The pause/resume functionality is part of your agent's control flow, n
 
 ### 10. Small, Focused Agents
 
+Rather than building monolithic agents that try to do everything, build small, focused agents that do one thing well. Each agent should have a clear responsibility boundary.
+
+The key insight here is about LLM limitations: the bigger and more complex a task is, the more steps it will take, which means a longer context window. As context grows, LLMs are more likely to get lost or lose focus! By keeping agents focused on specific domains, we keep context windows manageable and LLM performance high.
+
+Our Linear Assistant handles email-based issue management in Linear. It doesn't try to also manage GitHub issues, calendar scheduling, or data analysis. This focus allows it to excel at its specific task.
+
+We learned this lesson the hard way when we initially tried to build a "super agent" that could handle multiple tools and workflows. The agent would frequently confuse which API to use for which task and lose track of multi-step processes. By splitting this into focused agents with clear responsibilities, reliability improved dramatically.
+
+Benefits of small, focused agents:
+
+1. **Manageable Context**: Smaller context windows mean better LLM performance
+2. **Clear Responsibilities**: Each agent has a well-defined scope and purpose
+3. **Better Reliability**: Less chance of getting lost in complex workflows
+4. **Easier Testing**: Simpler to test and validate specific functionality
+5. **Improved Debugging**: Easier to identify and fix issues when they occur
+
+Remember: Even as models support longer and longer context windows, you'll ALWAYS get better results with a small, focused prompt and context.
+
 ### 11. Trigger from anywhere, meet users where they are
 
 ### 12. Make your agent a stateless reducer
@@ -352,6 +370,16 @@ The key insight here is about LLM limitations: the bigger and more complex a tas
 Our Linear Assistant handles email-based issue management in Linear. It doesn't try to also manage GitHub issues, calendar scheduling, or data analysis. This focus allows it to excel at its specific task.
 
 We learned this lesson the hard way when we initially tried to build a "super agent" that could handle multiple tools and workflows. The agent would frequently confuse which API to use for which task and lose track of multi-step processes. By splitting this into focused agents with clear responsibilities, reliability improved dramatically.
+
+Benefits of small, focused agents:
+
+1. **Manageable Context**: Smaller context windows mean better LLM performance
+2. **Clear Responsibilities**: Each agent has a well-defined scope and purpose
+3. **Better Reliability**: Less chance of getting lost in complex workflows
+4. **Easier Testing**: Simpler to test and validate specific functionality
+5. **Improved Debugging**: Easier to identify and fix issues when they occur
+
+Remember: Even as models support longer and longer context windows, you'll ALWAYS get better results with a small, focused prompt and context.
 
 ## 3. Compact Errors into Context Window
 
@@ -1068,156 +1096,3 @@ What else did I miss? Where can we collab?
 The code referenced uses 
 
 - []
-
-## Factor 13 - pre-fetch all the context you might need
-
-If there's a high chance that your model will call tool X, don't waste token round trips telling the model to fetch it, that is, instead of a pseudo-prompt like:
-
-```
-When looking at deployments, you will likely want to fetch the list of published git tags,
-so you can use it to deploy to prod.
-
-Here's what happened so far:
-
-{{ thread.events }}
-
-What's the next step?
-
-Answer in JSON format with one of the following intents:
-
-{
-  intent: 'deploy_backend_to_prod',
-  tag: string
-} OR {
-  intent: 'list_git_tags'
-} OR {
-  intent: 'done_for_now',
-  message: string
-}
-```
-
-and your code looks like
-
-```
-thread = [inital_message]
-const nextStep = await determineNextStep(thread)
-
-while (true) {
-  switch (nextStep.intent) {
-    case 'list_git_tags':
-      const tags = await fetch_git_tags()
-      thread.events.push({
-        type: 'list_git_tags',
-        data: tags,
-      })
-    case 'deploy_backend_to_prod':
-      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
-      thread.events.push({
-        type: 'deploy_backend_to_prod',
-        data: deploy_result,
-      })
-    case 'done_for_now':
-      await notify_human(nextStep.message)
-      break
-    // ...
-  }
-}
-```
-
-You might as well just fetch the tags and include them in the context window, like:
-
-```jinja
-When looking at deployments, you will likely want to fetch the list of published git tags,
-so you can use it to deploy to prod.
-
-The current git tags are:
-
-{{ git_tags }}
-
-
-Here's what happened so far:
-
-{{ thread.events }}
-
-What's the next step?
-
-Answer in JSON format with one of the following intents:
-
-{
-  intent: 'deploy_backend_to_prod',
-  tag: string
-} OR {
-  intent: 'list_git_tags'
-} OR {
-  intent: 'done_for_now',
-  message: string
-}
-
-```
-
-and your code looks like
-
-```typescript
-const thread = {events: [inital_message]}
-const git_tags = await fetch_git_tags()
-
-const nextStep = await determineNextStep(thread, git_tags)
-
-while (true) {
-  switch (nextStep.intent) {
-    case 'deploy_backend_to_prod':
-      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
-      thread.events.push({
-        type: 'deploy_backend_to_prod',
-        data: deploy_result,
-      })
-    case 'done_for_now':
-      await notify_human(nextStep.message)
-      break
-    // ...
-  }
-}
-```
-
-or even just include the tags in the thread and remove the specific parameter:
-
-```typescript
-const thread = {events: [inital_message]}
-thread.events.push({
-  type: 'list_git_tags',
-  data: git_tags,
-})
-
-const git_tags = await fetch_git_tags()
-thread.events.push({
-  type: 'list_git_tags_result',
-  data: git_tags,
-})
-const nextStep = await determineNextStep(thread)
-
-while (true) {
-  switch (nextStep.intent) {
-    case 'deploy_backend_to_prod':
-      const deploy_result = await deploy_backend_to_prod(nextStep.data.tag)
-      thread.events.push({
-        type: 'deploy_backend_to_prod',
-        data: deploy_result,
-      })
-    case 'done_for_now':
-      await notify_human(nextStep.message)
-      break
-    // ...
-  }
-}
-```
-
-Overall:
-
-> ### If you already know what tools you'll want the model to call, just call them DETERMINISTICALLY and let the model do the hard part of figuring out how to use their outputs
-
-Again, AI engineering is all about Context Engineering - 
-
-!context-engineering-prompt-engineering-plus-rag-plus-other-context-sources
-
-
-

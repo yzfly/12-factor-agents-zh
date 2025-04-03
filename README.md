@@ -111,7 +111,7 @@ After a few steps we are passing in longer context to the LLM, telling it what h
 [![027-agent-loop-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
 
 <details>
-<summary> GIF version </summary>
+<summary>[GIF Version](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)</summary>
 
 ![027-agent-loop-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)]
 
@@ -177,7 +177,7 @@ Here's an example of how deterministic code might run one micro agent responsibl
 [![033-deploybot-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/033-deploybot.gif)](https://github.com/user-attachments/assets/deb356e9-0198-45c2-9767-231cb569ae13)
 
 <details>
-<summary> GIF version </summary>
+<summary>[GIF Version](https://github.com/humanlayer/12-factor-agents/blob/main/img/033-deploybot.gif)</summary>
 
 ![033-deploybot-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/033-deploybot.gif)]
 
@@ -189,7 +189,6 @@ This example is based on a real life [OSS agent we've shipped to manage our depl
 
 
 We haven't given this agent a huge pile of tools or tasks. The primary value in the LLM is parsing the human's plaintext feedback and proposing an updated course of action. We isolate tasks and contexts as much as possible to keep
-
 Here's another [more classic support / chatbot demo](https://x.com/chainlit_io/status/1858613325921480922).
 
 ### so what's an agent really?
@@ -395,12 +394,14 @@ function DetermineNextStep(thread: string) -> DoneForNow | ListGitTags | DeployB
 Key benefits of owning your prompts:
 
 1. **Full Control**: Write exactly the instructions your agent needs, no black box abstractions
-2. **Version Control**: Keep prompts in your codebase alongside other code
+2. **Testing and Evals**: Build tests and evals for your prompts just like you would for any other code
 3. **Iteration**: Quickly modify prompts based on real-world performance
 4. **Transparency**: Know exactly what instructions your agent is working with
 5. **Role Hacking**: take advantage of APIs that support nonstandard usage of user/assistant roles - for example, the now-deprecated non-chat flavor of OpenAI "completions" API. This includes some so-called "model gaslighting" techniques
 
-Remember: Your prompts are the primary interface between your application logic and the LLM. The framework approach might seem easier at first. ), but having full control over your prompts gives you the flexibility and prompt control you need for production-grade agents.
+Remember: Your prompts are the primary interface between your application logic and the LLM.
+
+Having full control over your prompts gives you the flexibility and prompt control you need for production-grade agents.
 
 I don't know what's the best prompt, but I know you want the flexibility to be able to try EVERYTHING.
 
@@ -648,7 +649,7 @@ If possible, SIMPLIFY - unify these as much as possible.
 
 
 <details>
-<summary> GIF version </summary>
+<summary>[GIF Version](https://github.com/humanlayer/12-factor-agents/blob/main/img/155-unify-state-animation.gif)</summary>
 
 ![155-unify-state](https://github.com/humanlayer/12-factor-agents/blob/main/img/155-unify-state-animation.gif)]
 
@@ -675,7 +676,7 @@ Agents are just programs, and we have things we expect from how to launch, query
 [![pause-resume animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/165-pause-resume-animation.gif)](https://github.com/user-attachments/assets/feb1a425-cb96-4009-a133-8bd29480f21f)
 
 <details>
-<summary> GIF version </summary>
+<summary>[GIF Version](https://github.com/humanlayer/12-factor-agents/blob/main/img/165-pause-resume-animation.gif)</summary>
 
 ![pause-resume animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/165-pause-resume-animation.gif)]
 
@@ -700,9 +701,18 @@ By default, LLM APIs rely on a fundamental HIGH-STAKES token choice: Are we retu
 
 ![170-contact-humans-with-tools](https://github.com/humanlayer/12-factor-agents/blob/main/img/170-contact-humans-with-tools.png)
 
-You're putting a lot of weight on that choice of first token, and you might get better results by having the LLM first declare it's intent with some natural language tokens. 
+You're putting a lot of weight on that choice of first token, which, in the `the weather in tokyo` case, is
 
-Again, you might not, but you should experiment, and ensure you're free to try weird stuff to get the best results.
+> "the"
+
+but in the `fetch_weather` case, it's some special token to denote the start of a JSON object.
+
+> |JSON>
+
+
+You might get better results by having the LLM *always* output json, and then declare it's intent with some natural language tokens like `request_human_input` or `done_for_now` (as opposed to a "proper" tool like `check_weather_in_city`). 
+
+Again, you might not get any performance boost from this, but you should experiment, and ensure you're free to try weird stuff to get the best results.
 
 ```typescript
 
@@ -820,8 +830,17 @@ If you own your control flow, you can do lots of fun things.
 ![180-own-your-control-flow](https://github.com/humanlayer/12-factor-agents/blob/main/img/180-own-your-control-flow.png)
 
 
+Build your own control structures that make sense for your specific use case. Specifically, certain types of tool calls may be reason to break out of the loop and wait for a response from a human or another long-running task like a training pipeline. You may also want to incorporate custom implementation of:
 
-Build your own control structures that make sense for your specific use case. Specifically, certain types of tool calls may be reason to break out of the loop and wait for a response from a human or another long-running task like a training pipeline. The below example shows three possible control flow patterns:
+- summarization or caching of of tool call results
+- LLM as judge on structured output
+- context window compaction or other [memory management](#factor-14---everything-is-context-engineering)
+- logging, tracing, and metrics
+- client-side rate limiting
+- durable sleep / pause / "wait for event"
+
+
+The below example shows three possible control flow patterns:
 
 
 - request_clarification: model asked for more info, break the loop and wait for a response from a human
@@ -960,7 +979,7 @@ while (true) {
 
 
 <details>
-<summary>GIF Version</summary>
+<summary>[GIF Version](https://github.com/humanlayer/12-factor-agents/blob/main/img/195-factor-9-errors.gif)</summary>
 
 ![195-factor-9-errors](https://github.com/humanlayer/12-factor-agents/blob/main/img/195-factor-9-errors.gif)
 
@@ -977,17 +996,48 @@ That's where [factor 8 - own your control flow](#8-own-your-control-flow) and [f
 
 But the number one way to prevent error spin-outs is to embrace [factor 10 - small, focused agents](#10-small-focused-agents).
 
-
-
 ### 10. Small, Focused Agents
 
+Rather than building monolithic agents that try to do everything, build small, focused agents that do one thing well. Agents are just one building block in a larger, mostly deterministic system.
 
+![1a0-small-focused-agents](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a0-small-focused-agents.png)
+
+The key insight here is about LLM limitations: the bigger and more complex a task is, the more steps it will take, which means a longer context window. As context grows, LLMs are more likely to get lost or lose focus. By keeping agents focused on specific domains with 3-10, maybe 20 steps max, we keep context windows manageable and LLM performance high.
+
+> #### As context grows, LLMs are more likely to get lost or lose focus
+
+Benefits of small, focused agents:
+
+1. **Manageable Context**: Smaller context windows mean better LLM performance
+2. **Clear Responsibilities**: Each agent has a well-defined scope and purpose
+3. **Better Reliability**: Less chance of getting lost in complex workflows
+4. **Easier Testing**: Simpler to test and validate specific functionality
+5. **Improved Debugging**: Easier to identify and fix issues when they occur
+
+As agents and LLMs improve, they **might** naturally expand to be able to handle longer context windows. This means handling MORE of a larger DAG. This small, focused approach ensures you can get results TODAY, while preparing you to slowly expand agent scope as LLM context windows become more reliable. (If you've refactored large deterministic code bases before, you may be nodding your head right now.)
 
 ### 11. Trigger from anywhere, meet users where they are
 
+If you're waiting for the [humanlayer](https://humanlayer.dev) pitch, you made it. If you're doing [factor 6 - launch/pause/resume with simple APIs](#6-launchpauseresume-with-simple-apis) and [factor 7 - contact humans with tool calls](#7-contact-humans-with-tool-calls), you're ready to incorporate this factor.
+
+![1b0-trigger-from-anywhere](https://github.com/humanlayer/12-factor-agents/blob/main/img/1b0-trigger-from-anywhere.png)
+
+Enable users to trigger agents from slack, email, sms, or whatever other channel they want. Enable agents to respond via the same channels.
+
+Benefits:
+
+- **Meet users where they are**: This helps you build AI applications that feel like real humans, or at the very least, digital coworkers.
+- **Outer Loop Agents**: Enable agents to be triggered by non-humans, e.g. events, crons, outages, whatever else. They may work for 5, 20, 90 minutes, but when they get to a critical point, they can contact a human for help, feedback, or approval.
+
+
 ### 12. Make your agent a stateless reducer
 
+Okay so we're over 1000 lines of markdown at this point. This one is mostly just for fun.
 
+![1c0-stateless-reducer](https://github.com/humanlayer/12-factor-agents/blob/main/img/1c0-stateless-reducer.png)
+
+
+![1c5-agent-foldl](https://github.com/humanlayer/12-factor-agents/blob/main/img/1c5-agent-foldl.png)
 
 ## Honorable Mentions / other advice
 
@@ -1141,7 +1191,7 @@ Again, AI engineering is all about Context Engineering - to wit:
 
 
 ### Factor 14 - everything is context engineering
-
+ on GitHub
 Everything is context engineering. LLMs are stateless functions that turn inputs into outputs. To get the best outputs, you need to give them the best inputs.
 
 Creating great context means:
@@ -1173,14 +1223,15 @@ This guide is all about getting as much as possible out of today's models Notabl
 - We build OSS agents with this methodology under [got-agents/agents](https://github.com/got-agents/agents)
 - We ignored all our own advice and built a [framework for running distributed agents in the kubernetes](https://github.com/humanlayer/kubechain)
 - Other links from this guide:
-  - [BAML](https://github.com/boundaryml/baml)
-  - [Schema Aligned Parsing](https://www.boundaryml.com/blog/schema-aligned-parsing)
-  - [Function Calling vs Structured Outputs vs JSON Mode](https://www.vellum.ai/blog/when-should-i-use-function-calling-structured-outputs-or-json-mode)
-  - [OpenAI JSON vs Function Calling](https://docs.llamaindex.ai/en/stable/examples/llm/openai_json_vs_function_calling/)
+  - [The AI Agent Index (MIT)](https://aiagentindex.mit.edu/)
   - [Mailcrew Agent](https://github.com/dexhorthy/mailcrew)
   - [Mailcrew Demo Video](https://www.youtube.com/watch?v=f_cKnoPC_Oo)
   - [Chainlit Demo](https://x.com/chainlit_io/status/1858613325921480922)
   - [TypeScript for LLMs](https://www.linkedin.com/posts/dexterihorthy_llms-typescript-aiagents-activity-7290858296679313408-Lh9e)
+  - [Schema Aligned Parsing](https://www.boundaryml.com/blog/schema-aligned-parsing)
+  - [Function Calling vs Structured Outputs vs JSON Mode](https://www.vellum.ai/blog/when-should-i-use-function-calling-structured-outputs-or-json-mode)
+  - [BAML on GitHub](https://github.com/boundaryml/baml)
+  - [OpenAI JSON vs Function Calling](https://docs.llamaindex.ai/en/stable/examples/llm/openai_json_vs_function_calling/)
   - [Outer Loop Agents](https://theouterloop.substack.com/p/openais-realtime-api-is-a-step-towards)
   - [Airflow](https://airflow.apache.org/)
   - [Prefect](https://www.prefect.io/)
