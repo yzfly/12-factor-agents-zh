@@ -24,7 +24,7 @@ If possible, SIMPLIFY - unify these as much as possible.
 
 In reality, you can engineer your application so that you can infer all execution state from the context window. In many cases, execution state (current step, waiting status, etc.) is just metadata about what has happened so far.
 
-You may have things that can't going in the context window, like session ids, password contexts, etc, but your goal should be to minimize those things. BY embracing [factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md) you can control what actually goes into the LLM 
+You may have things that can't go in the context window, like session ids, password contexts, etc, but your goal should be to minimize those things. BY embracing [factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md) you can control what actually goes into the LLM 
 
 This approach has several benefits:
 
