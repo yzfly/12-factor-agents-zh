@@ -30,7 +30,7 @@ The pattern is simple:
 3. Deterministic code executes the appropriate action (like calling an external API)
 4. Results are captured and fed back into the context
 
-This creates a clean separation between the LLM's decision-making and your application's actions. The LLM decides what to do, but your code controls how it's done. This separation makes your system more reliable and easier to debug when things go wrong.
+This creates a clean separation between the LLM's decision-making and your application's actions. The LLM decides what to do, but your code controls how it's done. Just because an LLM "called a tool" doesn't mean you have to go execute a specific corresponding function in the same way every time.
 
 If you recall our switch statement from above
 
