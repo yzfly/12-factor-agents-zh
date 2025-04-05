@@ -1,5 +1,5 @@
 
-## Closing thouhts - everything is context engineering
+## Closing thoughts - everything is context engineering
 Everything is context engineering. LLMs are stateless functions that turn inputs into outputs. To get the best outputs, you need to give them the best inputs.
 
 Creating great context means:

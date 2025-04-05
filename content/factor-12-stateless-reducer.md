@@ -8,4 +8,4 @@ Okay so we're over 1000 lines of markdown at this point. This one is mostly just
 
 ![1c5-agent-foldl](https://github.com/humanlayer/12-factor-agents/blob/main/img/1c5-agent-foldl.png)
 
-[Prev - factor 11 - trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
+[Prev - factor 11 - trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md) [Next - factor 13 - pre-fetch all the context you might need](./appendix-13-pre-fetch.md)
