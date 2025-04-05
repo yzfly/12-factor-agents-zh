@@ -90,7 +90,7 @@ Here's an example of putting the whole context window into a single user message
 ]
 ```
 
-Not that the model may infer that you're asking it `what's the next step` but it never hurts to roll it into your prompt template.
+The model may infer that you're asking it `what's the next step` by the tool schemas you supply, but it never hurts to roll it into your prompt template.
 
 We can build this with something like: 
 
