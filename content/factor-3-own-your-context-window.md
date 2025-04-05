@@ -47,7 +47,7 @@ Most LLM clients use a standard message-based format like this:
 
 While this works great for most use cases, if you want to really get THE MOST out of today's LLMs, you need to get your context into the LLM is the most token- and attention-efficient way you can.
 
-As an alternative to the standard message-based format, you can build your own context format that's optimized for your use case. For example, you can using custom objects and pack/spread them into one or more user, system, assistant, or tool messages as makes sense.
+As an alternative to the standard message-based format, you can build your own context format that's optimized for your use case. For example, you can use custom objects and pack/spread them into one or more user, system, assistant, or tool messages as makes sense.
 
 Here's an example of putting the whole context window into a single user message:
 ```yaml
