@@ -27,7 +27,7 @@ while True:
     # loop, or do whatever else here to try to recover
 ```
 
-You may want to implement an errorCounter for a specific tool call, to limit to ~3 attempts of a single tool, or whatever other logic makes sense for your use case.
+You may want to implement an errorCounter for a specific tool call, to limit to ~3 attempts of a single tool, or whatever other logic makes sense for your use case. 
 
 ```python
 consecutive_errors = 0
@@ -53,11 +53,12 @@ while True:
         "data": format_error(e),
       })
     else:
-      # break the loop, reset parts of the context window, or whatever else you want to do
+      # break the loop, reset parts of the context window, escalate to a human, or whatever else you want to do
       break
   }
 }
 ```
+Hitting some consecutive-error-threshold might be a great place to [escalate to a human](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md), whether by model decision or via deterministic takeover of the control flow.
 
 [![195-factor-9-errors](https://github.com/humanlayer/12-factor-agents/blob/main/img/195-factor-9-errors.gif)](https://github.com/user-attachments/assets/cd7ed814-8309-4baf-81a5-9502f91d4043)
 
