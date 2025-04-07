@@ -22,7 +22,7 @@ Hi, I'm Dex. I've been hacking on AI agents for a while.
 
 **I've been surprised to find** that most of the products out there billing themselves as "AI Agents" are not all that agentic. A lot of them are mostly deterministic code, with LLM steps sprinkled in at just the right points to make the experience truly magical.
 
-Agents, at least the good ones, don't follow the "here's your prompt, here's a bag of tools, loop until you hit the goal" pattern. Rather, they are comprised of mostly just software. 
+Agents, at least the good ones, don't follow the ["here's your prompt, here's a bag of tools, loop until you hit the goal"](https://www.anthropic.com/engineering/building-effective-agents#agents) pattern. Rather, they are comprised of mostly just software. 
 
 So, I set out to answer:
 
@@ -200,6 +200,7 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 - We build OSS agents with this methodology under [got-agents/agents](https://github.com/got-agents/agents)
 - We ignored all our own advice and built a [framework for running distributed agents in the kubernetes](https://github.com/humanlayer/kubechain)
 - Other links from this guide:
+  - [Building Effective Agents (Anthropic)](https://www.anthropic.com/engineering/building-effective-agents#agents)
   - [Prompts are Functions](https://thedataexchange.media/baml-revolution-in-ai-engineering/ )
   - [Mailcrew Agent](https://github.com/dexhorthy/mailcrew)
   - [Mailcrew Demo Video](https://www.youtube.com/watch?v=f_cKnoPC_Oo)
@@ -216,6 +217,7 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
   - [Inngest](https://www.inngest.dev/)
   - [Windmill](https://www.windmill.dev/)
   - [The AI Agent Index (MIT)](https://aiagentindex.mit.edu/)
+  - [NotebookLM on Finding Model Capability Boundaries](https://open.substack.com/pub/swyx/p/notebooklm?selection=08e1187c-cfee-4c63-93c9-71216640a5f8)
 
 
 
