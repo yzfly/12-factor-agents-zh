@@ -17,7 +17,11 @@ Benefits of small, focused agents:
 4. **Easier Testing**: Simpler to test and validate specific functionality
 5. **Improved Debugging**: Easier to identify and fix issues when they occur
 
-As agents and LLMs improve, they **might** naturally expand to be able to handle longer context windows. This means handling MORE of a larger DAG. This small, focused approach ensures you can get results TODAY, while preparing you to slowly expand agent scope as LLM context windows become more reliable. (If you've refactored large deterministic code bases before, you may be nodding your head right now.)
+### What if LLMs get smarter? 
+
+Do we still need this if LLMs get smart enough to handle 100-step+ workflows?
+
+tl;dr yes. As agents and LLMs improve, they **might** naturally expand to be able to handle longer context windows. This means handling MORE of a larger DAG. This small, focused approach ensures you can get results TODAY, while preparing you to slowly expand agent scope as LLM context windows become more reliable. (If you've refactored large deterministic code bases before, you may be nodding your head right now.)
 
 
 
@@ -28,5 +32,11 @@ As agents and LLMs improve, they **might** naturally expand to be able to handle
 <summary><a href="https://github.com/humanlayer/12-factor-agents/blob/main/img/1a5-agent-scope-grow.gif">GIF Version</a></summary>
 ![gif](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a5-agent-scope-grow.gif)
 </details>
+
+Being intentional about size/scope of agents, and only growing in ways that allow you to maintain quality, is key here. As the [team that built NotebookLM put it](https://open.substack.com/pub/swyx/p/notebooklm?selection=08e1187c-cfee-4c63-93c9-71216640a5f8&utm_campaign=post-share-selection&utm_medium=web):
+
+> I feel like consistently, the most magical moments out of AI building come about for me when I'm really, really, really just close to the edge of the model capability
+
+Regardless of where that boundary is, if you can find that boundary and get it right consistently, you'll be building magical experiences. There are many moats to be built here, but as usual, they take some engineering rigor.
 
 [Prev - factor 9 - compact errors into context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md) [Next - factor 11 - trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
