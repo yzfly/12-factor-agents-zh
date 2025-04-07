@@ -19,4 +19,10 @@ Benefits of small, focused agents:
 
 As agents and LLMs improve, they **might** naturally expand to be able to handle longer context windows. This means handling MORE of a larger DAG. This small, focused approach ensures you can get results TODAY, while preparing you to slowly expand agent scope as LLM context windows become more reliable. (If you've refactored large deterministic code bases before, you may be nodding your head right now.)
 
+
+
+https://github.com/user-attachments/assets/0cd3f52c-046e-4d5e-bab4-57657157c82f
+
+
+
 [Prev - factor 9 - compact errors into context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md) [Next - factor 11 - trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
