@@ -8,7 +8,7 @@ You don't necessarily need to use standard message-based formats for conveying c
 <!-- todo syntax highlighting -->
 <!-- ![130-own-your-context-building](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png) -->
 
-Everything is context engineering. LLMs are stateless functions that turn inputs into outputs. To get the best outputs, you need to give them the best inputs.
+Everything is context engineering. [LLMs are stateless functions](https://thedataexchange.media/baml-revolution-in-ai-engineering/) that turn inputs into outputs. To get the best outputs, you need to give them the best inputs.
 
 Creating great context means:
 
@@ -227,8 +227,6 @@ Key benefits of owning your context window:
 5. **Token Efficiency**: Optimize context format for token efficiency and LLM understanding
 
 #### Context Engineering Principles
-
-As highlighted in our guidance for LLMs like Claude:
 
 - Everything is context engineering - focus on giving LLMs the best inputs
 - Context includes: prompts, instructions, RAG documents, history, tool calls, memory

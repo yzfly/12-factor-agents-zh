@@ -187,7 +187,6 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 ## Honorable Mentions / other advice
 
 - [Factor 13: Pre-fetch all the context you might need](./content/appendix-13-pre-fetch.md)
-![220-context-engineering](https://github.com/humanlayer/12-factor-agents/blob/main/img/220-context-engineering.png)
 
 ## Related Resources
 
