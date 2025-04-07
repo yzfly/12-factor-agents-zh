@@ -30,6 +30,8 @@ So, I set out to answer:
 
 Welcome to 12-factor agents. As every Chicago mayor since Daley has consistently plastered all over the city's major airports, we're glad you're here.
 
+Special thanks to [@hellovai](https://www.github.com/hellovai) [@stantonk](https://www.github.com/stantonk) [@pfbyjy](https://www.github.com/pfbyjy) and [@a-churchill](https://www.github.com/a-churchill) for early feedback on this guide
+
 ## The Short Version: The 12 Factors
 
 Even if LLMs [continue to get exponentially more powerful](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md#what-if-llms-get-smarter), there will be core engineering techniques that make LLM-powered software more reliable, more scalable, and easier to maintain.
