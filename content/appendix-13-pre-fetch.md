@@ -137,4 +137,4 @@ Overall:
 
 Again, AI engineering is all about Context Engineering - to wit:
 
-[Prev - factor 12 - Make your agent a stateless reducer](./factor-12-stateless-reducer.md) [Next - Closing thoughts - everything is context engineering](./appendix-14-everything-is-context-engineering.md)
+[Prev - factor 12 - Make your agent a stateless reducer](./factor-12-stateless-reducer.md) [Next - Further reading](../README.md#related-resources)
