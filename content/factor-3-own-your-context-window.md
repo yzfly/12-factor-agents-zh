@@ -8,6 +8,24 @@ You don't necessarily need to use standard message-based formats for conveying c
 <!-- todo syntax highlighting -->
 <!-- ![130-own-your-context-building](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png) -->
 
+Everything is context engineering. [LLMs are stateless functions](https://thedataexchange.media/baml-revolution-in-ai-engineering/) that turn inputs into outputs. To get the best outputs, you need to give them the best inputs.
+
+Creating great context means:
+
+- The prompt and instructions you give to the model
+- Any documents or external data you retrieve (e.g. RAG)
+- Any past state, tool calls, results, or other history 
+- Any past messages or events from related but separate histories/conversations (Memory)
+- Instructions about what sorts of structured data to output
+
+![220-context-engineering](https://github.com/humanlayer/12-factor-agents/blob/main/img/220-context-engineering.png)
+
+This guide is all about getting as much as possible out of today's models. Notably not mentioned are:
+
+- Changes to models parameters like temperature, top_p, frequency_penalty, presence_penalty, etc.
+- Training your own completion or embedding models
+- Fine-tuning existing models
+
 Again, I don't know what's the best way to hand context to an LLM, but I know you want the flexibility to be able to try EVERYTHING.
 
 
@@ -206,6 +224,17 @@ Key benefits of owning your context window:
 2. **Error Handling**: Include error information in a format that helps the LLM recover
 3. **Safety**: Control what information gets passed to the LLM, filtering out sensitive data
 4. **Flexibility**: Adapt the format as you learn what works best for your use case
+5. **Token Efficiency**: Optimize context format for token efficiency and LLM understanding
+
+#### Context Engineering Principles
+
+- Everything is context engineering - focus on giving LLMs the best inputs
+- Context includes: prompts, instructions, RAG documents, history, tool calls, memory
+- Optimize context format for token efficiency and LLM understanding
+- Consider custom context formats beyond standard message-based approaches
+- Structure information for maximum density and clarity
+- Include error information in formats that help LLMs recover
+- Control what information gets passed to LLMs (filter sensitive data)
 
 Remember: The context window is your primary interface with the LLM. Taking control of how you structure and present information can dramatically improve your agent's performance.
 

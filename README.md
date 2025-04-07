@@ -30,6 +30,7 @@ Welcome to 12-factor agents. As every Chicago mayor since Daley has consistently
 
 ## The Short Version: The 12 Factors
 
+- [How We Got Here: A Brief History of Software](./content/brief-history-of-software.md)
 - [Factor 1: Natural Language to Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md)
 - [Factor 2: Own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
 - [Factor 3: Own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
@@ -169,6 +170,7 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 ## The 12 Factors (again)
 
 
+- [How We Got Here: A Brief History of Software](./content/brief-history-of-software.md)
 - [Factor 1: Natural Language to Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md)
 - [Factor 2: Own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
 - [Factor 3: Own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
@@ -185,9 +187,6 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 ## Honorable Mentions / other advice
 
 - [Factor 13: Pre-fetch all the context you might need](./content/appendix-13-pre-fetch.md)
-- [Closing Thoughts - Everything is Context Engineering](./content/appendix-14-everything-is-context-engineering.md)
-
-![220-context-engineering](https://github.com/humanlayer/12-factor-agents/blob/main/img/220-context-engineering.png)
 
 ## Related Resources
 
