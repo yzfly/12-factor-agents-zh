@@ -36,4 +36,4 @@ This approach has several benefits:
 6. **Forking**: Can fork the thread at any point by copying some subset of the thread into a new context / state ID
 7. **Human Interfaces and Observability**: Trivial to convert a thread into a human-readable markdown or a rich Web app UI
 
-[Prev - factor 4 - tools are just structured outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md) [Next - factor 6 - launch/pause/resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)
+[← Tools Are Structured Outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md) | [Launch/Pause/Resume →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)

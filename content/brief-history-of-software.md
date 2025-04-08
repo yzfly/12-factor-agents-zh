@@ -1,3 +1,5 @@
+[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
+
 ## The longer version: how we got here
 
 ### you don't have to listen to me
@@ -166,3 +168,5 @@ In the "deploybot" example, we gain a couple benefits from owning the control fl
 
 
 [Part II](https://github.com/humanlayer/12-factor-agents/blob/main/README.md#12-factor-agents) will **formalize these patterns** so they can be applied to add impressive AI features to any software project, without needing to go all in on conventional implementations/definitions of "AI agent".
+
+[Own Your Prompts →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)

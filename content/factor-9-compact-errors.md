@@ -1,3 +1,4 @@
+[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
 
 ### 9. Compact Errors into Context Window
 
@@ -81,4 +82,4 @@ That's where [factor 8 - own your control flow](https://github.com/humanlayer/12
 
 But the number one way to prevent error spin-outs is to embrace [factor 10 - small, focused agents](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md).
 
-[Prev - factor 8 - own your control flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md) [Next - factor 10 - small, focused agents](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
+[← Own Your Control Flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md) | [Small Focused Agents →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
