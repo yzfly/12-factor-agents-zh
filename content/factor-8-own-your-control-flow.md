@@ -1,3 +1,4 @@
+[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
 
 ### 8. Own your control flow
 
@@ -82,4 +83,4 @@ you're forced to either:
 
 You may notice this is closely related to [factor 5 - unify execution state and business state](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-5-unify-execution-state.md) and [factor 6 - launch/pause/resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md), but can be implemented independently.
 
-[Prev - factor 7 - contact humans with tool calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md) [Next - factor 9 - compact errors into context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md)
+[← Contact Humans With Tools](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md) | [Compact Errors →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md)

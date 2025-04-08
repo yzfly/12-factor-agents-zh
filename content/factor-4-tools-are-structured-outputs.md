@@ -1,3 +1,4 @@
+[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
 
 ### 4. Tools are just structured outputs
 
@@ -48,4 +49,4 @@ else: #... the model didn't call a tool we know about
 
 The "next step" might not be as atomic as just "run a pure function and return the result". You unlock a lot of flexibility when you think of "tool calls" as just a model outputting JSON describing what deterministic code should do. Put this together with [factor 8 own your control flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md).
 
-[Prev - factor 3 - own your context window](./factor-3-own-your-context-window.md) [Next - factor 5 - unify execution state](./factor-5-unify-execution-state.md)
+[← Own Your Context Window](./factor-3-own-your-context-window.md) | [Unify Execution State →](./factor-5-unify-execution-state.md)

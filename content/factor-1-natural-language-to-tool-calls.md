@@ -58,5 +58,4 @@ else:  # the model didn't call a tool we know about
 
 **Instead**, We're actually going to skip that step here, and save it for another factor, which you may or may not want to also incorporate (up to you!)
 
-
-[Next - factor 2 - own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
+[← How We Got Here](https://github.com/humanlayer/12-factor-agents/blob/main/content/brief-history-of-software.md) | [Own Your Prompts →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
