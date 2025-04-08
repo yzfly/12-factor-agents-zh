@@ -53,13 +53,13 @@ while True:
 
 You might as well just fetch the tags and include them in the context window, like:
 
-```jinja
-When looking at deployments, you will likely want to fetch the list of published git tags,
-so you can use it to deploy to prod.
+```diff
+- When looking at deployments, you will likely want to fetch the list of published git tags,
+- so you can use it to deploy to prod.
 
-The current git tags are:
++ The current git tags are:
 
-{{ git_tags }}
++ {{ git_tags }}
 
 
 Here's what happened so far:
@@ -73,8 +73,8 @@ Answer in JSON format with one of the following intents:
 {
   intent: 'deploy_backend_to_prod',
   tag: string
-} OR {
-  intent: 'list_git_tags'
+- } OR {
+-   intent: 'list_git_tags'
 } OR {
   intent: 'done_for_now',
   message: string
@@ -84,14 +84,21 @@ Answer in JSON format with one of the following intents:
 
 and your code looks like
 
-```python
+```diff
 thread = {"events": [inital_message]}
-git_tags = await fetch_git_tags()
++ git_tags = await fetch_git_tags()
 
-next_step = await determine_next_step(thread, git_tags)
+- next_step = await determine_next_step(thread)
++ next_step = await determine_next_step(thread, git_tags)
 
 while True:
   switch next_step.intent:
+-    case 'list_git_tags':
+-      tags = await fetch_git_tags()
+-      thread["events"].append({
+-        type: 'list_git_tags',
+-        data: tags,
+-      })
     case 'deploy_backend_to_prod':
       deploy_result = await deploy_backend_to_prod(next_step.data.tag)
       thread["events"].append({
@@ -106,19 +113,23 @@ while True:
 
 or even just include the tags in the thread and remove the specific parameter from your prompt template:
 
-```python
+```diff
 thread = {"events": [inital_message]}
-thread["events"].append({
-  "type": 'list_git_tags',
-  "data": git_tags,
-})
++ # add the request
++ thread["events"].append({
++  "type": 'list_git_tags',
++ })
 
-const git_tags = await fetch_git_tags()
-thread["events"].append({
-  "type": 'list_git_tags_result',
-  "data": git_tags,
-})
-next_step = await determine_next_step(thread)
+git_tags = await fetch_git_tags()
+
++ # add the result
++ thread["events"].append({
++  "type": 'list_git_tags_result',
++  "data": git_tags,
++ })
+
+- next_step = await determine_next_step(thread, git_tags)
++ next_step = await determine_next_step(thread)
 
 while True:
   switch next_step.intent:
@@ -135,6 +146,6 @@ Overall:
 
 > #### If you already know what tools you'll want the model to call, just call them DETERMINISTICALLY and let the model do the hard part of figuring out how to use their outputs
 
-Again, AI engineering is all about Context Engineering - to wit:
+Again, AI engineering is all about [Context Engineering](./factor-3-own-your-context-window.md).
 
 [← Stateless Reducer](./factor-12-stateless-reducer.md) | [Further Reading →](../README.md#related-resources)
