@@ -1,4 +1,4 @@
-
+[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
 ### 7. Contact humans with tool calls
 
 By default, LLM APIs rely on a fundamental HIGH-STAKES token choice: Are we returning plaintext content, or are we returning structured data?
