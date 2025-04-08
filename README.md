@@ -199,6 +199,7 @@ After digging hundreds of AI libriaries and working with dozens of founders, my 
 ## Related Resources
 
 - Contribute to this guide [here](https://github.com/humanlayer/12-factor-agents)
+- [I talked about a lot of this on an episode of the Tool Use podcast](https://youtu.be/8bIHcttkOTE) in March 2025
 - I write about some of this stuff at [The Outer Loop](https://theouterloop.substack.com)
 - I do [webinars about Maximizing LLM Performance](https://github.com/hellovai/ai-that-works/tree/main) with [@hellovai](https://github.com/hellovai)
 - We build OSS agents with this methodology under [got-agents/agents](https://github.com/got-agents/agents)
