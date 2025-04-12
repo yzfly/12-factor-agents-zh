@@ -164,7 +164,7 @@ Anyways back to the thing...
 
 ### Design Patterns for great LLM applications
 
-After digging hundreds of AI libriaries and working with dozens of founders, my instinct is this:
+After digging through hundreds of AI libriaries and working with dozens of founders, my instinct is this:
 
 1. There are some core things that make agents great
 2. Going all in on a framework and building what is essentially a greenfield rewrite may be counter-productive
