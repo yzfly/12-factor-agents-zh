@@ -6,7 +6,7 @@ Preview - this is a draft of everything I've learned in a year working with agen
 --> 
 
 
-# 12 Factor Agents - Principles for building great LLM applications
+# 12 Factor Agents - Principles for building reliable LLM applications
 
 *In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
 
