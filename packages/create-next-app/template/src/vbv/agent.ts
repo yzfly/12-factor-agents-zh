@@ -1,67 +1,10 @@
-import { SlackEvent } from "@slack/web-api"
 import { b, DoneForNow, ClarificationRequest, AddTool, MultiplyTool, SubtractTool, DivideTool } from "../baml_client"
-import { SlackThread } from "../vendored"
-
-class Interrupt extends Error {
-  constructor(message: string) {
-    super(message)
-  }
-}
-
-const divide = (a: number, b: number) => {
-  throw new Interrupt("divide requires approval")
-
-  if (b === 0) {
-    throw new Error('Cannot divide by zero')
-  }
-  return a / b
-}
-
-const handleNextStep = (state: AgentState, nextStep: TerminalEvent | ToolEvent): boolean => {
-  state.addEvent(nextStep)
-
-  switch (nextStep.intent) {
-    case 'request_more_information':
-      // break - send message back to human
-      return false
-    case 'done_for_now':
-      // break - send message back to human
-      return false
-    case 'divide':
-      // break - divide is scary get approval
-      const result = divide(nextStep.a, nextStep.b)
-      state.addEvent({
-        type: 'divide_response',
-        data: result
-      })
-      return true
-    case 'add':
-      state.addEvent({
-        type: 'add_response',
-        data: nextStep.a + nextStep.b
-      })
-      return true
-    case 'subtract':
-      state.addEvent({
-        type: 'subtract_response',
-        data: nextStep.a - nextStep.b
-      })
-      return true
-    case 'multiply':
-      state.addEvent({
-        type: 'multiply_response',
-        data: nextStep.a * nextStep.b
-      })
-      return true
-  }
-}
+import { FunctionCallStatus, HumanContactStatus, humanlayer } from "humanlayer"
 
 type SlackEvent = {}
 type EmailEvent = {}
-type HumanResponseEvent = {}
-
-
-
+type HumanResponseEvent = FunctionCallStatus | HumanContactStatus
+type HumanRequestState = {}
 
 type StartEvent = SlackEvent | EmailEvent
 type TerminalEvent = DoneForNow | ClarificationRequest
@@ -69,25 +12,66 @@ type ToolEvent = AddTool | MultiplyTool | SubtractTool | DivideTool
 
 // todo(vaibhav) make this better
 type ToolResponse = any;
-type AgentEvent = TerminalEvent | ToolEvent | ToolResponse
+type AgentEvent = {
+  type: 'tool'
+  data: ToolEvent | TerminalEvent
+} | {
+  type: 'tool_response'
+  data: ToolResponse
+} | {
+  type: 'await_human'
+  data: HumanRequestState
+} | {
+  type: 'human_response'
+  data: HumanResponseEvent
+}
 
 class AgentState {
   readonly trigger: StartEvent
   events: AgentEvent[]
 
-  constructor(trigger: StartEvent, events?: AgentEvent[]) {
+  private constructor(trigger: StartEvent, events?: AgentEvent[]) {
     this.trigger = trigger
     this.events = events ?? []
   }
 
-  public get shouldContinue() : boolean {
+  static async fromHistory(trigger: StartEvent, events: AgentEvent[]) {
+    const state = new AgentState(trigger, events)
+    await state.initialize()
+    return state
+  }
 
+  static async fromTrigger(trigger: StartEvent) {
+    const state = new AgentState(trigger)
+    await state.initialize()
+    return state
+  }
+
+  private async initialize() {
+    // TODO execute pending tools if they are approved
+  }
+
+  public get shouldContinue() : boolean {
     let lastEvent = this.events[this.events.length - 1]
-    switch (lastEvent.intent) {
-      case 'divide':
-        return false
-      default:
+
+    switch (lastEvent.type) {
+      case 'tool':
+        switch (lastEvent.data.intent) {
+          case 'done_for_now':
+          case 'request_more_information':
+              return false
+          case 'add':
+          case 'subtract':
+          case 'multiply':
+          case 'divide':
+            return true
+        }
+      case 'tool_response':
         return true
+      case 'human_response':
+        return true
+      case 'await_human':
+        return false
     }
   }
 
@@ -98,24 +82,67 @@ class AgentState {
   public addEvent(event: AgentEvent) {
     this.events.push(event)
   }
-}
 
+  public async handleNextStep(nextStep: TerminalEvent | ToolEvent): Promise<void> {
+    switch (nextStep.intent) {
+      case 'request_more_information':
+        // break - send message back to human
+        return;
+      case 'done_for_now':
+        // break - send message back to human
+        return;
+      case 'divide':
+        // break - divide is scary get approval
+        this.addEvent({
+          type: 'await_human',
+          data: {}
+        })
+        return;
+      case 'add':
+        this.addEvent({
+          type: 'tool_response',
+          data: nextStep.a + nextStep.b
+        })
+        return;
+      case 'subtract':
+        this.addEvent({
+          type: 'tool_response',
+          data: nextStep.a - nextStep.b
+        })
+        return;
+      case 'multiply':
+        this.addEvent({
+          type: 'tool_response',
+          data: nextStep.a * nextStep.b
+        })
+        return;
+    }
+  }
+}
 
 async function agentLoop(state: AgentState) {
   
   while (state.shouldContinue) {
     const nextStep = await b.DetermineNextStep(state.serialize())
-    const result = handleNextStep(state, nextStep)
-    state.addEvent(nextStep, result)
+    state.addEvent({
+      type: 'tool',
+      data: nextStep
+    })
+    await state.handleNextStep(nextStep)
   }
 
-  // Do human layer stuff heremo
   return state;
 }
 
-
-async function expressEndpoint(event: SlackEvent | EmailEvent | HumanResponseEvent) {
-  const state = new AgentState(event)
+async function expressEndpoint(event: { create: SlackEvent | EmailEvent } | { continue: AgentState, tool_response: ToolResponse } | { human: HumanResponseEvent } ) {
+  if ('create' in event) {
+    const state = await AgentState.fromTrigger(event.create)
+    const resp = await agentLoop(state)
+  } else if ('continue' in event) {
+    const state = await AgentState.fromHistory(event.continue, event.tool_response)
+  } else if ('human' in event) {
+    const state = await AgentState.fromHistory(event.continue, event.tool_response)
+  }
 
   const resp = await agentLoop(state)
 
@@ -127,19 +154,5 @@ async function expressEndpoint(event: SlackEvent | EmailEvent | HumanResponseEve
 
   // else
 
-  switch (lastEvent.intent) {
-    case 'request_clarification':
-      // contact human
-      break;
-    case 'done_for_now':
-      // contact human
-      break;
-    case 'divide':
-      // request approval
-      break;
-  }
-
-  //
-  // respond to the webhook with ok, we fired off the next 
   return resp.json(200, {status: ok})
 }

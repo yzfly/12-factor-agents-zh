@@ -1,5 +1,5 @@
 {
-  "name": "create-next-app",
+  "name": "create-12-factor-agent",
   "version": "15.3.1-canary.14",
   "keywords": [
     "react",
@@ -10,12 +10,12 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/vercel/next.js",
-    "directory": "packages/create-next-app"
+    "directory": "packages/create-12-factor-agent"
   },
   "author": "Next.js Team <support@vercel.com>",
   "license": "MIT",
   "bin": {
-    "create-next-app": "./dist/index.js"
+    "create-12-factor-agent": "./dist/index.js"
   },
   "files": [
     "dist"
