@@ -50,7 +50,7 @@ export function stringifyToYaml(obj: any): string {
   })
 }
 
-const eventToPrompt = (event: Event) => {
+export const eventToPrompt = (event: Event) => {
   switch (event.type) {
     case 'email_received':
       const email = event.data as EmailPayload
@@ -71,7 +71,7 @@ const eventToPrompt = (event: Event) => {
   }
 }
 
-const threadToPrompt = (thread: Thread) => {
+export const threadToPrompt = (thread: Thread) => {
   return thread.events.map(eventToPrompt).join('\n\n')
 }
 
