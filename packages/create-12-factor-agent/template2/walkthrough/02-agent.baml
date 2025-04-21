@@ -24,28 +24,3 @@ function DetermineNextStep(
         {{ ctx.output_format }}
     "#
 }
-
-test HelloWorld {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-      {
-        "type": "user_input",
-        "data": "hello!"
-      }
-    "#
-  }
-}
-
-test MathOperation {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-      {
-        "type": "user_input",
-        "data": "can you multiply 3 and 4?"
-      }
-    "#
-  }
-}
-

@@ -23,23 +23,25 @@ function showDiff(command: string) {
     try {
         const [_, sourcePath, destPath] = command.split(' ');
         
-        // Create a temporary directory for baseline file
+        // Create a temporary directory for both files
         const tempDir = fs.mkdtempSync('/tmp/walkthrough-');
-        const tempPath = path.join(tempDir, path.basename(destPath));
+        const tempOldPath = path.join(tempDir, 'old-' + path.basename(destPath));
+        const tempNewPath = path.join(tempDir, 'new-' + path.basename(destPath));
         
-        // If destination exists, use its content as baseline
+        // If destination exists, use its content as baseline, otherwise empty file
         if (fs.existsSync(destPath)) {
             const currentContent = fs.readFileSync(destPath, 'utf8');
-            fs.writeFileSync(tempPath, currentContent);
+            fs.writeFileSync(tempOldPath, currentContent);
         } else {
-            fs.writeFileSync(tempPath, ''); // Empty file as baseline for new files
+            fs.writeFileSync(tempOldPath, '');
         }
         
-        // Copy the source file to destination
-        fs.copyFileSync(sourcePath, destPath);
+        // Copy source content to temp new file
+        const newContent = fs.readFileSync(sourcePath, 'utf8');
+        fs.writeFileSync(tempNewPath, newContent);
         
         // Use --no-index to compare files directly
-        const diff = execSync(`git --no-pager diff --no-index --color ${tempPath} ${destPath}`, { 
+        const diff = execSync(`git --no-pager diff --no-index --color ${tempOldPath} ${tempNewPath}`, { 
             encoding: 'utf8',
             stdio: ['pipe', 'pipe', 'pipe']
         });
@@ -48,14 +50,16 @@ function showDiff(command: string) {
         fs.rmSync(tempDir, { recursive: true, force: true });
         
         if (diff) {
-            console.log('\n>> File diff after copy:');
+            console.log('\n>> File diff:');
             console.log(diff);
+            console.log(chalk.dim('─'.repeat(process.stdout.columns || 80))); // Add separator line
         }
     } catch (error: any) {
         // git diff --no-index returns exit code 1 if files are different
         if (error.status === 1 && error.stdout) {
-            console.log('\n>> File diff after copy:');
+            console.log('\n>> File diff:');
             console.log(error.stdout);
+            console.log(chalk.dim('─'.repeat(process.stdout.columns || 80))); // Add separator line
         } else {
             console.error('\nError showing diff:', error.message);
         }
@@ -70,11 +74,11 @@ async function runCommand(command: string, interactive: boolean, showDiffs: bool
         await new Promise<void>((resolve) => {
             rl.question('\n[ENTER]', async () => {
                 try {
-                    execSync(command, { stdio: 'inherit' });
-                    // Show diff after copy commands if -d flag is set
+                    // For cp commands, show diff before executing
                     if (showDiffs && command.startsWith('cp ')) {
                         showDiff(command);
                     }
+                    execSync(command, { stdio: 'inherit' });
                     resolve();
                 } catch (error: any) {
                     console.error(`\nError running command: ${chalk.red(command)}`);
@@ -87,11 +91,11 @@ async function runCommand(command: string, interactive: boolean, showDiffs: bool
     } else {
         // Non-interactive mode
         try {
-            execSync(command, { stdio: 'inherit' });
-            // Show diff after copy commands if -d flag is set
+            // For cp commands, show diff before executing
             if (showDiffs && command.startsWith('cp ')) {
                 showDiff(command);
             }
+            execSync(command, { stdio: 'inherit' });
         } catch (error: any) {
             console.error(`\nError running command: ${chalk.red(command)}`);
             if (error.stdout) console.error('\nCommand output:', error.stdout.toString());

@@ -26,8 +26,7 @@ npx tsx src/index.ts
 
 
 ```
-git add .
-git commit -m "add hello world"
+git add . &&  git commit -m "add hello world"
 ```
 
 #### chapter 1 - cli and agent loop
@@ -67,8 +66,7 @@ npx tsx src/index.ts hello
 ```
 
 ```
-git add .
-git commit -m "add cli and agent loop"
+git add . &&  git commit -m "add cli and agent loop"
 ```
 
 #### chapter 2 - add calculator tools
@@ -91,8 +89,7 @@ npx tsx src/index.ts 'can you add 3 and 4?'
 ```
 
 ```
-git add .
-git commit -m "add calculator tools"
+git add . &&  git commit -m "add calculator tools"
 ```
 
 ### chapter 3 - process tool call in a loop
@@ -144,8 +141,7 @@ npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and 
 ```
 
 ```
-git add .
-git commit -m "add agent loop"
+git add . &&  git commit -m "add agent loop"
 ```
 
 ### chapter 4 - add tests to agent.baml
@@ -160,7 +156,7 @@ try in playground
 npx baml-cli test
 ```
 
-add an assert that fails
+add an assert that fails and test again
 
 ```
 npx baml-cli test
@@ -183,6 +179,11 @@ copy the thread from the output into another test
 
 ```
 cp walkthrough/04c-agent.baml baml_src/agent.baml
+```
+
+```
+npx baml-cli test
+```
 
 ### chapter 5 - multiple human tools
 
@@ -214,30 +215,82 @@ cp walkthrough/05-cli.ts src/cli.ts
 npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& ?'
 ```
 
+lets add some tests for this behavior
+
 ```
-git add .
-git commit -m "add request more information"
+cp walkthrough/05b-agent.baml baml_src/agent.baml
 ```
 
+```
+npx baml-cli test
+```
 
-### chapter N - customize your context window
+looks like we also broke our hello world test, lets fix that
 
-- json display indent=2
-- custom display for events
-- change to xml
-- update tests
+```
+cp walkthrough/05c-agent.baml baml_src/agent.baml
+```
+
+```
+npx baml-cli test
+```
+
+```
+git add . &&  git commit -m "add request more information and fix tests"
+```
 
 ### chapter N - customize your prompt with reasoning
 
-
-<!-- change this to a cp, but won't have it in the base prompt for now -->
+If we want to make our prompt event better, lets add some reasoning
 
 ```
-        Always think about what to do next first, like
+cp walkthrough/06-agent.baml baml_src/agent.baml
+```
 
-        - ...
-        - ...
-        - ...
+```
+npx baml-cli test
+```
+
+>        Always think about what to do next first, like
+>
+>        - ...
+>        - ...
+>        - ...
+
+
+### chapter 7 - customize your context window
+
+Our context windows could be better, lets 
+demonstrate context window customization
+
+- json display indent=2
+
+```
+cp walkthrough/07-agent.ts src/agent.ts
+```
+
+```
+BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result?'
+```
+
+mixing in xml
+
+```
+cp walkthrough/07b-agent.ts src/agent.ts
+```
+
+```
+BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result?'
+```
+
+updating tests
+
+```
+cp walkthrough/07c-agent.baml baml_src/agent.baml
+```
+
+```
+npx baml-cli test
 ```
 
 ### chapter N - adding api endpoints server
@@ -256,9 +309,9 @@ rm -r baml_src
 ```
 
 ```
-git add .
-git commit -m "clean up"
+git add . &&  git commit -m "clean up"
 ```
 
 ## Todos
-- vbv todos, ~1hr - a couple things to handle in parallel
+- fix up the reasoning prompt I can't get it to think out loud
+- 
