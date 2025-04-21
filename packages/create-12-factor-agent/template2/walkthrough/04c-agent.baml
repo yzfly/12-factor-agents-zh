@@ -1,42 +1,23 @@
-// human tools are async requests to a human
-type HumanTools = ClarificationRequest | DoneForNow
-
-class ClarificationRequest {
-  intent "request_more_information" @description("you can request more information from me")
-  message string
-
-}
-
 class DoneForNow {
   intent "done_for_now"
-
-  message string @description(#"
-    message to send to the user about the work that was done. 
-  "#)
+  message string 
 }
 
 function DetermineNextStep(
     thread: string 
-) -> HumanTools | CalculatorTools {
+) -> CalculatorTools | DoneForNow {
     client "openai/gpt-4o"
 
     prompt #"
         {{ _.role("system") }}
 
-        TODO(vaibhav) basic prompt
-
-        - ...
-        - ...
-        - ...
+        You are a helpful assistant that can help with tasks.
 
         {{ _.role("user") }}
-
-        TODO(vaibhav) basic user
 
         You are working on the following thread:
 
         {{ thread }}
-
 
         What should the next step be?
 

@@ -59,7 +59,7 @@ export async function handleNextStep(nextStep: CalculatorTool, thread: Thread): 
     }
 }
 
-export async function agentLoop(thread: Thread): Promise<string> {
+export async function agentLoop(thread: Thread): Promise<Thread> {
 
     while (true) {
         const nextStep = await b.DetermineNextStep(thread.serializeForLLM());
@@ -72,8 +72,9 @@ export async function agentLoop(thread: Thread): Promise<string> {
 
         switch (nextStep.intent) {
             case "done_for_now":
+            case "request_more_information":
                 // response to human, return the next step object
-                return nextStep.message;
+                return thread;
             case "add":
             case "subtract":
             case "multiply":

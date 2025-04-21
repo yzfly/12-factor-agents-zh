@@ -27,9 +27,16 @@ function showDiff(command: string) {
         const tempDir = fs.mkdtempSync('/tmp/walkthrough-');
         const tempPath = path.join(tempDir, path.basename(destPath));
         
+        // If destination exists, use its content as baseline
         if (fs.existsSync(destPath)) {
-            fs.writeFileSync(tempPath, ''); // Empty file as baseline
+            const currentContent = fs.readFileSync(destPath, 'utf8');
+            fs.writeFileSync(tempPath, currentContent);
+        } else {
+            fs.writeFileSync(tempPath, ''); // Empty file as baseline for new files
         }
+        
+        // Copy the source file to destination
+        fs.copyFileSync(sourcePath, destPath);
         
         // Use --no-index to compare files directly
         const diff = execSync(`git --no-pager diff --no-index --color ${tempPath} ${destPath}`, { 

@@ -35,6 +35,7 @@ test HelloWorld {
       }
     "#
   }
+  @@assert(hello, {{this.intent == "done_for_now"}})
 }
 
 test MathOperation {
@@ -47,5 +48,6 @@ test MathOperation {
       }
     "#
   }
+  @@assert(math_operation, {{this.intent == "multiply"}})
 }
 

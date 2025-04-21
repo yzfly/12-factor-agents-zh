@@ -151,7 +151,7 @@ git commit -m "add agent loop"
 ### chapter 4 - add tests to agent.baml
 
 ```
-cp
+cp walkthrough/04-agent.baml baml_src/agent.baml
 ```
 
 try in playground
@@ -163,20 +163,52 @@ npx baml-cli test
 add an assert that fails
 
 ```
-npx baml-cli-test
+npx baml-cli test
 ```
 
 change the assert to pass
+
+```
+cp walkthrough/04b-agent.baml baml_src/agent.baml
+```
+
+Now let's build a test with a much more complex tool call
+
+```
+BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result?'
+```
+
+copy the thread from the output into another test 
+
+
+```
+cp walkthrough/04c-agent.baml baml_src/agent.baml
 
 ### chapter 5 - multiple human tools
 
 cp statements 
 
 ```
+cp walkthrough/05-agent.baml baml_src/agent.baml
 ```
 
-Let's also test the `request_more_information` intent by sending the llm a
+```
+npx baml-cli generate
+```
+
+We can test the `request_more_information` intent by sending the llm a
 garbled message.
+
+```
+npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& ?'
+```
+
+lets update our cli loop to ask the human for input if the agent returns a `request_more_information` intent
+
+```
+cp walkthrough/05-agent.ts src/agent.ts
+cp walkthrough/05-cli.ts src/cli.ts
+```
 
 ```
 npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& ?'
@@ -187,17 +219,11 @@ git add .
 git commit -m "add request more information"
 ```
 
-### chapter N - adding api endpoints server
-
-### chapter N - making the server asynchronous
-
-
-### chapter N - launching from email
-
 
 ### chapter N - customize your context window
 
-- hide certain events
+- json display indent=2
+- custom display for events
 - change to xml
 - update tests
 
@@ -213,6 +239,14 @@ git commit -m "add request more information"
         - ...
         - ...
 ```
+
+### chapter N - adding api endpoints server
+
+### chapter N - making the server asynchronous
+
+
+### chapter N - launching from email
+
 
 ### cleaning up
 
