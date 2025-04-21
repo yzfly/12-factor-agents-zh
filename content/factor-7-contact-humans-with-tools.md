@@ -1,4 +1,5 @@
 [← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
+
 ### 7. Contact humans with tool calls
 
 By default, LLM APIs rely on a fundamental HIGH-STAKES token choice: Are we returning plaintext content, or are we returning structured data?
@@ -12,7 +13,6 @@ You're putting a lot of weight on that choice of first token, which, in the `the
 but in the `fetch_weather` case, it's some special token to denote the start of a JSON object.
 
 > |JSON>
-
 
 You might get better results by having the LLM *always* output json, and then declare it's intent with some natural language tokens like `request_human_input` or `done_for_now` (as opposed to a "proper" tool like `check_weather_in_city`). 
 
@@ -115,10 +115,10 @@ If we were using the XML-y formatted from [factor 3 - own your context window](h
 Benefits:
 
 1. **Clear Instructions**: Tools for different types of human contact allow for more specifity from the LLM 
-2. **Inner vs Outer Loop**: Enables agents workflows **outside** of the traditional chatGPT-style interface, where the control flow and context initialization may be Agent->Human rather than Human->Agent (think, agents kicked off on a cron or an event)
+2. **Inner vs Outer Loop**: Enables agents workflows **outside** of the traditional chatGPT-style interface, where the control flow and context initialization may be `Agent->Human` rather than `Human->Agent` (think, agents kicked off by a cron or an event)
 3. **Multiple Human Access**: Can easily track and coordinate input from different humans through structured events
-4. **Multi-Agent**: Simple abstraction can be easily extended to support Agent->Agent requests and responses. 
-5. **Durable**: Combined with [factor 6 - launch/pause/resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md), this makes for durable, reliable, and introspectable multiplayer workflows.
+4. **Multi-Agent**: Simple abstraction can be easily extended to support `Agent->Agent` requests and responses
+5. **Durable**: Combined with [factor 6 - launch/pause/resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md), this makes for durable, reliable, and introspectable multiplayer workflows
 
 [More on Outer Loop Agents over here](https://theouterloop.substack.com/p/openais-realtime-api-is-a-step-towards)
 

@@ -2,7 +2,6 @@
 
 ### 2. Own your prompts
 
-
 Don't outsource your prompt engineering to a framework. 
 
 ![120-own-your-prompts](https://github.com/humanlayer/12-factor-agents/blob/main/img/120-own-your-prompts.png)

@@ -79,7 +79,7 @@ Around 20 years ago, we started to see DAG orchestrators become popular. We're t
 
 ![015-dag-orchestrators](https://github.com/humanlayer/12-factor-agents/blob/main/img/015-dag-orchestrators.png)
 
-### the promise of agents
+### The promise of agents
 
 I'm not the first [person to say this](https://youtu.be/Dc99-zTMyMg?si=bcT0hIwWij2mR-40&t=73), but my biggest takeaway when I started learning about agents, was that you get to throw the DAG away. Instead of software engineers coding each step and edge case, you can give the agent a goal and a set of transitions:
 
@@ -92,7 +92,7 @@ And let the LLM make decisions in real time to figure out the path
 The promise here is that you write less software, you just give the LLM the "edges" of the graph and let it figure out the nodes. You can recover from errors, you can write less code, and you may find that LLMs find novel solutions to problems.
 
 
-### agents as loops
+### Agents as loops
 
 As we'll see later, it turns out this doesn't quite work.
 
@@ -101,7 +101,7 @@ Let's dive one step deeper - with agents you've got this loop consisting of 3 st
 1. LLM determines the next step in the workflow, outputting structured json ("tool calling")
 2. Deterministic code executes the tool call
 3. The result is appended to the context window 
-4. repeat until the next step is determined to be "done"
+4. Repeat until the next step is determined to be "done"
 
 ```python
 initial_event = {"message": "..."}
@@ -141,7 +141,7 @@ In building HumanLayer, I've talked to at least 100 SaaS builders (mostly techni
 3. Want to move fast, so grab $FRAMEWORK and *get to building*
 4. Get to 70-80% quality bar 
 5. Realize that 80% isn't good enough for most customer-facing features
-6. Realize that getting past 80% requires reverse-engineering the framework, prompts, flow, etc
+6. Realize that getting past 80% requires reverse-engineering the framework, prompts, flow, etc.
 7. Start over from scratch
 
 <details>

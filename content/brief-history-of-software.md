@@ -2,12 +2,12 @@
 
 ## The longer version: how we got here
 
-### you don't have to listen to me
+### You don't have to listen to me
 
 Whether you're new to agents or an ornery old veteran like me, I'm going to try to convince you to throw out most of what you think about AI Agents, take a step back, and rethink them from first principles. (spoiler alert if you didn't catch the OpenAI responses launch a few weeks back, but pushing MORE agent logic behind an API ain't it)
 
 
-## agents are software, and a brief history thereof
+## Agents are software, and a brief history thereof
 
 let's talk about how we got here
 
@@ -31,7 +31,7 @@ When ML models started to get good enough to be useful, we started to see DAGs w
 
 But at the end of the day, it's still mostly the same good old deterministic software.
 
-### the promise of agents
+### The promise of agents
 
 I'm not the first [person to say this](https://youtu.be/Dc99-zTMyMg?si=bcT0hIwWij2mR-40&t=73), but my biggest takeaway when I started learning about agents, was that you get to throw the DAG away. Instead of software engineers coding each step and edge case, you can give the agent a goal and a set of transitions:
 
@@ -43,7 +43,7 @@ And let the LLM make decisions in real time to figure out the path
 
 The promise here is that you write less software, you just give the LLM the "edges" of the graph and let it figure out the nodes. You can recover from errors, you can write less code, and you may find that LLMs find novel solutions to problems.
 
-### agents as loops
+### Agents as loops
 
 Put another way, you've got this loop consisting of 3 steps:
 
@@ -84,7 +84,7 @@ And the "materialized" DAG that was generated would look something like:
 
 ![027-agent-loop-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-dag.png)
 
-### the problem with this "loop until you solve it" pattern
+### The problem with this "loop until you solve it" pattern
 
 The biggest problems with this pattern:
 
@@ -99,7 +99,7 @@ I'll even perhaps posit something I've heard in passing quite a bit, and that YO
 
 Most builders I've talked to **pushed the "tool calling loop" idea to the side** when they realized that anything more than 10-20 turns becomes a big mess that the LLM can't recover from. Even if the agent gets it right 90% of the time, that's miles away from "good enough to put in customer hands". Can you imagine a web app that crashed on 10% of page loads?
 
-### what actually works - micro agents
+### What actually works - micro agents
 
 One thing that I **have** seen in the wild quite a bit is taking the agent pattern and sprinkling it into a broader more deterministic DAG. 
 
@@ -109,7 +109,7 @@ You might be asking - "why use agents at all in this case?" - we'll get into tha
 
 > #### having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback...without spinning out into context error loops
 
-### a real life micro agent 
+### A real life micro agent 
 
 Here's an example of how deterministic code might run one micro agent responsible for handling the human-in-the-loop steps for deployment. 
 
@@ -152,7 +152,7 @@ We haven't given this agent a huge pile of tools or tasks. The primary value in 
 
 Here's another [more classic support / chatbot demo](https://x.com/chainlit_io/status/1858613325921480922).
 
-### so what's an agent really?
+### So what's an agent really?
 
 - **prompt** - tell an LLM how to behave, and what "tools" it has available. The output of the prompt is a JSON object that describe the next step in the workflow (the "tool call" or "function call"). ([factor 2](./factor-2-own-your-prompts.md))
 - **switch statement** - based on the JSON that the LLM returns, decide what to do with it. (part of [factor 8](./factor-8-own-your-control-flow.md))
