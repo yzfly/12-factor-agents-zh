@@ -10,7 +10,7 @@ If you own your control flow, you can do lots of fun things.
 Build your own control structures that make sense for your specific use case. Specifically, certain types of tool calls may be reason to break out of the loop and wait for a response from a human or another long-running task like a training pipeline. You may also want to incorporate custom implementation of:
 
 - summarization or caching of tool call results
-- LLM as judge on structured output
+- LLM as a judge on structured output
 - context window compaction or other [memory management](https://github.com/humanlayer/12-factor-agents/blob/main/content/appendix-14-everything-is-context-engineering.md)
 - logging, tracing, and metrics
 - client-side rate limiting
@@ -76,7 +76,7 @@ a working agent and resume later, ESPECIALLY between the moment of tool **select
 Without this level of resumability/granularity, there's no way to review/approve the tool call before it runs, which means
 you're forced to either:
 
-1. Pause the task in memory while waiting for the long-running thing to complete (think `while...sleep`) and restart it from the beginning if the process is interrupted.
+1. Pause the task in memory while waiting for the long-running thing to complete (think `while...sleep`) and restart it from the beginning if the process is interrupted
 2. Restrict the agent to only low-stakes, low-risk calls like research and summarization
 3. Give the agent access to do bigger, more useful things, and just yolo hope it doesn't screw up
 

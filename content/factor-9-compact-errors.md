@@ -73,8 +73,8 @@ Hitting some consecutive-error-threshold might be a great place to [escalate to 
 
 Benefits:
 
-1. **Self-Healing**: The LLM can read the error message and figure out what to change in a subsequent tool call.
-2. **Durable**: The agent can continue to run even if one tool call fails.
+1. **Self-Healing**: The LLM can read the error message and figure out what to change in a subsequent tool call
+2. **Durable**: The agent can continue to run even if one tool call fails
 
 I'm sure you will find that if you do this TOO much, your agent will start to spin out and might repeat the same error over and over again. 
 
