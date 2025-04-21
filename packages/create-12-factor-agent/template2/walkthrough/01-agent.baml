@@ -24,3 +24,15 @@ function DetermineNextStep(
         {{ ctx.output_format }}
     "#
 }
+
+test HelloWorld {
+  functions [DetermineNextStep]
+  args {
+    thread #"
+      {
+        "type": "user_input",
+        "data": "hello!"
+      }
+    "#
+  }
+}

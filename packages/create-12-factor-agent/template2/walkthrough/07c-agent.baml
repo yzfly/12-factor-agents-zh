@@ -24,14 +24,6 @@ function DetermineNextStep(
 
         You are a helpful assistant that can help with tasks.
 
-        Always think about what to do next first, like:
-
-        - ...
-        - ...
-        - ...
-
-        {...} // schema
-
         {{ _.role("user") }}
 
         You are working on the following thread:
@@ -41,6 +33,14 @@ function DetermineNextStep(
         What should the next step be?
 
         {{ ctx.output_format }}
+
+        Always think about what to do next first, like:
+
+        - ...
+        - ...
+        - ...
+
+        {...} // schema
     "#
 }
 

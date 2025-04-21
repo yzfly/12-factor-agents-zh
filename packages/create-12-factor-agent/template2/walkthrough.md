@@ -184,6 +184,9 @@ cp walkthrough/04c-agent.baml baml_src/agent.baml
 ```
 npx baml-cli test
 ```
+```
+git add . &&  git commit -m "add tests to agent.baml"
+```
 
 ### chapter 5 - multiple human tools
 
@@ -239,7 +242,7 @@ npx baml-cli test
 git add . &&  git commit -m "add request more information and fix tests"
 ```
 
-### chapter N - customize your prompt with reasoning
+### chapter 6 - customize your prompt with reasoning
 
 If we want to make our prompt event better, lets add some reasoning
 
@@ -248,7 +251,7 @@ cp walkthrough/06-agent.baml baml_src/agent.baml
 ```
 
 ```
-npx baml-cli test
+npx baml-cli generate
 ```
 
 >        Always think about what to do next first, like
@@ -257,6 +260,9 @@ npx baml-cli test
 >        - ...
 >        - ...
 
+```
+git add . &&  git commit -m "add reasoning to agent.baml"
+```
 
 ### chapter 7 - customize your context window
 
