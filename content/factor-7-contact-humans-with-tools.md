@@ -115,7 +115,7 @@ If we were using the XML-y formatted from [factor 3 - own your context window](h
 Benefits:
 
 1. **Clear Instructions**: Tools for different types of human contact allow for more specifity from the LLM 
-2. **Inner vs Outer Loop**: Enables agents workflows **outside** of the traditional chatGPT-style interface, where the control flow and context initialization may be `Agent->Human` rather than `Human->Agent` (think, agents kicked off a cron or an event)
+2. **Inner vs Outer Loop**: Enables agents workflows **outside** of the traditional chatGPT-style interface, where the control flow and context initialization may be `Agent->Human` rather than `Human->Agent` (think, agents kicked off by a cron or an event)
 3. **Multiple Human Access**: Can easily track and coordinate input from different humans through structured events
 4. **Multi-Agent**: Simple abstraction can be easily extended to support `Agent->Agent` requests and responses
 5. **Durable**: Combined with [factor 6 - launch/pause/resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md), this makes for durable, reliable, and introspectable multiplayer workflows
