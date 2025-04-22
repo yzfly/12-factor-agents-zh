@@ -5,7 +5,7 @@
 This one is a little short but is worth mentioning. One of these benefits of agents is "self-healing" - for short tasks, an LLM might call a tool that fails. Good LLMs have a fairly good chance of reading an error message or stack trace and figuring out what to change in a subsequent tool call.
 
 
-Most frameworks implement this, but you can do JUST THIS without doing any of the other 11 factors. Here's an example of 
+Most frameworks implement this, but you can do JUST THIS without doing any of the other 11 factors. Here's an example: 
 
 
 ```python
