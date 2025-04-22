@@ -26,7 +26,7 @@ npx tsx src/index.ts
 
 
 ```
-git add . &&  git commit -m "add hello world"
+git add . && git commit -m "clean up" && git show HEAD --color=always | cat
 ```
 
 #### chapter 1 - cli and agent loop
@@ -66,7 +66,7 @@ npx tsx src/index.ts hello
 ```
 
 ```
-git add . &&  git commit -m "add cli and agent loop"
+git add . && git commit -m "add cli and agent loop" && git show HEAD --color=always | cat
 ```
 
 #### chapter 2 - add calculator tools
@@ -89,7 +89,7 @@ npx tsx src/index.ts 'can you add 3 and 4?'
 ```
 
 ```
-git add . &&  git commit -m "add calculator tools"
+git add . && git commit -m "add calculator tools" && git show HEAD --color=always | cat
 ```
 
 ### chapter 3 - process tool call in a loop
@@ -141,7 +141,7 @@ npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and 
 ```
 
 ```
-git add . &&  git commit -m "add agent loop"
+git add . && git commit -m "add agent loop" && git show HEAD --color=always | cat
 ```
 
 ### chapter 4 - add tests to agent.baml
@@ -185,7 +185,7 @@ cp walkthrough/04c-agent.baml baml_src/agent.baml
 npx baml-cli test
 ```
 ```
-git add . &&  git commit -m "add tests to agent.baml"
+git add . && git commit -m "add tests to agent.baml" && git show HEAD --color=always | cat
 ```
 
 ### chapter 5 - multiple human tools
@@ -239,7 +239,7 @@ npx baml-cli test
 ```
 
 ```
-git add . &&  git commit -m "add request more information and fix tests"
+git add . && git commit -m "add request more information and fix tests" && git show HEAD --color=always | cat
 ```
 
 ### chapter 6 - customize your prompt with reasoning
@@ -261,7 +261,7 @@ npx baml-cli generate
 >        - ...
 
 ```
-git add . &&  git commit -m "add reasoning to agent.baml"
+git add . && git commit -m "add reasoning to agent.baml" && git show HEAD --color=always | cat
 ```
 
 ### chapter 7 - customize your context window
@@ -315,7 +315,7 @@ rm -r baml_src
 ```
 
 ```
-git add . &&  git commit -m "clean up"
+git add . && git commit -m "clean up" && git show HEAD --color=always | cat
 ```
 
 ## Todos
