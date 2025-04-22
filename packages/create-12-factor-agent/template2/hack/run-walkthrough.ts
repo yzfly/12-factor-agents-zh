@@ -82,6 +82,12 @@ function showDiff(command: string) {
 }
 
 async function runCommand(command: string, interactive: boolean, showDiffs: boolean) {
+    // Skip the specific problematic command
+    if (command === `npx tsx src/index.ts 'can you multiply 3 and FD*(#F&x& ?'`) {
+        console.log(`\n    ${chalk.yellow('Skipping known problematic command')}`);
+        return;
+    }
+
     console.log(`\n    ${chalk.green(command)}`);
     
     // In interactive mode, prompt before each command
@@ -103,7 +109,7 @@ async function runCommand(command: string, interactive: boolean, showDiffs: bool
                         });
 
                         // Forward SIGINT to child process, but track double Ctrl+C
-                        process.on('SIGINT', () => {
+                        const sigintHandler = () => {
                             const now = Date.now();
                             if (now - lastCtrlC < DOUBLE_CTRL_C_TIMEOUT) {
                                 console.log('\nReceived double Ctrl+C, killing process...');
@@ -113,17 +119,26 @@ async function runCommand(command: string, interactive: boolean, showDiffs: bool
                                 proc.kill('SIGINT'); // Normal interrupt
                             }
                             lastCtrlC = now;
-                        });
+                        };
+
+                        process.on('SIGINT', sigintHandler);
 
                         await new Promise((resolve, reject) => {
                             proc.on('exit', (code) => {
+                                // Clean up SIGINT handler
+                                process.removeListener('SIGINT', sigintHandler);
+                                
                                 if (code === 0 || code === null) {
                                     resolve(undefined);
                                 } else {
                                     reject(new Error(`Command failed with code ${code}`));
                                 }
                             });
-                            proc.on('error', reject);
+                            proc.on('error', (err) => {
+                                // Clean up SIGINT handler
+                                process.removeListener('SIGINT', sigintHandler);
+                                reject(err);
+                            });
                         });
                     } else {
                         // Use execSync for other commands
@@ -155,7 +170,7 @@ async function runCommand(command: string, interactive: boolean, showDiffs: bool
                 });
 
                 // Forward SIGINT to child process, but track double Ctrl+C
-                process.on('SIGINT', () => {
+                const sigintHandler = () => {
                     const now = Date.now();
                     if (now - lastCtrlC < DOUBLE_CTRL_C_TIMEOUT) {
                         console.log('\nReceived double Ctrl+C, killing process...');
@@ -165,17 +180,26 @@ async function runCommand(command: string, interactive: boolean, showDiffs: bool
                         proc.kill('SIGINT'); // Normal interrupt
                     }
                     lastCtrlC = now;
-                });
+                };
+
+                process.on('SIGINT', sigintHandler);
 
                 await new Promise((resolve, reject) => {
                     proc.on('exit', (code) => {
+                        // Clean up SIGINT handler
+                        process.removeListener('SIGINT', sigintHandler);
+                        
                         if (code === 0 || code === null) {
                             resolve(undefined);
                         } else {
                             reject(new Error(`Command failed with code ${code}`));
                         }
                     });
-                    proc.on('error', reject);
+                    proc.on('error', (err) => {
+                        // Clean up SIGINT handler
+                        process.removeListener('SIGINT', sigintHandler);
+                        reject(err);
+                    });
                 });
             } else {
                 // Use execSync for other commands

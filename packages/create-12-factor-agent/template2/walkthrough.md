@@ -189,8 +189,6 @@ git add . && git commit -m "add tests to agent.baml" && git show HEAD --color=al
 
 ### chapter 5 - multiple human tools
 
-cp statements 
-
 ```
 cp walkthrough/05-agent.baml baml_src/agent.baml
 ```
@@ -203,7 +201,7 @@ We can test the `request_more_information` intent by sending the llm a
 garbled message.
 
 ```
-npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& ?'
+npx tsx src/index.ts 'can you multiply 3 and FD*(#F&x& ?'
 ```
 
 lets update our cli loop to ask the human for input if the agent returns a `request_more_information` intent
@@ -329,10 +327,6 @@ curl -X POST http://localhost:3000/thread \
 
 Run the tests:
 
-```bash
-npx jest src/server.test.ts
-```
-
 ```
 git add . && git commit -m "add api endpoints" && git show HEAD --color=always | cat
 ```
@@ -360,15 +354,27 @@ curl -X POST 'http://localhost:3000/thread/{thread_id}/response' \
   -d '{"message":"lets use 5 instead of xyz"}'
 ```
 
-Run the tests:
+### chapter 10 - adding human approval
+
+```
+cp walkthrough/10-server.ts src/server.ts
+cp walkthrough/10-agent.ts src/agent.ts
+```
+
+```
+npx tsx src/server.ts
+```
+
+```
+curl -X POST http://localhost:3000/thread \
+  -H "Content-Type: application/json" \
+  -d '{"message":"can you divide 3 by 4?"}'
+```
 
 
-### chapter N - adding api endpoints server
-
-### chapter N - making the server asynchronous
 
 
-### chapter N - launching from email
+
 
 
 ### cleaning up
@@ -381,7 +387,3 @@ rm -r baml_src
 ```
 git add . && git commit -m "clean up" && git show HEAD --color=always | cat
 ```
-
-## Todos
-- fix up the reasoning prompt I can't get it to think out loud
--

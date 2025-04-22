@@ -1,6 +1,9 @@
 import crypto from 'crypto';
 import { Thread } from '../src/agent';
 
+
+// you can replace this with any simple state management,
+// e.g. redis, sqlite, postgres, etc
 export class ThreadStore {
     private threads: Map<string, Thread> = new Map();
     
