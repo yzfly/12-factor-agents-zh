@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
@@ -8,6 +8,21 @@ import chalk from 'chalk';
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
+});
+
+// Track Ctrl+C presses
+let lastCtrlC = 0;
+const DOUBLE_CTRL_C_TIMEOUT = 1000; // 1 second timeout for double Ctrl+C
+
+// Handle Ctrl+C (SIGINT) at process level
+process.on('SIGINT', () => {
+    const now = Date.now();
+    if (now - lastCtrlC < DOUBLE_CTRL_C_TIMEOUT) {
+        console.log('\nReceived double Ctrl+C, killing all processes...');
+        process.exit(1);
+    }
+    lastCtrlC = now;
+    console.log('\nPress Ctrl+C again within 1 second to force quit');
 });
 
 // Promise-based wrapper for readline question
@@ -78,7 +93,42 @@ async function runCommand(command: string, interactive: boolean, showDiffs: bool
                     if (showDiffs && command.startsWith('cp ')) {
                         showDiff(command);
                     }
-                    execSync(command, { stdio: 'inherit' });
+                    
+                    // Use spawn for better signal handling
+                    if (command.startsWith('npx ') || command.startsWith('npm ')) {
+                        const parts = command.split(' ');
+                        const proc = spawn(parts[0], parts.slice(1), {
+                            stdio: 'inherit',
+                            shell: true
+                        });
+
+                        // Forward SIGINT to child process, but track double Ctrl+C
+                        process.on('SIGINT', () => {
+                            const now = Date.now();
+                            if (now - lastCtrlC < DOUBLE_CTRL_C_TIMEOUT) {
+                                console.log('\nReceived double Ctrl+C, killing process...');
+                                proc.kill('SIGKILL'); // Force kill
+                                process.exit(1);
+                            } else {
+                                proc.kill('SIGINT'); // Normal interrupt
+                            }
+                            lastCtrlC = now;
+                        });
+
+                        await new Promise((resolve, reject) => {
+                            proc.on('exit', (code) => {
+                                if (code === 0 || code === null) {
+                                    resolve(undefined);
+                                } else {
+                                    reject(new Error(`Command failed with code ${code}`));
+                                }
+                            });
+                            proc.on('error', reject);
+                        });
+                    } else {
+                        // Use execSync for other commands
+                        execSync(command, { stdio: 'inherit' });
+                    }
                     resolve();
                 } catch (error: any) {
                     console.error(`\nError running command: ${chalk.red(command)}`);
@@ -95,7 +145,42 @@ async function runCommand(command: string, interactive: boolean, showDiffs: bool
             if (showDiffs && command.startsWith('cp ')) {
                 showDiff(command);
             }
-            execSync(command, { stdio: 'inherit' });
+            
+            // Use spawn for better signal handling
+            if (command.startsWith('npx ') || command.startsWith('npm ')) {
+                const parts = command.split(' ');
+                const proc = spawn(parts[0], parts.slice(1), {
+                    stdio: 'inherit',
+                    shell: true
+                });
+
+                // Forward SIGINT to child process, but track double Ctrl+C
+                process.on('SIGINT', () => {
+                    const now = Date.now();
+                    if (now - lastCtrlC < DOUBLE_CTRL_C_TIMEOUT) {
+                        console.log('\nReceived double Ctrl+C, killing process...');
+                        proc.kill('SIGKILL'); // Force kill
+                        process.exit(1);
+                    } else {
+                        proc.kill('SIGINT'); // Normal interrupt
+                    }
+                    lastCtrlC = now;
+                });
+
+                await new Promise((resolve, reject) => {
+                    proc.on('exit', (code) => {
+                        if (code === 0 || code === null) {
+                            resolve(undefined);
+                        } else {
+                            reject(new Error(`Command failed with code ${code}`));
+                        }
+                    });
+                    proc.on('error', reject);
+                });
+            } else {
+                // Use execSync for other commands
+                execSync(command, { stdio: 'inherit' });
+            }
         } catch (error: any) {
             console.error(`\nError running command: ${chalk.red(command)}`);
             if (error.stdout) console.error('\nCommand output:', error.stdout.toString());

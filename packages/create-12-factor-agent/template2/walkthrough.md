@@ -1,4 +1,3 @@
-
 ### Building the 12-factor agent template from scratch
 
 Steps to start from an bare TS repo and build up a 12-factor agent.
@@ -299,6 +298,71 @@ cp walkthrough/07c-agent.baml baml_src/agent.baml
 npx baml-cli test
 ```
 
+### chapter 8 - adding api endpoints
+
+First, let's add the required dependencies:
+
+```bash
+npm install express
+npm install --save-dev @types/express supertest
+```
+
+Now let's create our API server:
+
+```bash
+cp walkthrough/08-server.ts src/server.ts
+```
+
+You can now start the server:
+
+```bash
+npx tsx src/server.ts
+```
+
+And in another terminal, you can try it out:
+
+```bash
+curl -X POST http://localhost:3000/thread \
+  -H "Content-Type: application/json" \
+  -d '{"message":"can you add 3 and 4?"}'
+```
+
+Run the tests:
+
+```bash
+npx jest src/server.test.ts
+```
+
+```
+git add . && git commit -m "add api endpoints" && git show HEAD --color=always | cat
+```
+
+### chapter 9 - in-memory state and async clarification
+
+Now let's add state management and async clarification support:
+
+```bash
+cp walkthrough/09-state.ts src/state.ts
+cp walkthrough/09-server.ts src/server.ts
+```
+
+Try out the clarification flow:
+
+```bash
+# Start a thread with unclear input
+curl -X POST http://localhost:3000/thread \
+  -H "Content-Type: application/json" \
+  -d '{"message":"can you multiply 3 and xyz?"}'
+
+# You'll get back a response with a response_url - use that URL to send clarification
+curl -X POST 'http://localhost:3000/thread/{thread_id}/response' \
+  -H "Content-Type: application/json" \
+  -d '{"message":"lets use 5 instead of xyz"}'
+```
+
+Run the tests:
+
+
 ### chapter N - adding api endpoints server
 
 ### chapter N - making the server asynchronous
@@ -320,4 +384,4 @@ git add . && git commit -m "clean up" && git show HEAD --color=always | cat
 
 ## Todos
 - fix up the reasoning prompt I can't get it to think out loud
-- 
+-
