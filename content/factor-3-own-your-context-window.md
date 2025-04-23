@@ -110,11 +110,6 @@ Here's an example of putting the whole context window into a single user message
 
 The model may infer that you're asking it `what's the next step` by the tool schemas you supply, but it never hurts to roll it into your prompt template.
 
-One thing that's interesting - token counts and information density in json compared to xml
-
-![Loom Screenshot 2025-04-22 at 09 00 56](https://github.com/user-attachments/assets/5cf041c6-72da-4943-be8a-99c73162b12a)
-
-
 ### code example
 
 We can build this with something like: 
@@ -227,23 +222,22 @@ nextStep = await determine_next_step(thread_to_prompt(thread))
 The XML-style format is just one example - the point is you can build your own format that makes sense for your application. You'll get better quality if you have the flexibility to experiment with different context structures and what you store vs. what you pass to the LLM. 
 
 Key benefits of owning your context window:
+
 1. **Information Density**: Structure information in ways that maximize the LLM's understanding
-2. **Error Handling**: Include error information in a format that helps the LLM recover
+2. **Error Handling**: Include error information in a format that helps the LLM recover. Consider hiding errors and failed calls from context window once they are resolved.
 3. **Safety**: Control what information gets passed to the LLM, filtering out sensitive data
 4. **Flexibility**: Adapt the format as you learn what works best for your use case
 5. **Token Efficiency**: Optimize context format for token efficiency and LLM understanding
 
-#### Context Engineering Principles
+Context includes: prompts, instructions, RAG documents, history, tool calls, memory
 
-- Everything is context engineering - focus on giving LLMs the best inputs
-- Context includes: prompts, instructions, RAG documents, history, tool calls, memory
-- Optimize context format for token efficiency and LLM understanding
-- Consider custom context formats beyond standard message-based approaches
-- Structure information for maximum density and clarity
-- Include error information in formats that help LLMs recover
-- Control what information gets passed to LLMs (filter sensitive data)
 
 Remember: The context window is your primary interface with the LLM. Taking control of how you structure and present information can dramatically improve your agent's performance.
+
+Example - information density - same message, fewer tokens:
+
+![Loom Screenshot 2025-04-22 at 09 00 56](https://github.com/user-attachments/assets/5cf041c6-72da-4943-be8a-99c73162b12a)
+
 
 Recurring theme here: I don't know what's the best approach, but I know you want the flexibility to be able to try EVERYTHING.
 
