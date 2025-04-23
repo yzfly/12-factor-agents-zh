@@ -29,9 +29,6 @@ This guide is all about getting as much as possible out of today's models. Notab
 
 Again, I don't know what's the best way to hand context to an LLM, but I know you want the flexibility to be able to try EVERYTHING.
 
-![Loom Screenshot 2025-04-22 at 09 00 56](https://github.com/user-attachments/assets/5cf041c6-72da-4943-be8a-99c73162b12a)
-
-
 #### Standard vs Custom Context Formats
 
 Most LLM clients use a standard message-based format like this:
@@ -112,6 +109,13 @@ Here's an example of putting the whole context window into a single user message
 ```
 
 The model may infer that you're asking it `what's the next step` by the tool schemas you supply, but it never hurts to roll it into your prompt template.
+
+One thing that's interesting - token counts and information density in json compared to xml
+
+![Loom Screenshot 2025-04-22 at 09 00 56](https://github.com/user-attachments/assets/5cf041c6-72da-4943-be8a-99c73162b12a)
+
+
+### code example
 
 We can build this with something like: 
 
