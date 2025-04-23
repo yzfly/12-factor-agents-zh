@@ -15,6 +15,7 @@ Preview - this is a draft of everything I've learned in a year working with agen
 
 [![](https://dcbadge.limes.pink/api/server/https://discord.gg/WffDJYazzy)](https://discord.gg/WffDJYazzy)
 
+[![](https://img.shields.io/badge/youtube-deep_dive-red)](https://www.youtube.com/watch?v=yxJDyQ8v6P0)
 
 
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=2acad99a-c2d9-48df-86f5-9ca8061b7bf9" />
