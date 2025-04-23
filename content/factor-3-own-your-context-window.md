@@ -29,6 +29,8 @@ This guide is all about getting as much as possible out of today's models. Notab
 
 Again, I don't know what's the best way to hand context to an LLM, but I know you want the flexibility to be able to try EVERYTHING.
 
+![Loom Screenshot 2025-04-22 at 09 00 56](https://github.com/user-attachments/assets/5cf041c6-72da-4943-be8a-99c73162b12a)
+
 
 #### Standard vs Custom Context Formats
 
