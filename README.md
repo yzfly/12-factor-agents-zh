@@ -210,8 +210,11 @@ After digging through hundreds of AI libriaries and working with dozens of found
 - We build OSS agents with this methodology under [got-agents/agents](https://github.com/got-agents/agents)
 - We ignored all our own advice and built a [framework for running distributed agents in kubernetes](https://github.com/humanlayer/kubechain)
 - Other links from this guide:
+  - [12 Factor Apps](https://12factor.net)
   - [Building Effective Agents (Anthropic)](https://www.anthropic.com/engineering/building-effective-agents#agents)
   - [Prompts are Functions](https://thedataexchange.media/baml-revolution-in-ai-engineering/ )
+  - [Library patterns: Why frameworks are evil](https://tomasp.net/blog/2015/library-frameworks/)
+  - [The Wrong Abstraction](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction)
   - [Mailcrew Agent](https://github.com/dexhorthy/mailcrew)
   - [Mailcrew Demo Video](https://www.youtube.com/watch?v=f_cKnoPC_Oo)
   - [Chainlit Demo](https://x.com/chainlit_io/status/1858613325921480922)
