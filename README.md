@@ -8,14 +8,22 @@ Preview - this is a draft of everything I've learned in a year working with agen
 
 # 12 Factor Agents - Principles for building reliable LLM applications
 
-[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 
 
 *In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
 
-[![](https://dcbadge.limes.pink/api/server/https://discord.gg/WffDJYazzy)](https://discord.gg/WffDJYazzy)
 
-[![](https://img.shields.io/badge/youtube-deep_dive-red)](https://www.youtube.com/watch?v=yxJDyQ8v6P0)
+ 
+<div align="center">
+<a href="https://creativecommons.org/licenses/by-sa/4.0/">
+        <img src="https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg" alt="License: CC BY-SA 4.0"></a>
+<a href="https://discord.gg/WffDJYazzy">
+    <img src="https://img.shields.io/badge/chat-discord-5865F2" alt="Discord Server"></a>    
+<a href="https://www.youtube.com/watch?v=yxJDyQ8v6P0">
+    <img src="https://img.shields.io/badge/youtube-deep_dive-crimson" alt="YouTube
+Deep Dive"></a>
+    
+</div>
 
 
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=2acad99a-c2d9-48df-86f5-9ca8061b7bf9" />
