@@ -1,17 +1,17 @@
-[← Back to README](./README.md)
+[← Back to README](../README.md)
 
 ### 8. Own your control flow
 
 If you own your control flow, you can do lots of fun things.
 
-![180-control-flow](./img/180-control-flow.png)
+![180-control-flow](../img/180-control-flow.png)
 
 
 Build your own control structures that make sense for your specific use case. Specifically, certain types of tool calls may be reason to break out of the loop and wait for a response from a human or another long-running task like a training pipeline. You may also want to incorporate custom implementation of:
 
 - summarization or caching of tool call results
 - LLM-as-judge on structured output
-- context window compaction or other [memory management](./content/appendix-14-everything-is-context-engineering.md)
+- context window compaction or other [memory management](./appendix-14-everything-is-context-engineering.md)
 - logging, tracing, and metrics
 - client-side rate limiting
 - durable sleep / pause / "wait for event"
@@ -81,6 +81,6 @@ you're forced to either:
 3. Give the agent access to do bigger, more useful things, and just yolo hope it doesn't screw up
 
 
-You may notice this is closely related to [factor 5 - unify execution state and business state](./content/factor-5-unify-execution-state.md) and [factor 6 - launch/pause/resume with simple APIs](./content/factor-6-launch-pause-resume.md), but can be implemented independently.
+You may notice this is closely related to [factor 5 - unify execution state and business state](./factor-5-unify-execution-state.md) and [factor 6 - launch/pause/resume with simple APIs](./factor-6-launch-pause-resume.md), but can be implemented independently.
 
-[← Contact Humans With Tools](./content/factor-7-contact-humans-with-tools.md) | [Compact Errors →](./content/factor-9-compact-errors.md)
+[← Contact Humans With Tools](./factor-7-contact-humans-with-tools.md) | [Compact Errors →](./factor-9-compact-errors.md)

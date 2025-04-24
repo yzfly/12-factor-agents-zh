@@ -1,4 +1,4 @@
-[← Back to README](./README.md)
+[← Back to README](../README.md)
 
 ## The longer version: how we got here
 
@@ -15,19 +15,19 @@ let's talk about how we got here
 
 We're gonna talk a lot about Directed Graphs (DGs) and their Acyclic friends, DAGs. I'll start by pointing out that...well...software is a directed graph. There's a reason we used to represent programs as flow charts.
 
-![010-software-dag](./img/010-software-dag.png)
+![010-software-dag](../img/010-software-dag.png)
 
 ### 20 years ago
 
 Around 20 years ago, we started to see DAG orchestrators become popular. We're talking classics like [Airflow](https://airflow.apache.org/), [Prefect](https://www.prefect.io/), some predecessors, and some newer ones like ([dagster](https://dagster.io/), [inggest](https://www.inngest.dev/), [windmill](https://www.windmill.dev/)). These followed the same graph pattern, with the added benefit of observability, modularity, retries, administration, etc.
 
-![015-dag-orchestrators](./img/015-dag-orchestrators.png)
+![015-dag-orchestrators](../img/015-dag-orchestrators.png)
 
 ### 10-15 years ago
 
 When ML models started to get good enough to be useful, we started to see DAGs with ML models sprinkled in. You might imagine steps like "summarize the text in this column into a new column" or "classify the support issues by severity or sentiment".
 
-![020-dags-with-ml](./img/020-dags-with-ml.png)
+![020-dags-with-ml](../img/020-dags-with-ml.png)
 
 But at the end of the day, it's still mostly the same good old deterministic software.
 
@@ -35,11 +35,11 @@ But at the end of the day, it's still mostly the same good old deterministic sof
 
 I'm not the first [person to say this](https://youtu.be/Dc99-zTMyMg?si=bcT0hIwWij2mR-40&t=73), but my biggest takeaway when I started learning about agents, was that you get to throw the DAG away. Instead of software engineers coding each step and edge case, you can give the agent a goal and a set of transitions:
 
-![025-agent-dag](./img/025-agent-dag.png)
+![025-agent-dag](../img/025-agent-dag.png)
 
 And let the LLM make decisions in real time to figure out the path
 
-![026-agent-dag-lines](./img/026-agent-dag-lines.png)
+![026-agent-dag-lines](../img/026-agent-dag-lines.png)
 
 The promise here is that you write less software, you just give the LLM the "edges" of the graph and let it figure out the nodes. You can recover from errors, you can write less code, and you may find that LLMs find novel solutions to problems.
 
@@ -71,18 +71,18 @@ and we ask the llm to choose the next step (tool) or to determine that we're don
 
 Here's a multi-step example:
 
-[![027-agent-loop-animation](./img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
+[![027-agent-loop-animation](../img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
 
 <details>
-<summary><a href="./img/027-agent-loop-animation.gif">GIF Version</a></summary>
+<summary><a href="../img/027-agent-loop-animation.gif">GIF Version</a></summary>
 
-![027-agent-loop-animation](./img/027-agent-loop-animation.gif)]
+![027-agent-loop-animation](../img/027-agent-loop-animation.gif)]
 
 </details>
 
 And the "materialized" DAG that was generated would look something like:
 
-![027-agent-loop-dag](./img/027-agent-loop-dag.png)
+![027-agent-loop-dag](../img/027-agent-loop-dag.png)
 
 ### The problem with this "loop until you solve it" pattern
 
@@ -103,7 +103,7 @@ Most builders I've talked to **pushed the "tool calling loop" idea to the side**
 
 One thing that I **have** seen in the wild quite a bit is taking the agent pattern and sprinkling it into a broader more deterministic DAG. 
 
-![micro-agent-dag](./img/028-micro-agent-dag.png)
+![micro-agent-dag](../img/028-micro-agent-dag.png)
 
 You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps without spinning out into context error loops. ([factor 1](./factor-1-natural-language-to-tool-calls.md), [factor 3](./factor-3-own-your-context-window.md) [factor 7](./factor-7-contact-humans-with-tools.md)).
 
@@ -113,7 +113,7 @@ You might be asking - "why use agents at all in this case?" - we'll get into tha
 
 Here's an example of how deterministic code might run one micro agent responsible for handling the human-in-the-loop steps for deployment. 
 
-![029-deploybot-high-level](./img/029-deploybot-high-level.png)
+![029-deploybot-high-level](../img/029-deploybot-high-level.png)
 
 * **Human** Merges PR to GitHub main branch
 * **Deterministic Code** Deploys to staging env
@@ -134,18 +134,18 @@ Here's an example of how deterministic code might run one micro agent responsibl
 * **Deterministic code** run the end-to-end tests against production
 * **Deterministic code** task completed, OR pass to rollback agent to review failures and potentially roll back
 
-[![033-deploybot-animation](./img/033-deploybot.gif)](https://github.com/user-attachments/assets/deb356e9-0198-45c2-9767-231cb569ae13)
+[![033-deploybot-animation](../img/033-deploybot.gif)](https://github.com/user-attachments/assets/deb356e9-0198-45c2-9767-231cb569ae13)
 
 <details>
-<summary><a href="./img/033-deploybot.gif">GIF Version</a></summary>
+<summary><a href="../img/033-deploybot.gif">GIF Version</a></summary>
 
-![033-deploybot-animation](./img/033-deploybot.gif)]
+![033-deploybot-animation](../img/033-deploybot.gif)]
 
 </details>
 
 This example is based on a real life [OSS agent we've shipped to manage our deployments at Humanlayer](https://github.com/got-agents/agents/tree/main/deploybot-ts) - here is a real conversation I had with it last week:
 
-![035-deploybot-conversation](./img/035-deploybot-conversation.png)
+![035-deploybot-conversation](../img/035-deploybot-conversation.png)
 
 
 We haven't given this agent a huge pile of tools or tasks. The primary value in the LLM is parsing the human's plaintext feedback and proposing an updated course of action. We isolate tasks and contexts as much as possible to keep the LLM focused on a small, 5-10 step workflow.
@@ -159,7 +159,7 @@ Here's another [more classic support / chatbot demo](https://x.com/chainlit_io/s
 - **accumulated context** - store the list of steps that have happened and their results ([factor 3](./factor-3-own-your-context-window.md))
 - **for loop** - until the LLM emits some sort of "Terminal" tool call (or plaintext response), add the result of the switch statement to the context window and ask the LLM to choose the next step. ([factor 8](./factor-8-own-your-control-flow.md))
 
-![040-4-components](./img/040-4-components.png)
+![040-4-components](../img/040-4-components.png)
 
 In the "deploybot" example, we gain a couple benefits from owning the control flow and context accumulation:
 
@@ -168,6 +168,6 @@ In the "deploybot" example, we gain a couple benefits from owning the control fl
 - In our **prompt**, we can optimize the heck out of how we pass instructions and "what happened so far" to the LLM
 
 
-[Part II](./README.md#12-factor-agents) will **formalize these patterns** so they can be applied to add impressive AI features to any software project, without needing to go all in on conventional implementations/definitions of "AI agent".
+[Part II](../README.md#12-factor-agents) will **formalize these patterns** so they can be applied to add impressive AI features to any software project, without needing to go all in on conventional implementations/definitions of "AI agent".
 
-[Factor 1 - Natural Language to Tool Calls →](./content/factor-1-natural-language-to-tool-calls.md)
+[Factor 1 - Natural Language to Tool Calls →](./factor-1-natural-language-to-tool-calls.md)

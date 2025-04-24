@@ -1,4 +1,4 @@
-[← Back to README](./README.md)
+[← Back to README](../README.md)
 
 ### 9. Compact Errors into Context Window
 
@@ -59,15 +59,15 @@ while True:
   }
 }
 ```
-Hitting some consecutive-error-threshold might be a great place to [escalate to a human](./content/factor-7-contact-humans-with-tools.md), whether by model decision or via deterministic takeover of the control flow.
+Hitting some consecutive-error-threshold might be a great place to [escalate to a human](./factor-7-contact-humans-with-tools.md), whether by model decision or via deterministic takeover of the control flow.
 
-[![195-factor-9-errors](./img/195-factor-9-errors.gif)](https://github.com/user-attachments/assets/cd7ed814-8309-4baf-81a5-9502f91d4043)
+[![195-factor-9-errors](../img/195-factor-9-errors.gif)](https://github.com/user-attachments/assets/cd7ed814-8309-4baf-81a5-9502f91d4043)
 
 
 <details>
-<summary>[GIF Version](./img/195-factor-9-errors.gif)</summary>
+<summary>[GIF Version](../img/195-factor-9-errors.gif)</summary>
 
-![195-factor-9-errors](./img/195-factor-9-errors.gif)
+![195-factor-9-errors](../img/195-factor-9-errors.gif)
 
 </details>
 
@@ -78,8 +78,8 @@ Benefits:
 
 I'm sure you will find that if you do this TOO much, your agent will start to spin out and might repeat the same error over and over again. 
 
-That's where [factor 8 - own your control flow](./content/factor-8-own-your-control-flow.md) and [factor 3 - own your context building](./content/factor-3-own-your-context-window.md) come in - you don't need to just put the raw error back on, you can completely restructure how it's represented, remove previous events from the context window, or whatever deterministic thing you find works to get an agent back on track. 
+That's where [factor 8 - own your control flow](./factor-8-own-your-control-flow.md) and [factor 3 - own your context building](./factor-3-own-your-context-window.md) come in - you don't need to just put the raw error back on, you can completely restructure how it's represented, remove previous events from the context window, or whatever deterministic thing you find works to get an agent back on track. 
 
-But the number one way to prevent error spin-outs is to embrace [factor 10 - small, focused agents](./content/factor-10-small-focused-agents.md).
+But the number one way to prevent error spin-outs is to embrace [factor 10 - small, focused agents](./factor-10-small-focused-agents.md).
 
-[← Own Your Control Flow](./content/factor-8-own-your-control-flow.md) | [Small Focused Agents →](./content/factor-10-small-focused-agents.md)
+[← Own Your Control Flow](./factor-8-own-your-control-flow.md) | [Small Focused Agents →](./factor-10-small-focused-agents.md)

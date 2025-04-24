@@ -1,10 +1,10 @@
-[← Back to README](./README.md)
+[← Back to README](../README.md)
 
 ### 7. Contact humans with tool calls
 
 By default, LLM APIs rely on a fundamental HIGH-STAKES token choice: Are we returning plaintext content, or are we returning structured data?
 
-![170-contact-humans-with-tools](./img/170-contact-humans-with-tools.png)
+![170-contact-humans-with-tools](../img/170-contact-humans-with-tools.png)
 
 You're putting a lot of weight on that choice of first token, which, in the `the weather in tokyo` case, is
 
@@ -66,9 +66,9 @@ def webhook(req: Request):
   return {"status": "ok"}
 ```
 
-The above includes patterns from [factor 5 - unify execution state and business state](./content/factor-5-unify-execution-state.md), [factor 8 - own your control flow](./content/factor-8-own-your-control-flow.md), [factor 3 - own your context window](./content/factor-3-own-your-context-window.md), and [factor 4 - tools are just structured outputs](./content/factor-4-tools-are-structured-outputs.md), and several others.
+The above includes patterns from [factor 5 - unify execution state and business state](./factor-5-unify-execution-state.md), [factor 8 - own your control flow](./factor-8-own-your-control-flow.md), [factor 3 - own your context window](./factor-3-own-your-context-window.md), and [factor 4 - tools are just structured outputs](./factor-4-tools-are-structured-outputs.md), and several others.
 
-If we were using the XML-y formatted from [factor 3 - own your context window](./content/factor-3-own-your-context-window.md), our context window after a few turns might look like this:
+If we were using the XML-y formatted from [factor 3 - own your context window](./factor-3-own-your-context-window.md), our context window after a few turns might look like this:
 
 ```xml
 
@@ -118,12 +118,12 @@ Benefits:
 2. **Inner vs Outer Loop**: Enables agents workflows **outside** of the traditional chatGPT-style interface, where the control flow and context initialization may be `Agent->Human` rather than `Human->Agent` (think, agents kicked off by a cron or an event)
 3. **Multiple Human Access**: Can easily track and coordinate input from different humans through structured events
 4. **Multi-Agent**: Simple abstraction can be easily extended to support `Agent->Agent` requests and responses
-5. **Durable**: Combined with [factor 6 - launch/pause/resume with simple APIs](./content/factor-6-launch-pause-resume.md), this makes for durable, reliable, and introspectable multiplayer workflows
+5. **Durable**: Combined with [factor 6 - launch/pause/resume with simple APIs](./factor-6-launch-pause-resume.md), this makes for durable, reliable, and introspectable multiplayer workflows
 
 [More on Outer Loop Agents over here](https://theouterloop.substack.com/p/openais-realtime-api-is-a-step-towards)
 
-![175-outer-loop-agents](./img/175-outer-loop-agents.png)
+![175-outer-loop-agents](../img/175-outer-loop-agents.png)
 
-Works great with [factor 11 - trigger from anywhere, meet users where they are](./content/factor-11-trigger-from-anywhere.md)
+Works great with [factor 11 - trigger from anywhere, meet users where they are](./factor-11-trigger-from-anywhere.md)
 
-[← Launch/Pause/Resume](./content/factor-6-launch-pause-resume.md) | [Own Your Control Flow →](./content/factor-8-own-your-control-flow.md)
+[← Launch/Pause/Resume](./factor-6-launch-pause-resume.md) | [Own Your Control Flow →](./factor-8-own-your-control-flow.md)

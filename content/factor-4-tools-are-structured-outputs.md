@@ -1,10 +1,10 @@
-[← Back to README](./README.md)
+[← Back to README](../README.md)
 
 ### 4. Tools are just structured outputs
 
 Tools don't need to be complex. At their core, they're just structured output from your LLM that triggers deterministic code.
 
-![140-tools-are-just-structured-outputs](./img/140-tools-are-just-structured-outputs.png)
+![140-tools-are-just-structured-outputs](../img/140-tools-are-just-structured-outputs.png)
 
 For example, lets say you have two tools `CreateIssue` and `SearchIssues`. To ask an LLM to "use one of several tools" is just to ask it to output JSON we can parse into an object representing those tools.
 
@@ -47,6 +47,6 @@ else: #... the model didn't call a tool we know about
 
 **Note**: there has been a lot said about the benefits of "plain prompting" vs. "tool calling" vs. "JSON mode" and the performance tradeoffs of each. We'll link some resources to that stuff soon, but not gonna get into it here. See [Prompting vs JSON Mode vs Function Calling vs Constrained Generation vs SAP](https://www.boundaryml.com/blog/schema-aligned-parsing), [When should I use function calling, structured outputs, or JSON mode?](https://www.vellum.ai/blog/when-should-i-use-function-calling-structured-outputs-or-json-mode#:~:text=We%20don%27t%20recommend%20using%20JSON,always%20use%20Structured%20Outputs%20instead) and [OpenAI JSON vs Function Calling](https://docs.llamaindex.ai/en/stable/examples/llm/openai_json_vs_function_calling/).
 
-The "next step" might not be as atomic as just "run a pure function and return the result". You unlock a lot of flexibility when you think of "tool calls" as just a model outputting JSON describing what deterministic code should do. Put this together with [factor 8 own your control flow](./content/factor-8-own-your-control-flow.md).
+The "next step" might not be as atomic as just "run a pure function and return the result". You unlock a lot of flexibility when you think of "tool calls" as just a model outputting JSON describing what deterministic code should do. Put this together with [factor 8 own your control flow](./factor-8-own-your-control-flow.md).
 
 [← Own Your Context Window](./factor-3-own-your-context-window.md) | [Unify Execution State →](./factor-5-unify-execution-state.md)
