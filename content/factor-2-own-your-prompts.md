@@ -1,10 +1,10 @@
-[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
+[← Back to README](./README.md)
 
 ### 2. Own your prompts
 
 Don't outsource your prompt engineering to a framework. 
 
-![120-own-your-prompts](https://github.com/humanlayer/12-factor-agents/blob/main/img/120-own-your-prompts.png)
+![120-own-your-prompts](./img/120-own-your-prompts.png)
 
 Some frameworks provide a "black box" approach like this:
 
@@ -64,7 +64,7 @@ function DetermineNextStep(thread: string) -> DoneForNow | ListGitTags | DeployB
 
 (the above example uses [BAML](https://github.com/boundaryml/baml) to generate the prompt, but you can do this with any prompt engineering tool you want, or even just template it manually)
 
-If the signature looks a little funny, we'll get to that in [factor 4 - tools are just structured outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md)
+If the signature looks a little funny, we'll get to that in [factor 4 - tools are just structured outputs](./content/factor-4-tools-are-structured-outputs.md)
 
 ```typescript
 function DetermineNextStep(thread: string) -> DoneForNow | ListGitTags | DeployBackend | DeployFrontend | RequestMoreInformation {
@@ -84,4 +84,4 @@ Having full control over your prompts gives you the flexibility and prompt contr
 
 I don't know what's the best prompt, but I know you want the flexibility to be able to try EVERYTHING.
 
-[← Natural Language To Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md) | [Own Your Context Window →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
+[← Natural Language To Tool Calls](./content/factor-1-natural-language-to-tool-calls.md) | [Own Your Context Window →](./content/factor-3-own-your-context-window.md)

@@ -52,30 +52,30 @@ Welcome to 12-factor agents. As every Chicago mayor since Daley has consistently
 
 ## The Short Version: The 12 Factors
 
-Even if LLMs [continue to get exponentially more powerful](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md#what-if-llms-get-smarter), there will be core engineering techniques that make LLM-powered software more reliable, more scalable, and easier to maintain.
+Even if LLMs [continue to get exponentially more powerful](./content/factor-10-small-focused-agents.md#what-if-llms-get-smarter), there will be core engineering techniques that make LLM-powered software more reliable, more scalable, and easier to maintain.
 
-- [How We Got Here: A Brief History of Software](https://github.com/humanlayer/12-factor-agents/blob/main/content/brief-history-of-software.md)
-- [Factor 1: Natural Language to Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md)
-- [Factor 2: Own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
-- [Factor 3: Own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
-- [Factor 4: Tools are just structured outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md)
-- [Factor 5: Unify execution state and business state](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-5-unify-execution-state.md)
-- [Factor 6: Launch/Pause/Resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)
-- [Factor 7: Contact humans with tool calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md)
-- [Factor 8: Own your control flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md)
-- [Factor 9: Compact Errors into Context Window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md)
-- [Factor 10: Small, Focused Agents](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
-- [Factor 11: Trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
-- [Factor 12: Make your agent a stateless reducer](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md)
+- [How We Got Here: A Brief History of Software](./content/brief-history-of-software.md)
+- [Factor 1: Natural Language to Tool Calls](./content/factor-1-natural-language-to-tool-calls.md)
+- [Factor 2: Own your prompts](./content/factor-2-own-your-prompts.md)
+- [Factor 3: Own your context window](./content/factor-3-own-your-context-window.md)
+- [Factor 4: Tools are just structured outputs](./content/factor-4-tools-are-structured-outputs.md)
+- [Factor 5: Unify execution state and business state](./content/factor-5-unify-execution-state.md)
+- [Factor 6: Launch/Pause/Resume with simple APIs](./content/factor-6-launch-pause-resume.md)
+- [Factor 7: Contact humans with tool calls](./content/factor-7-contact-humans-with-tools.md)
+- [Factor 8: Own your control flow](./content/factor-8-own-your-control-flow.md)
+- [Factor 9: Compact Errors into Context Window](./content/factor-9-compact-errors.md)
+- [Factor 10: Small, Focused Agents](./content/factor-10-small-focused-agents.md)
+- [Factor 11: Trigger from anywhere, meet users where they are](./content/factor-11-trigger-from-anywhere.md)
+- [Factor 12: Make your agent a stateless reducer](./content/factor-12-stateless-reducer.md)
 
 ### Visual Nav
 
 |    |    |    |
 |----|----|-----|
-|[![factor 1](https://github.com/humanlayer/12-factor-agents/blob/main/img/110-natural-language-tool-calls.png)](./content/factor-1-natural-language-to-tool-calls.md) | [![factor 2](https://github.com/humanlayer/12-factor-agents/blob/main/img/120-own-your-prompts.png)](./content/factor-2-own-your-prompts.md) | [![factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png)](./content/factor-3-own-your-context-window.md) |
-|[![factor 4](https://github.com/humanlayer/12-factor-agents/blob/main/img/140-tools-are-just-structured-outputs.png)](./content/factor-4-tools-are-structured-outputs.md) | [![factor 5](https://github.com/humanlayer/12-factor-agents/blob/main/img/150-unify-state.png)](./content/factor-5-unify-execution-state.md) | [![factor 6](https://github.com/humanlayer/12-factor-agents/blob/main/img/160-pause-resume-with-simple-apis.png)](./content/factor-6-launch-pause-resume.md) |
-| [![factor 7](https://github.com/humanlayer/12-factor-agents/blob/main/img/170-contact-humans-with-tools.png)](./content/factor-7-contact-humans-with-tools.md) | [![factor 8](https://github.com/humanlayer/12-factor-agents/blob/main/img/180-control-flow.png)](./content/factor-8-own-your-control-flow.md) | [![factor 9](https://github.com/humanlayer/12-factor-agents/blob/main/img/190-factor-9-errors-static.png)](./content/factor-9-compact-errors.md) |
-| [![factor 10](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a0-small-focused-agents.png)](./content/factor-10-small-focused-agents.md) | [![factor 11](https://github.com/humanlayer/12-factor-agents/blob/main/img/1b0-trigger-from-anywhere.png)](./content/factor-11-trigger-from-anywhere.md) | [![factor 12](https://github.com/humanlayer/12-factor-agents/blob/main/img/1c0-stateless-reducer.png)](./content/factor-12-stateless-reducer.md) |
+|[![factor 1](./img/110-natural-language-tool-calls.png)](./content/factor-1-natural-language-to-tool-calls.md) | [![factor 2](./img/120-own-your-prompts.png)](./content/factor-2-own-your-prompts.md) | [![factor 3](./img/130-own-your-context-building.png)](./content/factor-3-own-your-context-window.md) |
+|[![factor 4](./img/140-tools-are-just-structured-outputs.png)](./content/factor-4-tools-are-structured-outputs.md) | [![factor 5](./img/150-unify-state.png)](./content/factor-5-unify-execution-state.md) | [![factor 6](./img/160-pause-resume-with-simple-apis.png)](./content/factor-6-launch-pause-resume.md) |
+| [![factor 7](./img/170-contact-humans-with-tools.png)](./content/factor-7-contact-humans-with-tools.md) | [![factor 8](./img/180-control-flow.png)](./content/factor-8-own-your-control-flow.md) | [![factor 9](./img/190-factor-9-errors-static.png)](./content/factor-9-compact-errors.md) |
+| [![factor 10](./img/1a0-small-focused-agents.png)](./content/factor-10-small-focused-agents.md) | [![factor 11](./img/1b0-trigger-from-anywhere.png)](./content/factor-11-trigger-from-anywhere.md) | [![factor 12](./img/1c0-stateless-reducer.png)](./content/factor-12-stateless-reducer.md) |
 
 ## How we got here
 
@@ -85,23 +85,23 @@ For a deeper dive on my agent journey and what led us here, check out [A Brief H
 
 We're gonna talk a lot about Directed Graphs (DGs) and their Acyclic friends, DAGs. I'll start by pointing out that...well...software is a directed graph. There's a reason we used to represent programs as flow charts.
 
-![010-software-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/010-software-dag.png)
+![010-software-dag](./img/010-software-dag.png)
 
 ### From code to DAGs
 
 Around 20 years ago, we started to see DAG orchestrators become popular. We're talking classics like [Airflow](https://airflow.apache.org/), [Prefect](https://www.prefect.io/), some predecessors, and some newer ones like ([dagster](https://dagster.io/), [inggest](https://www.inngest.com/), [windmill](https://www.windmill.dev/)). These followed the same graph pattern, with the added benefit of observability, modularity, retries, administration, etc.
 
-![015-dag-orchestrators](https://github.com/humanlayer/12-factor-agents/blob/main/img/015-dag-orchestrators.png)
+![015-dag-orchestrators](./img/015-dag-orchestrators.png)
 
 ### The promise of agents
 
 I'm not the first [person to say this](https://youtu.be/Dc99-zTMyMg?si=bcT0hIwWij2mR-40&t=73), but my biggest takeaway when I started learning about agents, was that you get to throw the DAG away. Instead of software engineers coding each step and edge case, you can give the agent a goal and a set of transitions:
 
-![025-agent-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/025-agent-dag.png)
+![025-agent-dag](./img/025-agent-dag.png)
 
 And let the LLM make decisions in real time to figure out the path
 
-![026-agent-dag-lines](https://github.com/humanlayer/12-factor-agents/blob/main/img/026-agent-dag-lines.png)
+![026-agent-dag-lines](./img/026-agent-dag-lines.png)
 
 The promise here is that you write less software, you just give the LLM the "edges" of the graph and let it figure out the nodes. You can recover from errors, you can write less code, and you may find that LLMs find novel solutions to problems.
 
@@ -135,12 +135,12 @@ Our initial context is just the starting event (maybe a user message, maybe a cr
 
 Here's a multi-step example:
 
-[![027-agent-loop-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
+[![027-agent-loop-animation](./img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
 
 <details>
-<summary><a href="https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif">GIF Version</a></summary>
+<summary><a href="./img/027-agent-loop-animation.gif">GIF Version</a></summary>
 
-![027-agent-loop-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)]
+![027-agent-loop-animation](./img/027-agent-loop-animation.gif)]
 
 </details>
 
@@ -193,18 +193,18 @@ After digging through hundreds of AI libriaries and working with dozens of found
 
 
 - [How We Got Here: A Brief History of Software](./content/brief-history-of-software.md)
-- [Factor 1: Natural Language to Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md)
-- [Factor 2: Own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
-- [Factor 3: Own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
-- [Factor 4: Tools are just structured outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md)
-- [Factor 5: Unify execution state and business state](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-5-unify-execution-state.md)
-- [Factor 6: Launch/Pause/Resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)
-- [Factor 7: Contact humans with tool calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md)
-- [Factor 8: Own your control flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md)
-- [Factor 9: Compact Errors into Context Window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md)
-- [Factor 10: Small, Focused Agents](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
-- [Factor 11: Trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
-- [Factor 12: Make your agent a stateless reducer](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md)
+- [Factor 1: Natural Language to Tool Calls](./content/factor-1-natural-language-to-tool-calls.md)
+- [Factor 2: Own your prompts](./content/factor-2-own-your-prompts.md)
+- [Factor 3: Own your context window](./content/factor-3-own-your-context-window.md)
+- [Factor 4: Tools are just structured outputs](./content/factor-4-tools-are-structured-outputs.md)
+- [Factor 5: Unify execution state and business state](./content/factor-5-unify-execution-state.md)
+- [Factor 6: Launch/Pause/Resume with simple APIs](./content/factor-6-launch-pause-resume.md)
+- [Factor 7: Contact humans with tool calls](./content/factor-7-contact-humans-with-tools.md)
+- [Factor 8: Own your control flow](./content/factor-8-own-your-control-flow.md)
+- [Factor 9: Compact Errors into Context Window](./content/factor-9-compact-errors.md)
+- [Factor 10: Small, Focused Agents](./content/factor-10-small-focused-agents.md)
+- [Factor 11: Trigger from anywhere, meet users where they are](./content/factor-11-trigger-from-anywhere.md)
+- [Factor 12: Make your agent a stateless reducer](./content/factor-12-stateless-reducer.md)
 
 ## Honorable Mentions / other advice
 

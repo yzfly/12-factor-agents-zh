@@ -1,4 +1,4 @@
-[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
+[← Back to README](./README.md)
 
 ### 3. Own your context window
 
@@ -7,7 +7,7 @@ You don't necessarily need to use standard message-based formats for conveying c
 > #### At any given point, your input to an LLM in an agent is "here's what's happened so far, what's the next step"
 
 <!-- todo syntax highlighting -->
-<!-- ![130-own-your-context-building](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png) -->
+<!-- ![130-own-your-context-building](./img/130-own-your-context-building.png) -->
 
 Everything is context engineering. [LLMs are stateless functions](https://thedataexchange.media/baml-revolution-in-ai-engineering/) that turn inputs into outputs. To get the best outputs, you need to give them the best inputs.
 
@@ -19,7 +19,7 @@ Creating great context means:
 - Any past messages or events from related but separate histories/conversations (Memory)
 - Instructions about what sorts of structured data to output
 
-![220-context-engineering](https://github.com/humanlayer/12-factor-agents/blob/main/img/220-context-engineering.png)
+![220-context-engineering](./img/220-context-engineering.png)
 
 This guide is all about getting as much as possible out of today's models. Notably not mentioned are:
 
@@ -241,4 +241,4 @@ Example - information density - same message, fewer tokens:
 
 Recurring theme here: I don't know what's the best approach, but I know you want the flexibility to be able to try EVERYTHING.
 
-[← Own Your Prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md) | [Tools Are Structured Outputs →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md)
+[← Own Your Prompts](./content/factor-2-own-your-prompts.md) | [Tools Are Structured Outputs →](./content/factor-4-tools-are-structured-outputs.md)
