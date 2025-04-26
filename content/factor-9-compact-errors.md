@@ -9,7 +9,7 @@ Most frameworks implement this, but you can do JUST THIS without doing any of th
 
 
 ```python
-thread = {"events": [inital_message]}
+thread = {"events": [initial_message]}
 
 while True:
   next_step = await determine_next_step(thread_to_prompt(thread))
