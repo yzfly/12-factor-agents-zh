@@ -6,7 +6,7 @@ Preview - this is a draft of everything I've learned in a year working with agen
 --> 
 
 
-# 12 Factor Agents - Principles for building reliable LLM applications
+# 12-Factor Agents - Principles for building reliable LLM applications
 
 
 
