@@ -10,8 +10,7 @@ Preview - this is a draft of everything I've learned in a year working with agen
 
 
 
-*In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
-
+*In the spirit of [12 Factor Apps](https://12factor.net/)*. 
 
  
 <div align="center">
