@@ -1,4 +1,4 @@
-[← Back to README](../README.md)
+[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
 
 ### 5. Unify execution state and business state
 
@@ -13,19 +13,19 @@ More clearly:
 
 If possible, SIMPLIFY - unify these as much as possible. 
 
-[![155-unify-state](../img/155-unify-state-animation.gif)](https://github.com/user-attachments/assets/e5a851db-f58f-43d8-8b0c-1926c99fc68d)
+[![155-unify-state](https://github.com/humanlayer/12-factor-agents/blob/main/img/155-unify-state-animation.gif)](https://github.com/user-attachments/assets/e5a851db-f58f-43d8-8b0c-1926c99fc68d)
 
 
 <details>
-<summary><a href="../img/155-unify-state-animation.gif">GIF Version</a></summary>
+<summary><a href="https://github.com/humanlayer/12-factor-agents/blob/main/img/155-unify-state-animation.gif">GIF Version</a></summary>
 
-![155-unify-state](../img/155-unify-state-animation.gif)]
+![155-unify-state](https://github.com/humanlayer/12-factor-agents/blob/main/img/155-unify-state-animation.gif)]
 
 </details>
 
 In reality, you can engineer your application so that you can infer all execution state from the context window. In many cases, execution state (current step, waiting status, etc.) is just metadata about what has happened so far.
 
-You may have things that can't go in the context window, like session ids, password contexts, etc, but your goal should be to minimize those things. By embracing [factor 3](./factor-3-own-your-context-window.md) you can control what actually goes into the LLM 
+You may have things that can't go in the context window, like session ids, password contexts, etc, but your goal should be to minimize those things. By embracing [factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md) you can control what actually goes into the LLM 
 
 This approach has several benefits:
 
@@ -37,4 +37,4 @@ This approach has several benefits:
 6. **Forking**: Can fork the thread at any point by copying some subset of the thread into a new context / state ID
 7. **Human Interfaces and Observability**: Trivial to convert a thread into a human-readable markdown or a rich Web app UI
 
-[← Tools Are Structured Outputs](./factor-4-tools-are-structured-outputs.md) | [Launch/Pause/Resume →](./factor-6-launch-pause-resume.md)
+[← Tools Are Structured Outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md) | [Launch/Pause/Resume →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)

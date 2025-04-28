@@ -1,10 +1,10 @@
-[← Back to README](../README.md)
+[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
 
 ### 10. Small, Focused Agents
 
 Rather than building monolithic agents that try to do everything, build small, focused agents that do one thing well. Agents are just one building block in a larger, mostly deterministic system.
 
-![1a0-small-focused-agents](../img/1a0-small-focused-agents.png)
+![1a0-small-focused-agents](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a0-small-focused-agents.png)
 
 The key insight here is about LLM limitations: the bigger and more complex a task is, the more steps it will take, which means a longer context window. As context grows, LLMs are more likely to get lost or lose focus. By keeping agents focused on specific domains with 3-10, maybe 20 steps max, we keep context windows manageable and LLM performance high.
 
@@ -24,12 +24,12 @@ Do we still need this if LLMs get smart enough to handle 100-step+ workflows?
 
 tl;dr yes. As agents and LLMs improve, they **might** naturally expand to be able to handle longer context windows. This means handling MORE of a larger DAG. This small, focused approach ensures you can get results TODAY, while preparing you to slowly expand agent scope as LLM context windows become more reliable. (If you've refactored large deterministic code bases before, you may be nodding your head right now).
 
-[![gif](../img/1a5-agent-scope-grow.gif)](https://github.com/user-attachments/assets/0cd3f52c-046e-4d5e-bab4-57657157c82f
+[![gif](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a5-agent-scope-grow.gif)](https://github.com/user-attachments/assets/0cd3f52c-046e-4d5e-bab4-57657157c82f
 )
 
 <details>
-<summary><a href="../img/1a5-agent-scope-grow.gif">GIF Version</a></summary>
-![gif](../img/1a5-agent-scope-grow.gif)
+<summary><a href="https://github.com/humanlayer/12-factor-agents/blob/main/img/1a5-agent-scope-grow.gif">GIF Version</a></summary>
+![gif](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a5-agent-scope-grow.gif)
 </details>
 
 Being intentional about size/scope of agents, and only growing in ways that allow you to maintain quality, is key here. As the [team that built NotebookLM put it](https://open.substack.com/pub/swyx/p/notebooklm?selection=08e1187c-cfee-4c63-93c9-71216640a5f8&utm_campaign=post-share-selection&utm_medium=web):
@@ -38,4 +38,4 @@ Being intentional about size/scope of agents, and only growing in ways that allo
 
 Regardless of where that boundary is, if you can find that boundary and get it right consistently, you'll be building magical experiences. There are many moats to be built here, but as usual, they take some engineering rigor.
 
-[← Compact Errors](./factor-9-compact-errors.md) | [Trigger From Anywhere →](./factor-11-trigger-from-anywhere.md)
+[← Compact Errors](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md) | [Trigger From Anywhere →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
