@@ -28,7 +28,7 @@ Answer in JSON format with one of the following intents:
 and your code looks like
 
 ```python
-thread = {"events": [inital_message]}
+thread = {"events": [initial_message]}
 next_step = await determine_next_step(thread)
 
 while True:
@@ -85,7 +85,7 @@ Answer in JSON format with one of the following intents:
 and your code looks like
 
 ```diff
-thread = {"events": [inital_message]}
+thread = {"events": [initial_message]}
 + git_tags = await fetch_git_tags()
 
 - next_step = await determine_next_step(thread)
@@ -114,7 +114,7 @@ while True:
 or even just include the tags in the thread and remove the specific parameter from your prompt template:
 
 ```diff
-thread = {"events": [inital_message]}
+thread = {"events": [initial_message]}
 + # add the request
 + thread["events"].append({
 +  "type": 'list_git_tags',

@@ -5,11 +5,11 @@
 This one is a little short but is worth mentioning. One of these benefits of agents is "self-healing" - for short tasks, an LLM might call a tool that fails. Good LLMs have a fairly good chance of reading an error message or stack trace and figuring out what to change in a subsequent tool call.
 
 
-Most frameworks implement this, but you can do JUST THIS without doing any of the other 11 factors. Here's an example of 
+Most frameworks implement this, but you can do JUST THIS without doing any of the other 11 factors. Here's an example: 
 
 
 ```python
-thread = {"events": [inital_message]}
+thread = {"events": [initial_message]}
 
 while True:
   next_step = await determine_next_step(thread_to_prompt(thread))
@@ -82,4 +82,4 @@ That's where [factor 8 - own your control flow](./factor-8-own-your-control-flow
 
 But the number one way to prevent error spin-outs is to embrace [factor 10 - small, focused agents](./factor-10-small-focused-agents.md).
 
-[← Own Your Control Flow](./factor-8-own-your-control-flow.md) | [Small Focused Agents →](./factor-10-small-focused-agents.md)
+[← Own Your Control Flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md) | [Small Focused Agents →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
