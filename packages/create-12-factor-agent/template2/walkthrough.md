@@ -371,9 +371,57 @@ curl -X POST http://localhost:3000/thread \
   -d '{"message":"can you divide 3 by 4?"}'
 ```
 
+then reply with a rejection
+
+```
+curl -X POST 'http://localhost:3000/thread/{thread_id}/response' \
+  -H "Content-Type: application/json" \
+  -d '{"approved": false, comment: "lets use 5 instead of 4"}'
+```
+
+when the next operation comes back, approve it
+
+```
+curl -X POST 'http://localhost:3000/thread/{thread_id}/response' \
+  -H "Content-Type: application/json" \
+  -d '{"approved": true}'
+```
+
+### chapter 11 - human approval with humanlayer
+
+head over the https://humanlayer.dev and get your api key
+
+get your humanlayer api key and use your personal email for approvals
+
+```
+export HUMANLAYER_API_KEY=your_api_key
+export HUMANLAYER_EMAIL=your_email@example.com
+```
+
+install humanlayer
+
+```
+npm install humanlayer
+```
+
+```
+cp walkthrough/11-agent.ts src/agent.ts
+cp walkthrough/11-cli.ts src/cli.ts
+```
+
+customize the email template
+
+
+### chapter 12 - human approval with humanlayer (async)
+
+
+### chapter 13 - launching new requests with 
 
 
 
+### exercises
+
+launch jobs over slack
 
 
 

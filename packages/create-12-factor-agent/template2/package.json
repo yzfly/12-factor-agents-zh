@@ -17,6 +17,7 @@
     "@boundaryml/baml": "^0.84.4",
     "baml": "^0.0.0",
     "express": "^4.21.2",
+    "humanlayer": "^0.7.7",
     "tsx": "^4.15.0",
     "typescript": "^5.0.0"
   },

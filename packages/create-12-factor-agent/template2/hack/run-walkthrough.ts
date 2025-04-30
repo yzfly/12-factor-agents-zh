@@ -292,7 +292,7 @@ async function main() {
         
         for (const command of chapter.commands) {
             // Handle environment variable settings
-            if (command.startsWith('export ')) {
+            if (command.startsWith('export ') && !command.includes('HUMANLAYER')) {
                 const [_, key, value] = command.match(/export\s+(\w+)=(.*)/) || [];
                 if (key && value) {
                     process.env[key] = value;
