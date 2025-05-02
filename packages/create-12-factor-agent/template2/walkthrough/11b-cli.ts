@@ -44,7 +44,7 @@ export async function cli() {
 
 async function askHuman(lastEvent: Event): Promise<Event> {
     if (process.env.HUMANLAYER_API_KEY) {
-        return await askHumanHumanlayer(lastEvent);
+        return await askHumanEmail(lastEvent);
     } else {
         return await askHumanCLI(lastEvent.data.message);
     }
@@ -63,7 +63,7 @@ async function askHumanCLI(message: string): Promise<Event> {
     });
 }
 
-async function askHumanHumanlayer(lastEvent: Event): Promise<Event> {
+async function askHumanEmail(lastEvent: Event): Promise<Event> {
     if (!process.env.HUMANLAYER_EMAIL) {
         throw new Error("missing or invalid parameters: HUMANLAYER_EMAIL");
     }

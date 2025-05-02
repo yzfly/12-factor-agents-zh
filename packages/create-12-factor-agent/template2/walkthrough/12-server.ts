@@ -122,9 +122,11 @@ app.post('/webhook', async (req, res) => {
     store.update(threadId, newThread);
 
     const lastEvent = newThread.events[newThread.events.length - 1];
-    // If we exited the loop, include the response URL so the client can
-    // push a new message onto the thread
-    lastEvent.data.response_url = `/thread/${threadId}/response`;
+
+    
+
+
+
 
     // don't return any content, we sent the next step to a human
     res.json({ status: "ok" });

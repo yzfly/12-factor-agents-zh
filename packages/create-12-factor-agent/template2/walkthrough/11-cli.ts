@@ -117,5 +117,4 @@ export async function askHumanEmail(lastEvent: Event): Promise<Event> {
         }
     }
     throw new Error(`unknown tool: ${lastEvent.data.intent}`)
-
 }

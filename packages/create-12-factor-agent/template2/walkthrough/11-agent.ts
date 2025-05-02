@@ -104,7 +104,6 @@ export async function agentLoop(thread: Thread): Promise<Thread> {
             case "subtract":
             case "multiply":
                 thread = await handleNextStep(nextStep, thread);
-                break;
         }
     }
 }
