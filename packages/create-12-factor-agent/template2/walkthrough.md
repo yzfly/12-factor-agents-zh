@@ -20,9 +20,11 @@ rm -rf baml_src/ && rm -rf src/ && mkdir src
 
 ```
 cp walkthrough/00-index.ts src/index.ts
-npx tsx src/index.ts
 ```
 
+```
+npx tsx src/index.ts
+```
 
 ```
 git add . && git commit -m "clean up" && git show HEAD --color=always | cat
@@ -32,8 +34,13 @@ git add . && git commit -m "clean up" && git show HEAD --color=always | cat
 
 ```
 npm i baml
+```
+
+```
 npx baml-cli init
-# clean up default files
+```
+
+```
 rm baml_src/resume.baml
 ```
 
@@ -41,6 +48,9 @@ add our baml starter agent
 
 ```
 cp walkthrough/01-agent.baml baml_src/agent.baml
+```
+
+```
 npx baml-cli generate
 ```
 
@@ -54,7 +64,13 @@ call it from our ts files
 
 ```
 cp walkthrough/01-cli.ts src/cli.ts
+```
+
+```
 cp walkthrough/01-index.ts src/index.ts
+```
+
+```
 cp walkthrough/01-agent.ts src/agent.ts
 ```
 
@@ -74,6 +90,9 @@ now lets add a calculator tool to our baml agent
 
 ```
 cp walkthrough/02-tool_calculator.baml baml_src/tool_calculator.baml
+```
+
+```
 cp walkthrough/02-agent.baml baml_src/agent.baml
 ```
 
@@ -113,7 +132,6 @@ export BAML_LOG=off
 ```
 npx tsx src/index.ts 'can you add 3 and 4, then add 6 to that result?'
 ```
-
 
 note that the others don't work yet, becasue we're not handling them in the agent loop
 
@@ -175,7 +193,6 @@ BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the re
 
 copy the thread from the output into another test 
 
-
 ```
 cp walkthrough/04c-agent.baml baml_src/agent.baml
 ```
@@ -183,6 +200,7 @@ cp walkthrough/04c-agent.baml baml_src/agent.baml
 ```
 npx baml-cli test
 ```
+
 ```
 git add . && git commit -m "add tests to agent.baml" && git show HEAD --color=always | cat
 ```
@@ -208,6 +226,9 @@ lets update our cli loop to ask the human for input if the agent returns a `requ
 
 ```
 cp walkthrough/05-agent.ts src/agent.ts
+```
+
+```
 cp walkthrough/05-cli.ts src/cli.ts
 ```
 
@@ -301,8 +322,7 @@ npx baml-cli test
 First, let's add the required dependencies:
 
 ```bash
-npm install express
-npm install --save-dev @types/express supertest
+npm install express && npm install --save-dev @types/express supertest
 ```
 
 Now let's create our API server:
@@ -337,6 +357,9 @@ Now let's add state management and async clarification support:
 
 ```bash
 cp walkthrough/09-state.ts src/state.ts
+```
+
+```bash
 cp walkthrough/09-server.ts src/server.ts
 ```
 
@@ -347,7 +370,9 @@ Try out the clarification flow:
 curl -X POST http://localhost:3000/thread \
   -H "Content-Type: application/json" \
   -d '{"message":"can you multiply 3 and xyz?"}'
+```
 
+```bash
 # You'll get back a response with a response_url - use that URL to send clarification
 curl -X POST 'http://localhost:3000/thread/{thread_id}/response' \
   -H "Content-Type: application/json" \
@@ -358,6 +383,9 @@ curl -X POST 'http://localhost:3000/thread/{thread_id}/response' \
 
 ```
 cp walkthrough/10-server.ts src/server.ts
+```
+
+```
 cp walkthrough/10-agent.ts src/agent.ts
 ```
 
@@ -394,8 +422,7 @@ head over the https://humanlayer.dev and get your api key
 get your humanlayer api key and use your personal email for approvals
 
 ```
-export HUMANLAYER_API_KEY=your_api_key
-export HUMANLAYER_EMAIL=your_email@example.com
+export HUMANLAYER_API_KEY=your_api_key && export HUMANLAYER_EMAIL=your_email@example.com
 ```
 
 install humanlayer
@@ -406,6 +433,9 @@ npm install humanlayer
 
 ```
 cp walkthrough/11-agent.ts src/agent.ts
+```
+
+```
 cp walkthrough/11-cli.ts src/cli.ts
 ```
 
@@ -415,7 +445,7 @@ customize the email template
 ### chapter 12 - human approval with humanlayer (async)
 
 
-### chapter 13 - launching new requests with 
+### chapter 13 - launching new requests with an email
 
 
 
@@ -428,8 +458,7 @@ launch jobs over slack
 ### cleaning up
 
 ```
-rm src/*.ts
-rm -r baml_src
+rm src/*.ts && rm -r baml_src
 ```
 
 ```
