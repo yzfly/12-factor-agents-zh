@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@boundaryml/baml": "^0.85.0",
     "typescript": "^5.8.3"
   }
 }
