@@ -1,0 +1,41 @@
+title: "setting up a typescript cli"
+text: "this is a walkthrough for setting up a typescript cli"
+targets:
+  - markdown: "./build/walkthrough.md" # generates a walkthrough.md file
+    onChange: # default behavior - on changes, show diffs and cp commands
+      diff: true
+      cp: true
+    newFiles: # when new files are created, just show the copy command
+      cat: false
+      cp: true
+  - final: "./build/final" # outputs the final project to the final folder
+  - folders: "./build/by-section" # creates a separate working folder for each section
+sections:
+  - name: setup
+    title: "Copy inital files"
+    steps:
+      - file: {src: ./walkthrough/00-package.json, dest: package.json}
+      - file: {src: ./walkthrough/00-package-lock.json, dest: package-lock.json}
+      - file: {src: ./walkthrough/00-tsconfig.json, dest: tsconfig.json}
+  - name: initialize
+    title: "Initialize the project"
+    steps:
+      - text: "initialize the project"
+        command: |
+          npm install
+      - text: "then add index.ts"
+        file: {src: ./walkthrough/01-index.ts, dest: src/index.ts}
+      - text: "run it with tsx"
+        command: |
+          npx tsx src/index.ts
+        results:
+          - text: "you should see a hello world message"
+            code: |
+              hello world
+  - name: add-cli
+    title: "Add a CLI"
+    steps:
+      - text: "add a cli"
+        file: {src: ./walkthrough/02-cli.ts, dest: src/cli.ts}
+      - text: "add a cli"
+        file: {src: ./walkthrough/02-index.ts, dest: src/index.ts}
