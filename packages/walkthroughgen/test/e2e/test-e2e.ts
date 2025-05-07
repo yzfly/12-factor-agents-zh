@@ -231,3 +231,77 @@ describe("CLI generate from example", () => {
     });
   });
 });
+
+describe("CLI generate with diffs", () => {
+  it("should show diffs when files are overwritten", () => {
+    withTmpDir((tempDir: string) => {
+      fs.mkdirSync(path.join(tempDir, 'walkthrough'), { recursive: true });
+      
+      // Create initial package.json
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/v1-package.json'),
+        `{
+  "name": "example",
+  "version": "1.0.0",
+  "dependencies": {
+    "typescript": "^5.0.0"
+  }
+}`
+      );
+
+      // Create updated package.json with a new dependency
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/v2-package.json'),
+        `{
+  "name": "example",
+  "version": "1.0.0",
+  "dependencies": {
+    "typescript": "^5.0.0",
+    "express": "^4.18.0"
+  }
+}`
+      );
+
+      // Create walkthrough.yaml that updates package.json
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "Test Diff Generation"
+text: "Testing diff generation for file updates"
+targets:
+  - markdown: "./walkthrough.md"
+    onChange:
+      diff: true
+      cp: true
+sections:
+  - title: "Initial Setup"
+    steps:
+      - text: "Create initial package.json"
+        file: {src: ./walkthrough/v1-package.json, dest: package.json}
+  - title: "Add Express"
+    steps:
+      - text: "Add express dependency"
+        file: {src: ./walkthrough/v2-package.json, dest: package.json}`
+      );
+
+      const output = withMockedConsole(() => {
+        cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+      });
+
+      expect(fs.existsSync(path.join(tempDir, 'walkthrough.md'))).toBe(true);
+      const content = fs.readFileSync(path.join(tempDir, 'walkthrough.md'), 'utf8').replace(/\r\n/g, '\n');
+
+      // First file copy should not have a diff (it's new)
+      expect(content).toContain("Create initial package.json");
+      expect(content).toContain("cp ./walkthrough/v1-package.json package.json");
+      expect(content.indexOf("```diff")).toBeGreaterThan(content.indexOf("Create initial package.json"));
+
+      // Second file copy should have a diff (it's an update)
+      expect(content).toContain("Add express dependency");
+      expect(content).toContain("```diff");
+      expect(content).toContain("+    \"express\": \"^4.18.0\"");
+      expect(content).toContain("cp ./walkthrough/v2-package.json package.json");
+
+      expect(output).toContain("Successfully generated walkthrough");
+    });
+  });
+});

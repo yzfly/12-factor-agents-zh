@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import * as Diff from 'diff';
 
 interface Section {
   title: string;
@@ -20,6 +21,7 @@ interface WalkthroughData {
   targets?: Array<{
     markdown?: string;
     onChange?: { diff?: boolean; cp?: boolean };
+    newFiles?: { cat?: boolean; cp?: boolean };
   }>;
 }
 
@@ -66,6 +68,10 @@ OPTIONS:
       console.error(`Error: Invalid YAML structure in '${yamlPath}'. Missing required 'title' or 'text' fields.`);
       return;
     }
+
+    // Track virtual file state for diff generation
+    const projectRoot = path.dirname(yamlPath);
+    const virtualFileState = new Map<string, string>();
     
     let markdown = `# ${data.title}\n\n${data.text}\n\n`;
     
@@ -81,9 +87,40 @@ OPTIONS:
               markdown += `${step.text}\n\n`;
             }
             if (step.file) {
-              let fileLine = `    cp ${step.file.src} ${step.file.dest}`;
-              markdown += fileLine;
-              markdown += "\n\n";
+              const srcAbsolutePath = path.resolve(projectRoot, step.file.src);
+              const destRelativePath = path.normalize(step.file.dest);
+
+              let newContent: string;
+              try {
+                newContent = fs.readFileSync(srcAbsolutePath, 'utf8');
+              } catch (error: any) {
+                console.warn(`Warning: Could not read source file ${srcAbsolutePath} for step: ${step.text || 'Unnamed step'}`);
+                continue;
+              }
+
+              const isExistingVirtualFile = virtualFileState.has(destRelativePath);
+              const oldContent = isExistingVirtualFile ? virtualFileState.get(destRelativePath)! : '';
+
+              if (isExistingVirtualFile) {
+                // File is being changed/overwritten
+                const shouldDiff = data.targets?.[0]?.onChange?.diff === true;
+                if (shouldDiff && oldContent !== newContent) {
+                  const patch = Diff.createPatch(destRelativePath, oldContent, newContent, '', '', { context: 2 });
+                  markdown += `\`\`\`diff\n${patch}\n\`\`\`\n\n`;
+                }
+                const showCp = data.targets?.[0]?.onChange?.cp !== false;
+                if (showCp) {
+                  markdown += `    cp ${step.file.src} ${step.file.dest}\n\n`;
+                }
+              } else {
+                // New file
+                const showCpForNew = data.targets?.[0]?.newFiles?.cp !== false;
+                if (showCpForNew) {
+                  markdown += `    cp ${step.file.src} ${step.file.dest}\n\n`;
+                }
+              }
+
+              virtualFileState.set(destRelativePath, newContent);
             }
             if (step.command) {
               let commandLine = `    ${step.command.trim()}`;

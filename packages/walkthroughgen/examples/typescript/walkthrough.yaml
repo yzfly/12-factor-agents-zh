@@ -37,5 +37,5 @@ sections:
     steps:
       - text: "add a cli"
         file: {src: ./walkthrough/02-cli.ts, dest: src/cli.ts}
-      - text: "add a cli"
+      - text: "update index.ts to use the cli"
         file: {src: ./walkthrough/02-index.ts, dest: src/index.ts}
