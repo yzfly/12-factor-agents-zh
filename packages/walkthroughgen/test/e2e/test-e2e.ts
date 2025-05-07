@@ -340,3 +340,304 @@ sections:
     });
   });
 });
+
+describe("CLI generate with folders target", () => {
+  it("should create base folders directory", () => {
+    withTmpDir((tempDir: string) => {
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "Test Folders"
+text: "Testing folders target"
+targets:
+  - folders: "./build/by-section"
+sections:
+  - title: "First Section"
+    text: "First section text"`
+      );
+
+      const output = withMockedConsole(() => {
+        cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+      });
+
+      expect(fs.existsSync(path.join(tempDir, 'build/by-section'))).toBe(true);
+      expect(output).toContain("Successfully generated walkthrough");
+    });
+  });
+
+  it("should create first section folder with README", () => {
+    withTmpDir((tempDir: string) => {
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "Test Folders"
+text: "Testing folders target"
+targets:
+  - folders: "./build/by-section"
+sections:
+  - name: first-section
+    title: "First Section"
+    text: "First section text"`
+      );
+
+      const output = withMockedConsole(() => {
+        cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+      });
+
+      const sectionPath = path.join(tempDir, 'build/by-section/00-first-section');
+      expect(fs.existsSync(sectionPath)).toBe(true);
+      expect(fs.existsSync(path.join(sectionPath, 'README.md'))).toBe(true);
+
+      // Check README content
+      const readmeContent = fs.readFileSync(path.join(sectionPath, 'README.md'), 'utf8');
+      expect(readmeContent).toContain("# First Section");
+      expect(readmeContent).toContain("First section text");
+    });
+  });
+
+  it("should copy files to the section's working directory", () => {
+    withTmpDir((tempDir: string) => {
+      // Create source file
+      fs.mkdirSync(path.join(tempDir, 'walkthrough'), { recursive: true });
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/file.ts'),
+        'console.log("hello");'
+      );
+
+      // Create walkthrough.yaml
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "Test Folders"
+text: "Testing folders target"
+targets:
+  - folders: "./build/by-section"
+sections:
+  - name: first-section
+    title: "First Section"
+    text: "First section text"
+    steps:
+      - text: "Add a file"
+        file: {src: ./walkthrough/file.ts, dest: src/file.ts}`
+      );
+
+      const output = withMockedConsole(() => {
+        cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+      });
+
+      // Check source file was copied to section's walkthrough directory
+      const sectionPath = path.join(tempDir, 'build/by-section/00-first-section');
+      expect(fs.existsSync(path.join(sectionPath, 'walkthrough/file.ts'))).toBe(true);
+
+      // Check file was also copied to its destination within the section
+      expect(fs.existsSync(path.join(sectionPath, 'src/file.ts'))).toBe(true);
+
+      // Check README includes the step
+      const readmeContent = fs.readFileSync(path.join(sectionPath, 'README.md'), 'utf8');
+      expect(readmeContent).toContain("Add a file");
+      expect(readmeContent).toContain("cp ./walkthrough/file.ts src/file.ts");
+    });
+  });
+
+  it("should include files from previous sections", () => {
+    withTmpDir((tempDir: string) => {
+      // Create source files
+      fs.mkdirSync(path.join(tempDir, 'walkthrough'), { recursive: true });
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/file1.ts'),
+        'console.log("hello 1");'
+      );
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/file2.ts'),
+        'console.log("hello 2");'
+      );
+
+      // Create walkthrough.yaml with two sections
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "Test Folders"
+text: "Testing folders target"
+targets:
+  - folders: "./build/by-section"
+sections:
+  - name: first-section
+    title: "First Section"
+    text: "First section text"
+    steps:
+      - text: "Add first file"
+        file: {src: ./walkthrough/file1.ts, dest: src/file1.ts}
+  - name: second-section
+    title: "Second Section"
+    text: "Second section text"
+    steps:
+      - text: "Add second file"
+        file: {src: ./walkthrough/file2.ts, dest: src/file2.ts}`
+      );
+
+      const output = withMockedConsole(() => {
+        cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+      });
+
+      // Check first section has its file
+      const firstSectionPath = path.join(tempDir, 'build/by-section/00-first-section');
+      expect(fs.existsSync(path.join(firstSectionPath, 'src/file1.ts'))).toBe(true);
+
+      // Check second section has both files
+      const secondSectionPath = path.join(tempDir, 'build/by-section/01-second-section');
+      expect(fs.existsSync(path.join(secondSectionPath, 'src/file1.ts'))).toBe(true);
+      expect(fs.existsSync(path.join(secondSectionPath, 'src/file2.ts'))).toBe(true);
+
+      // Check READMEs
+      const firstReadme = fs.readFileSync(path.join(firstSectionPath, 'README.md'), 'utf8');
+      expect(firstReadme).toContain("Add first file");
+      expect(firstReadme).toContain("cp ./walkthrough/file1.ts src/file1.ts");
+
+      const secondReadme = fs.readFileSync(path.join(secondSectionPath, 'README.md'), 'utf8');
+      expect(secondReadme).toContain("Add second file");
+      expect(secondReadme).toContain("cp ./walkthrough/file2.ts src/file2.ts");
+    });
+  });
+
+  it("should correctly generate section folders with dir creation and specific file content", () => {
+    withTmpDir((tempDir: string) => {
+      // --- Setup source files ---
+      fs.mkdirSync(path.join(tempDir, 'walkthrough'), { recursive: true });
+      
+      // package.json for hello-world section
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/00-package.json'),
+        JSON.stringify({ name: "hello-world-pkg", dependencies: {} }, null, 2)
+      );
+      // tsconfig.json for hello-world section
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/00-tsconfig.json'),
+        JSON.stringify({ compilerOptions: { target: "esnext" } }, null, 2)
+      );
+
+      // This is the content EXPECTED in hello-world/src/index.ts
+      const expectedHelloWorldIndexContent = 'console.log("hello, world!"); // Simple version';
+      // The YAML for hello-world section will point to this source file.
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/01-index.ts'), // As per user's YAML for hello-world
+        expectedHelloWorldIndexContent
+      );
+
+      // This is the content that the user sees INCORRECTLY appearing in hello-world/src/index.ts.
+      // This file won't be directly referenced by the hello-world section in this test's YAML.
+      // If this content appears, it means something is wrong with file sourcing or cumulative logic.
+      const cliIndexContent = 'import { cli } from "./cli"; cli(); // CLI version';
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/02-index.ts'), // A different file
+        cliIndexContent
+      );
+
+      const cliTSContent = 'export function cli() { console.log("cli"); }';
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/02-cli.ts'), // A different file
+        cliTSContent
+      );
+
+      // --- Setup walkthrough.yaml ---
+      const walkthroughYamlContent = `
+title: "Test Folders Feature"
+text: "Testing dir creation and file content isolation between sections."
+targets:
+  - folders: "./build/sections"
+    skip:
+      - "cleanup"
+    final:
+      dirName: "final"
+      
+sections:
+  - name: cleanup
+    title: "Cleanup Section"
+    steps:
+      - text: "Simulate cleanup (command is illustrative, not run by folders target)"
+        command: "rm -rf src/"
+  - name: hello-world
+    title: "Hello World Section"
+    steps:
+      - text: "Copy package.json"
+        file: {src: ./walkthrough/00-package.json, dest: package.json}
+      - text: "Copy tsconfig.json"
+        file: {src: ./walkthrough/00-tsconfig.json, dest: tsconfig.json}
+      - text: "Create src folder"
+        dir: {create: true, path: src}
+      - text: "Add simple hello world index.ts"
+        file: {src: ./walkthrough/01-index.ts, dest: src/index.ts} # Points to expectedHelloWorldIndexContent
+  - name: cli-version # A subsequent section
+    title: "CLI Version Section"
+    steps:
+      - text: "add a CLI"
+        file: {src: ./walkthrough/02-cli.ts, dest: src/cli.ts} # adds src/cli.ts
+      - text: "Update index.ts to CLI version"
+        file: {src: ./walkthrough/02-index.ts, dest: src/index.ts} # Overwrites src/index.ts
+  - name: runnable
+    title: "run the cli"
+    steps:
+      - text: "run the cli"
+        command: "npx tsx src/index.ts"
+`;
+      fs.writeFileSync(path.join(tempDir, 'walkthrough.yaml'), walkthroughYamlContent);
+
+      // --- Run CLI ---
+      cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+
+      // --- Assertions ---
+      const cleanupSectionPath = path.join(tempDir, 'build/sections/00-cleanup');
+      const helloWorldSectionPath = path.join(tempDir, 'build/sections/01-hello-world');
+      const cliSectionPath = path.join(tempDir, 'build/sections/02-cli-version');
+      const finalSectionPath = path.join(tempDir, 'build/sections/final');
+
+      //
+      // Cleanup Section
+      //
+      // cleanup has skip:true so it should not exist
+      expect(fs.existsSync(cleanupSectionPath)).toBe(false);
+
+      //
+      // Hello World Section
+      //
+      // Assert hello-world section - this should have the results of the previous step (NOTHING)
+      expect(fs.existsSync(helloWorldSectionPath)).toBe(true);
+      // Check package.json and tsconfig.json don't exist yet
+      expect(fs.existsSync(path.join(helloWorldSectionPath, 'src'))).toBe(false); 
+      expect(fs.existsSync(path.join(helloWorldSectionPath, 'package.json'))).toBe(false);
+      expect(fs.existsSync(path.join(helloWorldSectionPath, 'tsconfig.json'))).toBe(false);
+      
+
+      //
+      // CLI Section
+      //
+      // The cli section should contain the results of the hell-world section
+      const packageJSONPath = path.join(cliSectionPath, 'package.json');
+      const tsconfigJSONPath = path.join(cliSectionPath, 'tsconfig.json');
+      const indexTSPath = path.join(cliSectionPath, 'src/index.ts');
+
+      expect(fs.existsSync(packageJSONPath)).toBe(true); 
+      expect(fs.existsSync(tsconfigJSONPath)).toBe(true);
+      expect(fs.existsSync(indexTSPath)).toBe(true);
+      const packageJSONContent = fs.readFileSync(packageJSONPath, 'utf8');
+      expect(packageJSONContent).toContain("hello-world-pkg");
+      const tsconfigJSONContent = fs.readFileSync(tsconfigJSONPath, 'utf8');
+      expect(tsconfigJSONContent).toContain("\"target\": \"esnext\"");
+      const indexTSContent = fs.readFileSync(indexTSPath, 'utf8');
+      expect(indexTSContent).toContain("console.log(\"hello, world!\");");
+
+      //
+      // Final Section
+      //
+      // the final folder, marked by "final: dirName: final" should contain all the files from the last section
+      expect(fs.existsSync(finalSectionPath)).toBe(true);
+      expect(fs.existsSync(path.join(finalSectionPath, 'src/index.ts'))).toBe(true);
+      expect(fs.existsSync(path.join(finalSectionPath, 'src/cli.ts'))).toBe(true);
+      expect(fs.existsSync(path.join(finalSectionPath, 'package.json'))).toBe(true);
+      expect(fs.existsSync(path.join(finalSectionPath, 'tsconfig.json'))).toBe(true);
+      // Verify index.ts calls the cli function
+      const finalIndexContent = fs.readFileSync(path.join(finalSectionPath, 'src/index.ts'), 'utf8');
+      expect(finalIndexContent).toContain(cliIndexContent);
+      const finalCliContent = fs.readFileSync(path.join(finalSectionPath, 'src/cli.ts'), 'utf8');
+      expect(finalCliContent).toContain(cliTSContent);
+
+      
+
+    });
+  });
+});

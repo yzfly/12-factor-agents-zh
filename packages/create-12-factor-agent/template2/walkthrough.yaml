@@ -18,7 +18,7 @@ sections:
     steps:
       - text: "Clean up existing files"
         command: |
-          rm -rf baml_src/ && rm -rf src/ && mkdir src
+          rm -rf baml_src/ && rm -rf src/
 
   - name: hello-world
     title: "Chapter 0 - Hello World"
@@ -31,6 +31,8 @@ sections:
           npm install
       - text: "Copy tsconfig.json"
         file: {src: ./walkthrough/00-tsconfig.json, dest: tsconfig.json}
+      - text: "Create src folder"
+        dir: {create: true, path: src}
       - text: "Add a simple hello world index.ts"
         file: {src: ./walkthrough/01-index.ts, dest: src/index.ts}
       - text: "Run it to verify"
