@@ -34,6 +34,7 @@ sections:
       - text: "Install dependencies"
         command: |
           npm install
+        incremental: true
       - text: "Copy tsconfig.json"
         file: {src: ./walkthrough/00-tsconfig.json, dest: tsconfig.json}
       - text: "Create src folder"
@@ -55,17 +56,21 @@ sections:
       - text: "Install BAML"
         command: |
           npm i baml
+        incremental: true
       - text: "Initialize BAML"
         command: |
           npx baml-cli init
+        incremental: true
       - text: "Remove default resume.baml"
         command: |
           rm baml_src/resume.baml
+        incremental: true
       - text: "Add our starter agent"
         file: {src: ./walkthrough/01-agent.baml, dest: baml_src/agent.baml}
       - text: "Generate BAML client code"
         command: |
           npx baml-cli generate
+        incremental: true
       - text: "Enable BAML logging for development"
         command: |
           export BAML_LOG=debug
@@ -90,6 +95,7 @@ sections:
       - text: "Generate updated BAML client"
         command: |
           npx baml-cli generate
+        incremental: true
       - text: "Try out the calculator"
         command: |
           npx tsx src/index.ts 'can you add 3 and 4?'
@@ -145,6 +151,7 @@ sections:
       - text: "Generate updated client"
         command: |
           npx baml-cli generate
+        incremental: true
       - text: "Update agent implementation"
         file: {src: ./walkthrough/05-agent.ts, dest: src/agent.ts}
       - text: "Update CLI to handle clarification requests"
@@ -172,6 +179,7 @@ sections:
       - text: "Generate updated client"
         command: |
           npx baml-cli generate
+        incremental: true
 
   - name: context-window
     title: "Chapter 7 - Customize Your Context Window"
@@ -200,6 +208,7 @@ sections:
       - text: "Install Express and types"
         command: |
           npm install express && npm install --save-dev @types/express supertest
+        incremental: true
       - text: "Add the server implementation"
         file: {src: ./walkthrough/08-server.ts, dest: src/server.ts}
       - text: "Start the server"
@@ -219,6 +228,9 @@ sections:
         file: {src: ./walkthrough/09-state.ts, dest: src/state.ts}
       - text: "Update server with state support"
         file: {src: ./walkthrough/09-server.ts, dest: src/server.ts}
+      - text: "Start the server"
+        command: |
+          npx tsx src/server.ts
       - text: "Test clarification flow"
         command: |
           curl -X POST http://localhost:3000/thread \
@@ -233,6 +245,9 @@ sections:
         file: {src: ./walkthrough/10-server.ts, dest: src/server.ts}
       - text: "Update agent with approval checks"
         file: {src: ./walkthrough/10-agent.ts, dest: src/agent.ts}
+      - text: "Start the server"
+        command: |
+          npx tsx src/server.ts
       - text: "Test division with approval"
         command: |
           curl -X POST http://localhost:3000/thread \
@@ -246,10 +261,14 @@ sections:
       - text: "Install HumanLayer"
         command: |
           npm install humanlayer
+        incremental: true
       - text: "Update agent with HumanLayer integration"
         file: {src: ./walkthrough/11-agent.ts, dest: src/agent.ts}
       - text: "Update CLI with HumanLayer support"
         file: {src: ./walkthrough/11-cli.ts, dest: src/cli.ts}
+      - text: "Run the CLI"
+        command: |
+          npx tsx src/index.ts 'can divide 4 by 5?'
 
   - name: humanlayer-webhook
     title: "Chapter 12 - HumanLayer Webhook Integration"
@@ -257,3 +276,6 @@ sections:
     steps:
       - text: "Update server with webhook support"
         file: {src: ./walkthrough/12-server.ts, dest: src/server.ts}
+      - text: "Start the server"
+        command: |
+          npx tsx src/server.ts

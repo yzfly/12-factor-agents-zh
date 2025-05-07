@@ -640,4 +640,107 @@ sections:
       expect(finalCliContent).toContain(cliTSContent);
     });
   });
+
+  it("should execute commands in the working directory for folders target", () => {
+    withTmpDir((tempDir: string) => {
+      // Create walkthrough.yaml
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "Test Command Execution in Folders"
+text: "Testing command execution"
+targets:
+  - folders:
+      path: "./build/cmd-test"
+      final:
+        dirName: "final-cmd"
+sections:
+  - name: section-with-command
+    title: "Section with Command"
+    steps:
+      - text: "Create a file via command"
+        command: "echo 'command content' > command_file.txt"
+        incremental: true
+  - name: next-section
+    title: "Next Section"
+    steps:
+      - text: "Another step"
+        command: "echo 'another' > another_file.txt"
+        incremental: true`
+      );
+
+      // Run CLI
+      cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+
+      // Assertions
+      const firstSectionPath = path.join(tempDir, 'build/cmd-test/00-section-with-command');
+      const secondSectionPath = path.join(tempDir, 'build/cmd-test/01-next-section');
+      const finalPath = path.join(tempDir, 'build/cmd-test/final-cmd');
+
+      // First section should NOT have its own command's file
+      expect(fs.existsSync(path.join(firstSectionPath, 'command_file.txt'))).toBe(false);
+
+      // Second section SHOULD have first section's command's file
+      expect(fs.existsSync(path.join(secondSectionPath, 'command_file.txt'))).toBe(true);
+      // But should NOT have its own command's file
+      expect(fs.existsSync(path.join(secondSectionPath, 'another_file.txt'))).toBe(false);
+
+      // Final folder should have both files
+      expect(fs.existsSync(path.join(finalPath, 'command_file.txt'))).toBe(true);
+      expect(fs.existsSync(path.join(finalPath, 'another_file.txt'))).toBe(true);
+
+      // Check file contents
+      const commandFileContent = fs.readFileSync(path.join(secondSectionPath, 'command_file.txt'), 'utf8').trim();
+      expect(commandFileContent).toBe('command content');
+      const finalAnotherFileContent = fs.readFileSync(path.join(finalPath, 'another_file.txt'), 'utf8').trim();
+      expect(finalAnotherFileContent).toBe('another');
+    });
+  });
+
+  it("should handle incremental commands correctly", () => {
+    withTmpDir((tempDir: string) => {
+      // Create walkthrough.yaml
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "Test Incremental Commands"
+text: "Testing incremental command behavior"
+targets:
+  - markdown: "./walkthrough.md"
+  - folders:
+      path: "./build/cmd-test"
+      final:
+        dirName: "final"
+sections:
+  - name: section-with-commands
+    title: "Section with Commands"
+    steps:
+      - text: "Regular command (not executed in folders, shown in MD)"
+        command: "echo 'regular command' > regular.txt"
+      - text: "Incremental command (executed in folders, shown in MD)"
+        command: "echo 'incremental command' > incremental.txt"
+        incremental: true
+      - text: "Another regular command (not executed in folders, shown in MD)"
+        command: "echo 'another regular' > another_regular.txt"
+        incremental: false`
+      );
+
+      // Run CLI
+      cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+
+      // Check markdown output - ALL commands should be in markdown
+      const markdownContent = fs.readFileSync(path.join(tempDir, 'walkthrough.md'), 'utf8');
+      expect(markdownContent).toContain("echo 'regular command' > regular.txt");
+      expect(markdownContent).toContain("echo 'incremental command' > incremental.txt");
+      expect(markdownContent).toContain("echo 'another regular' > another_regular.txt");
+
+      // Check folders output - only incremental commands should have run
+      const finalPath = path.join(tempDir, 'build/cmd-test/final');
+      expect(fs.existsSync(path.join(finalPath, 'regular.txt'))).toBe(false);
+      expect(fs.existsSync(path.join(finalPath, 'incremental.txt'))).toBe(true);
+      expect(fs.existsSync(path.join(finalPath, 'another_regular.txt'))).toBe(false);
+
+      // Check file contents for incremental command
+      const incrementalContent = fs.readFileSync(path.join(finalPath, 'incremental.txt'), 'utf8').trim();
+      expect(incrementalContent).toBe('incremental command');
+    });
+  });
 });

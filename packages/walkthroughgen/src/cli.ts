@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import * as Diff from 'diff';
+import { execSync } from 'child_process';
 
 interface Section {
   title: string;
@@ -11,6 +12,7 @@ interface Section {
     text?: string; // Make text optional
     file?: { src: string; dest: string };
     command?: string;
+    incremental?: boolean; // New field: if true, command only runs for folders target
     dir?: { create: boolean; path: string }; // Added dir step type
     results?: Array<{ text: string; code: string }>;
   }>;
@@ -97,6 +99,16 @@ function applyStepsToWorkingDir(
       // If a section path is provided, also copy source file to section's walkthrough/
       if (sectionPath) {
         copySourceFiles(step.file.src, projectRoot, sectionPath);
+      }
+    }
+
+    // Handle command execution - only run if incremental is explicitly true
+    if (step.command && step.incremental === true) {
+      try {
+        execSync(step.command, { cwd: workingDir, stdio: 'inherit' });
+      } catch (error) {
+        console.error(`Error executing incremental command "${step.command}" in ${workingDir}:`, error);
+        // Log error but continue, matching behavior of file copy errors
       }
     }
   }
@@ -352,7 +364,7 @@ OPTIONS:
 
               virtualFileState.set(destRelativePath, newContent);
             }
-            if (step.command) {
+            if (step.command) { // Always show commands in markdown
               let commandLine = `    ${step.command.trim()}`;
               markdown += commandLine;
               markdown += "\n\n";
