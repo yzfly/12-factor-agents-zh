@@ -22,7 +22,13 @@ interface WalkthroughData {
   sections?: Section[];
   targets?: Array<{
     markdown?: string;
-    folders?: string; // Path for section folders, e.g. "./build/by-section"
+    folders?: {
+      path: string; // Path for section folders, e.g. "./build/by-section"
+      skip?: string[]; // Section names to skip folder creation for
+      final?: {
+        dirName: string; // Name of the final directory containing all steps' results
+      };
+    };
     onChange?: { diff?: boolean; cp?: boolean };
     newFiles?: { cat?: boolean; cp?: boolean };
   }>;
@@ -61,6 +67,37 @@ function copyDirectory(src: string, dest: string): void {
       copyDirectory(srcPath, destPath);
     } else {
       fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+function applyStepsToWorkingDir(
+  steps: Section['steps'],
+  projectRoot: string,
+  workingDir: string,
+  sectionPath: string | null = null // If provided, also copy source files to section's walkthrough/
+): void {
+  if (!steps) return;
+
+  for (const step of steps) {
+    // Handle dir creation
+    if (step.dir?.create) {
+      const dirToCreate = path.join(workingDir, step.dir.path);
+      fs.mkdirSync(dirToCreate, { recursive: true });
+    }
+
+    // Handle file copy
+    if (step.file?.src) {
+      // Copy to working directory
+      const srcAbsPath = path.resolve(projectRoot, step.file.src);
+      const destPath = path.join(workingDir, step.file.dest);
+      fs.mkdirSync(path.dirname(destPath), { recursive: true });
+      fs.copyFileSync(srcAbsPath, destPath);
+
+      // If a section path is provided, also copy source file to section's walkthrough/
+      if (sectionPath) {
+        copySourceFiles(step.file.src, projectRoot, sectionPath);
+      }
     }
   }
 }
@@ -148,56 +185,71 @@ OPTIONS:
     // Process folders target first
     if (data.targets) {
       for (const target of data.targets) {
-        if (target.folders) {
-          const foldersBasePath = path.join(path.dirname(yamlPath), target.folders);
+        // Ensure target.folders is an object with a path property
+        if (target.folders && typeof target.folders === 'object' && target.folders.path) {
+          const currentFoldersTarget = target.folders; // Assign to a new const for type narrowing
+          const foldersBasePath = path.join(path.dirname(yamlPath), currentFoldersTarget.path);
+          console.log('Creating folders base path:', foldersBasePath);
           fs.mkdirSync(foldersBasePath, { recursive: true });
 
-          // Create section folders
-          if (data.sections) {
-            data.sections.forEach((section, index) => {
-              const sectionName = getSectionFolderName(section, index);
-              const sectionPath = path.join(foldersBasePath, sectionName);
-              fs.mkdirSync(sectionPath, { recursive: true });
+          // Create a temporary working directory to build up state
+          const workingDirName = `.tmp-working-${Date.now()}`;
+          const workingDir = path.join(foldersBasePath, workingDirName);
+          console.log('Creating working directory:', workingDir);
+          fs.mkdirSync(workingDir, { recursive: true });
 
-              // If not the first section, copy previous section's working directory
-              if (index > 0) {
-                const prevSectionName = getSectionFolderName(data.sections![index - 1], index - 1);
-                const prevSectionPath = path.join(foldersBasePath, prevSectionName);
-                // Copy everything except walkthrough/ and README.md
-                const entries = fs.readdirSync(prevSectionPath, { withFileTypes: true });
-                for (const entry of entries) {
-                  if (entry.name !== 'walkthrough' && entry.name !== 'README.md') {
-                    const srcPath = path.join(prevSectionPath, entry.name);
-                    const destPath = path.join(sectionPath, entry.name);
-                    if (entry.isDirectory()) {
-                      copyDirectory(srcPath, destPath);
-                    } else {
-                      fs.copyFileSync(srcPath, destPath);
-                    }
+          try {
+            // Create section folders and build up working state
+            if (data.sections) {
+              data.sections.forEach((section, index) => {
+                const sectionName = getSectionFolderName(section, index);
+                console.log('Processing section:', sectionName, 'with name:', section.name);
+                const shouldSkip = currentFoldersTarget.skip?.includes(section.name || '');
+
+                if (!shouldSkip) {
+                  // Create section folder
+                  const sectionPath = path.join(foldersBasePath, sectionName);
+                  console.log('Creating section folder:', sectionPath);
+                  fs.mkdirSync(sectionPath, { recursive: true });
+
+                  // Copy current working state to section folder
+                  // This represents the state BEFORE this section's steps
+                  if (fs.existsSync(workingDir) && fs.readdirSync(workingDir).length > 0) {
+                    copyDirectory(workingDir, sectionPath);
                   }
+
+                  // Generate and write section README
+                  const sectionMarkdown = generateSectionMarkdown(section);
+                  fs.writeFileSync(path.join(sectionPath, 'README.md'), sectionMarkdown);
+
+                  // Copy source files to section's walkthrough/ directory
+                  // and apply steps to working directory
+                  applyStepsToWorkingDir(section.steps, projectRoot, workingDir, sectionPath);
+                } else {
+                  // Even for skipped sections, apply steps to working directory
+                  applyStepsToWorkingDir(section.steps, projectRoot, workingDir);
                 }
-              }
+              });
 
-              // Process steps for the current section
-              if (section.steps) {
-                for (const step of section.steps) {
-                  // Handle dir creation step
-                  if (step.dir?.create) {
-                    const dirToCreate = path.join(sectionPath, step.dir.path);
-                    fs.mkdirSync(dirToCreate, { recursive: true });
-                  }
-                  // Handle file copy step
-                  if (step.file?.src) {
-                    copySourceFiles(step.file.src, projectRoot, sectionPath);
-                    copyWorkingFile(step.file.src, step.file.dest, sectionPath);
-                  }
-                }
-              }
+              // Create final directory if specified
+              if (currentFoldersTarget.final?.dirName) {
+                const finalDirPath = path.join(foldersBasePath, currentFoldersTarget.final.dirName);
+                fs.mkdirSync(finalDirPath, { recursive: true });
+                copyDirectory(workingDir, finalDirPath);
 
-              // Generate and write section README
-              const sectionMarkdown = generateSectionMarkdown(section);
-              fs.writeFileSync(path.join(sectionPath, 'README.md'), sectionMarkdown);
-            });
+                // Optional: Generate cumulative README for final directory
+                const finalReadme = data.sections
+                  .filter(s => !currentFoldersTarget.skip?.includes(s.name || ''))
+                  .map(s => generateSectionMarkdown(s))
+                  .join('\n');
+                fs.writeFileSync(path.join(finalDirPath, 'README.md'), finalReadme);
+              }
+            }
+          } finally {
+            // Clean up working directory
+            if (fs.existsSync(workingDir)) {
+              fs.rmSync(workingDir, { recursive: true, force: true });
+            }
           }
         }
       }

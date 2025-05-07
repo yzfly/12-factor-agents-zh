@@ -9,7 +9,12 @@ targets:
     newFiles:
       cat: false
       cp: true
-  - folders: "./build/sections" # creates a separate working folder for each section
+  - folders:
+      path: "./build/sections"
+      skip:
+        - "cleanup"
+      final:
+        dirName: "final"
 
 sections:
   - name: cleanup

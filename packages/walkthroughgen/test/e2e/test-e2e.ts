@@ -349,7 +349,7 @@ describe("CLI generate with folders target", () => {
         `title: "Test Folders"
 text: "Testing folders target"
 targets:
-  - folders: "./build/by-section"
+  - folders: { path: "./build/by-section" }
 sections:
   - title: "First Section"
     text: "First section text"`
@@ -371,7 +371,7 @@ sections:
         `title: "Test Folders"
 text: "Testing folders target"
 targets:
-  - folders: "./build/by-section"
+  - folders: { path: "./build/by-section" }
 sections:
   - name: first-section
     title: "First Section"
@@ -408,7 +408,7 @@ sections:
         `title: "Test Folders"
 text: "Testing folders target"
 targets:
-  - folders: "./build/by-section"
+  - folders: { path: "./build/by-section" }
 sections:
   - name: first-section
     title: "First Section"
@@ -426,8 +426,9 @@ sections:
       const sectionPath = path.join(tempDir, 'build/by-section/00-first-section');
       expect(fs.existsSync(path.join(sectionPath, 'walkthrough/file.ts'))).toBe(true);
 
-      // Check file was also copied to its destination within the section
-      expect(fs.existsSync(path.join(sectionPath, 'src/file.ts'))).toBe(true);
+      // Check file was NOT copied to its destination within the section
+      // (section folders only contain state BEFORE their own steps)
+      expect(fs.existsSync(path.join(sectionPath, 'src/file.ts'))).toBe(false);
 
       // Check README includes the step
       const readmeContent = fs.readFileSync(path.join(sectionPath, 'README.md'), 'utf8');
@@ -455,7 +456,7 @@ sections:
         `title: "Test Folders"
 text: "Testing folders target"
 targets:
-  - folders: "./build/by-section"
+  - folders: { path: "./build/by-section" }
 sections:
   - name: first-section
     title: "First Section"
@@ -475,14 +476,15 @@ sections:
         cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
       });
 
-      // Check first section has its file
+      // Check first section does NOT have its own file
+      // (section folders only contain state BEFORE their own steps)
       const firstSectionPath = path.join(tempDir, 'build/by-section/00-first-section');
-      expect(fs.existsSync(path.join(firstSectionPath, 'src/file1.ts'))).toBe(true);
+      expect(fs.existsSync(path.join(firstSectionPath, 'src/file1.ts'))).toBe(false);
 
-      // Check second section has both files
+      // Check second section has first section's file but NOT its own file
       const secondSectionPath = path.join(tempDir, 'build/by-section/01-second-section');
       expect(fs.existsSync(path.join(secondSectionPath, 'src/file1.ts'))).toBe(true);
-      expect(fs.existsSync(path.join(secondSectionPath, 'src/file2.ts'))).toBe(true);
+      expect(fs.existsSync(path.join(secondSectionPath, 'src/file2.ts'))).toBe(false);
 
       // Check READMEs
       const firstReadme = fs.readFileSync(path.join(firstSectionPath, 'README.md'), 'utf8');
@@ -539,11 +541,12 @@ sections:
 title: "Test Folders Feature"
 text: "Testing dir creation and file content isolation between sections."
 targets:
-  - folders: "./build/sections"
-    skip:
-      - "cleanup"
-    final:
-      dirName: "final"
+  - folders:
+      path: "./build/sections"
+      skip:
+        - "cleanup"
+      final:
+        dirName: "final"
       
 sections:
   - name: cleanup
@@ -635,9 +638,6 @@ sections:
       expect(finalIndexContent).toContain(cliIndexContent);
       const finalCliContent = fs.readFileSync(path.join(finalSectionPath, 'src/cli.ts'), 'utf8');
       expect(finalCliContent).toContain(cliTSContent);
-
-      
-
     });
   });
 });
