@@ -24,10 +24,10 @@ interface WalkthroughData {
 }
 
 export const cli = (argv: string[]) => {
-  if (argv.includes("--help")) {
+  if (argv.includes("--help") || argv.includes("-h")) {
     console.log(`
 USAGE:
-    walkthroughgen [options]
+    walkthroughgen generate <yaml-file> [options]
 
 OPTIONS:
     --help, -h    Show help
@@ -36,10 +36,36 @@ OPTIONS:
     return;
   }
 
-  if (argv[0] === "generate" && argv[1]) {
+  if (argv[0] === "generate") {
+    if (!argv[1]) {
+      console.error("Error: YAML file path is required for 'generate' command.");
+      console.log("Usage: walkthroughgen generate <yaml-file>");
+      return;
+    }
+
     const yamlPath = argv[1];
-    const yamlContent = fs.readFileSync(yamlPath, 'utf8');
-    const data = yaml.load(yamlContent) as WalkthroughData;
+    let yamlContent;
+    try {
+      yamlContent = fs.readFileSync(yamlPath, 'utf8');
+    } catch (error: any) {
+      console.error(`Error: Could not read YAML file at '${yamlPath}'.`);
+      console.error(error.message);
+      return;
+    }
+    
+    let data: WalkthroughData;
+    try {
+      data = yaml.load(yamlContent) as WalkthroughData;
+    } catch (error: any) {
+      console.error(`Error: Could not parse YAML content from '${yamlPath}'.`);
+      console.error(error.message);
+      return;
+    }
+
+    if (!data || typeof data.title !== 'string' || typeof data.text !== 'string') {
+      console.error(`Error: Invalid YAML structure in '${yamlPath}'. Missing required 'title' or 'text' fields.`);
+      return;
+    }
     
     let markdown = `# ${data.title}\n\n${data.text}\n\n`;
     
@@ -53,14 +79,23 @@ OPTIONS:
           for (const step of section.steps) {
             markdown += `${step.text}\n\n`;
             if (step.file) {
-              markdown += `    cp ${step.file.src} ${step.file.dest}\n\n`;
+              let fileLine = `    cp ${step.file.src} ${step.file.dest}`;
+              markdown += fileLine;
+              markdown += "\n\n";
             }
             if (step.command) {
-              markdown += `    ${step.command}\n\n`;
+              let commandLine = `    ${step.command.trim()}`;
+              markdown += commandLine;
+              markdown += "\n\n";
             }
             if (step.results) {
               for (const result of step.results) {
-                markdown += `${result.text}\n\n    ${result.code}\n\n`;
+                markdown += `${result.text}\n\n`;
+                if (result.code) {
+                  let codeLine = `    ${result.code.trim()}`;
+                  markdown += codeLine;
+                  markdown += "\n\n";
+                }
               }
             }
           }
@@ -72,9 +107,17 @@ OPTIONS:
       ? path.join(path.dirname(yamlPath), data.targets[0].markdown)
       : path.join(path.dirname(yamlPath), 'walkthrough.md');
     
-    fs.writeFileSync(outputPath, markdown);
+    try {
+      fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+      fs.writeFileSync(outputPath, markdown);
+      console.log(`Successfully generated walkthrough to ${outputPath}`);
+    } catch (error: any) {
+      console.error(`Error: Could not write markdown file to '${outputPath}'.`);
+      console.error(error.message);
+      return;
+    }
     return;
   }
 
-  console.log(argv);
+  console.log("Unknown command. Available commands: generate. Use --help for more info.");
 };

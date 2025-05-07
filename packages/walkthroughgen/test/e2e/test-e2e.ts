@@ -10,25 +10,88 @@ describe("CLI basics", () => {
       cli(["--help"]);
     });
 
-    // Assert that the help flag was received
     expect(output).toContain("USAGE:");
     expect(output).toContain("OPTIONS:");
     expect(output).toContain("--help, -h");
+  });
+
+  it("should handle -h flag", () => {
+    const output = withMockedConsole(() => {
+      cli(["-h"]);
+    });
+
+    expect(output).toContain("USAGE:");
+    expect(output).toContain("OPTIONS:");
+    expect(output).toContain("--help, -h");
+  });
+
+  it("should show error for missing yaml file path", () => {
+    const output = withMockedConsole(() => {
+      cli(["generate"]);
+    });
+
+    expect(output).toContain("Error: YAML file path is required");
+  });
+
+  it("should show error for non-existent yaml file", () => {
+    const output = withMockedConsole(() => {
+      cli(["generate", "non-existent.yaml"]);
+    });
+
+    expect(output).toContain("Error: Could not read YAML file");
+  });
+
+  it("should show error for invalid yaml content", () => {
+    withTmpDir((tempDir: string) => {
+      fs.writeFileSync(
+        path.join(tempDir, 'invalid.yaml'),
+        `invalid: yaml: content: [}`
+      );
+
+      const output = withMockedConsole(() => {
+        cli(["generate", path.join(tempDir, "invalid.yaml")]);
+      });
+
+      expect(output).toContain("Error: Could not parse YAML content");
+    });
+  });
+
+  it("should show error for missing required fields", () => {
+    withTmpDir((tempDir: string) => {
+      fs.writeFileSync(
+        path.join(tempDir, 'missing-fields.yaml'),
+        `some_field: "some value"`
+      );
+
+      const output = withMockedConsole(() => {
+        cli(["generate", path.join(tempDir, "missing-fields.yaml")]);
+      });
+
+      expect(output).toContain("Error: Invalid YAML structure");
+      expect(output).toContain("Missing required 'title' or 'text' fields");
+    });
+  });
+
+  it("should show unknown command message", () => {
+    const output = withMockedConsole(() => {
+      cli(["unknown"]);
+    });
+
+    expect(output).toContain("Unknown command");
+    expect(output).toContain("Available commands: generate");
   });
 }); 
 
 describe("CLI generate basic markdown", () => {
   it("should generate basic markdown", () => {
     withTmpDir((tempDir: string) => {
-      const output = withMockedConsole(() => {
-        const fs = require('fs');
-        const path = require('path');
-        
-        fs.writeFileSync(
-          path.join(tempDir, 'walkthrough.yaml'),
-          `title: "setting up a typescript cli"
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "setting up a typescript cli"
 text: "this is a walkthrough for setting up a typescript cli"`
-        );
+      );
+
+      const output = withMockedConsole(() => {
         cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
       });
 
@@ -36,24 +99,22 @@ text: "this is a walkthrough for setting up a typescript cli"`
       const content = fs.readFileSync(path.join(tempDir, 'walkthrough.md'), 'utf8');
       expect(content).toContain("# setting up a typescript cli");
       expect(content).toContain("this is a walkthrough for setting up a typescript cli");
-
+      expect(output).toContain("Successfully generated walkthrough");
     });
   });
 
   it("should generate markdown with a section", () => {
     withTmpDir((tempDir: string) => {
-      const output = withMockedConsole(() => {
-        const fs = require('fs');
-        const path = require('path');
-        
-        fs.writeFileSync(
-          path.join(tempDir, 'walkthrough.yaml'),
-          `title: "setting up a typescript cli"
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "setting up a typescript cli"
 text: "this is a walkthrough for setting up a typescript cli"
 sections:
   - title: "Installation"
     text: "First, let's install the necessary dependencies"`
-        );
+      );
+
+      const output = withMockedConsole(() => {
         cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
       });
 
@@ -63,18 +124,17 @@ sections:
       expect(content).toContain("this is a walkthrough for setting up a typescript cli");
       expect(content).toContain("## Installation");
       expect(content).toContain("First, let's install the necessary dependencies");
+      expect(output).toContain("Successfully generated walkthrough");
     });
   });
 
   it("should generate markdown with sections and steps", () => {
     withTmpDir((tempDir: string) => {
-      const output = withMockedConsole(() => {
-        const fs = require('fs');
-        const path = require('path');
-        
-        fs.writeFileSync(
-          path.join(tempDir, 'walkthrough.yaml'),
-          `title: "setting up a typescript cli"
+      fs.mkdirSync(path.join(tempDir, 'walkthrough'), { recursive: true });
+      
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "setting up a typescript cli"
 text: "this is a walkthrough for setting up a typescript cli"
 targets:
   - markdown: "./build/walkthrough.md"
@@ -94,24 +154,26 @@ sections:
           - text: "You should see packages being installed"
             code: |
               added 123 packages`
-        );
-        fs.writeFileSync(
-          path.join(tempDir, 'walkthrough/00-package.json'),
-          `{
-            "name": "walkthroughgen",
-            "version": "1.0.0",
-            "description": "A CLI tool for generating walkthroughs",
-            "dependencies": {
-              "typescript": "^5.0.0"
-            }
-          }`
-        );
-        
+      );
+      
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/00-package.json'),
+        `{
+          "name": "walkthroughgen",
+          "version": "1.0.0",
+          "description": "A CLI tool for generating walkthroughs",
+          "dependencies": {
+            "typescript": "^5.0.0"
+          }
+        }`
+      );
+      
+      const output = withMockedConsole(() => {
         cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
       });
 
       expect(fs.existsSync(path.join(tempDir, 'build/walkthrough.md'))).toBe(true);
-      const content = fs.readFileSync(path.join(tempDir, 'build/walkthrough.md'), 'utf8');
+      const content = fs.readFileSync(path.join(tempDir, 'build/walkthrough.md'), 'utf8').replace(/\r\n/g, '\n');
       expect(content).toContain(`
 # setting up a typescript cli
 
@@ -131,6 +193,57 @@ You should see packages being installed
 
     added 123 packages
     `.trim());
+      expect(output).toContain("Successfully generated walkthrough");
+    });
+  });
+});
+
+describe("CLI generate from example", () => {
+  it("should generate markdown from the typescript example", () => {
+    withTmpDir((tempDir: string) => {
+      const exampleBasePath = path.resolve(__dirname, '../../examples/typescript');
+      const exampleWalkthroughDir = path.join(exampleBasePath, 'walkthrough');
+      
+      // Copy walkthrough.yaml
+      const sourceYamlPath = path.join(exampleBasePath, 'walkthrough.yaml');
+      const destYamlPath = path.join(tempDir, 'walkthrough.yaml');
+      fs.copyFileSync(sourceYamlPath, destYamlPath);
+
+      // Create destination walkthrough directory
+      const destWalkthroughSubDir = path.join(tempDir, 'walkthrough');
+      fs.mkdirSync(destWalkthroughSubDir, { recursive: true });
+
+      // Copy files from examples/typescript/walkthrough into tempDir/walkthrough
+      const filesToCopy = [
+        '00-package.json',
+        '00-package-lock.json',
+        '00-tsconfig.json',
+        '01-index.ts',
+        '02-cli.ts',
+        '02-index.ts',
+      ];
+      for (const file of filesToCopy) {
+        fs.copyFileSync(
+          path.join(exampleWalkthroughDir, file),
+          path.join(destWalkthroughSubDir, file)
+        );
+      }
+
+      // Run CLI
+      const output = withMockedConsole(() => {
+        cli(["generate", destYamlPath]);
+      });
+
+      // Assertions
+      const expectedMarkdownPath = path.join(tempDir, 'build/walkthrough.md');
+      expect(fs.existsSync(expectedMarkdownPath)).toBe(true);
+      expect(output).toContain("Successfully generated walkthrough");
+
+      // Content checks
+      const markdownContent = fs.readFileSync(expectedMarkdownPath, 'utf8').replace(/\r\n/g, '\n');
+      expect(markdownContent).toContain("# setting up a typescript cli");
+      expect(markdownContent).toContain("## Copy inital files");
+      expect(markdownContent).toContain("cp ./walkthrough/00-package.json package.json");
     });
   });
 });
