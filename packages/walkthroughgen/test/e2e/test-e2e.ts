@@ -641,6 +641,65 @@ sections:
     });
   });
 
+  it("should handle global files in folders target", () => {
+    withTmpDir((tempDir: string) => {
+      // Create walkthrough.yaml with global files
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "Test Global Files"
+text: "Testing global files in folders target"
+targets:
+  - folders:
+      path: "./build/sections"
+      global:
+        .gitignore: |
+          node_modules/
+          baml_src/
+        .env.example: |
+          API_KEY=your-key-here
+      final:
+        dirName: "final"
+sections:
+  - name: first-section
+    title: "First Section"
+    text: "First section text"
+    steps:
+      - text: "Create a file"
+        command: "echo 'hello' > hello.txt"
+        incremental: true`
+      );
+
+      // Run CLI
+      cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+
+      // Check global files in base path
+      const basePath = path.join(tempDir, 'build/sections');
+      expect(fs.existsSync(path.join(basePath, '.gitignore'))).toBe(true);
+      expect(fs.existsSync(path.join(basePath, '.env.example'))).toBe(true);
+
+      // Check content of global files
+      const gitignoreContent = fs.readFileSync(path.join(basePath, '.gitignore'), 'utf8');
+      expect(gitignoreContent).toContain('node_modules/');
+      expect(gitignoreContent).toContain('baml_src/');
+
+      const envExampleContent = fs.readFileSync(path.join(basePath, '.env.example'), 'utf8');
+      expect(envExampleContent).toContain('API_KEY=your-key-here');
+
+      // Check global files in final directory
+      const finalPath = path.join(basePath, 'final');
+      expect(fs.existsSync(path.join(finalPath, '.gitignore'))).toBe(true);
+      expect(fs.existsSync(path.join(finalPath, '.env.example'))).toBe(true);
+
+      // Check content of global files in final directory
+      const finalGitignoreContent = fs.readFileSync(path.join(finalPath, '.gitignore'), 'utf8');
+      expect(finalGitignoreContent).toContain('node_modules/');
+      expect(finalGitignoreContent).toContain('baml_src/');
+
+      const finalEnvExampleContent = fs.readFileSync(path.join(finalPath, '.env.example'), 'utf8');
+      expect(finalEnvExampleContent).toContain('API_KEY=your-key-here');
+    });
+  });
+
   it("should execute commands in the working directory for folders target", () => {
     withTmpDir((tempDir: string) => {
       // Create walkthrough.yaml
@@ -741,6 +800,72 @@ sections:
       // Check file contents for incremental command
       const incrementalContent = fs.readFileSync(path.join(finalPath, 'incremental.txt'), 'utf8').trim();
       expect(incrementalContent).toBe('incremental command');
+    });
+  });
+
+  it("should generate section READMEs with diffs and show file blocks", () => {
+    withTmpDir((tempDir: string) => {
+      // Create source files
+      fs.mkdirSync(path.join(tempDir, 'walkthrough'), { recursive: true });
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/v1-index.ts'),
+        'console.log("hello");'
+      );
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough/v2-index.ts'),
+        'console.log("hello");\nconsole.log("world");'
+      );
+
+      // Create walkthrough.yaml
+      fs.writeFileSync(
+        path.join(tempDir, 'walkthrough.yaml'),
+        `title: "Test Section README Diffs"
+text: "Testing section README diff generation"
+targets:
+  - folders:
+      path: "./build/sections"
+      final:
+        dirName: "final"
+    onChange:
+      diff: true
+      cp: true
+    newFiles:
+      cat: false
+      cp: true
+sections:
+  - name: first-section
+    title: "First Section"
+    text: "First section text"
+    steps:
+      - text: "Add initial index.ts"
+        file: {src: ./walkthrough/v1-index.ts, dest: src/index.ts}
+  - name: second-section
+    title: "Second Section"
+    text: "Second section text"
+    steps:
+      - text: "Update index.ts"
+        file: {src: ./walkthrough/v2-index.ts, dest: src/index.ts}`
+      );
+
+      // Run CLI
+      cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
+
+      // Check first section README
+      const firstSectionPath = path.join(tempDir, 'build/sections/00-first-section');
+      const firstReadme = fs.readFileSync(path.join(firstSectionPath, 'README.md'), 'utf8');
+      expect(firstReadme).toContain("Add initial index.ts");
+      expect(firstReadme).toContain("cp ./walkthrough/v1-index.ts src/index.ts");
+      expect(firstReadme).toContain("<details>\n<summary>show file</summary>");
+      expect(firstReadme).toContain("```ts\n// ./walkthrough/v1-index.ts");
+      expect(firstReadme).toContain('console.log("hello");');
+
+      // Check second section README
+      const secondSectionPath = path.join(tempDir, 'build/sections/01-second-section');
+      const secondReadme = fs.readFileSync(path.join(secondSectionPath, 'README.md'), 'utf8');
+      expect(secondReadme).toContain("Update index.ts");
+      expect(secondReadme).toContain("```diff\nsrc/index.ts\n+console.log(\"world\");");
+      expect(secondReadme).toContain("<details>\n<summary>skip this step</summary>");
+      expect(secondReadme).toContain("cp ./walkthrough/v2-index.ts src/index.ts");
     });
   });
 });

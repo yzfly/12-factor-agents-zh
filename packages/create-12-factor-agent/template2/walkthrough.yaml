@@ -15,6 +15,10 @@ targets:
         - "cleanup"
       final:
         dirName: "final"
+      global:
+        .gitignore: | 
+          "node_modules/"
+          "baml_src/"
 
 sections:
   - name: cleanup

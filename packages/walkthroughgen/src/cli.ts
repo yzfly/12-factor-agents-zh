@@ -30,6 +30,7 @@ interface WalkthroughData {
       final?: {
         dirName: string; // Name of the final directory containing all steps' results
       };
+      global?: { [filename: string]: string }; // Global files to create in folders base path
     };
     onChange?: { diff?: boolean; cp?: boolean };
     newFiles?: { cat?: boolean; cp?: boolean };
@@ -125,7 +126,7 @@ function generateSectionMarkdown(section: Section): string {
         markdown += `${step.text}\n\n`;
       }
       if (step.dir?.create) {
-        markdown += `    mkdir -p ${step.dir.path}\n\n`; // Add mkdir command to README
+        markdown += `    mkdir -p ${step.dir.path}\n\n`;
       }
       if (step.file) {
         markdown += `    cp ${step.file.src} ${step.file.dest}\n\n`;
@@ -133,6 +134,201 @@ function generateSectionMarkdown(section: Section): string {
       if (step.command) {
         markdown += `    ${step.command.trim()}\n\n`;
       }
+      if (step.results) {
+        for (const result of step.results) {
+          markdown += `${result.text}\n\n`;
+          if (result.code) {
+            markdown += `    ${result.code.trim()}\n\n`;
+          }
+        }
+      }
+    }
+  }
+  return markdown;
+}
+
+function formatMinimalDiff(filePath: string, oldContent: string, newContent: string): string | null {
+  // Normalize line endings in both inputs
+  const normalize = (str: string) => str.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const normalizedOld = normalize(oldContent);
+  const normalizedNew = normalize(newContent);
+
+  if (normalizedOld === normalizedNew) {
+    return null;
+  }
+
+  // Using context: 0 ensures minimal context lines.
+  const patch = Diff.createPatch(filePath, normalizedOld, normalizedNew, '', '', { context: 0 });
+  const patchLines = patch.split('\n');
+  const effectiveChangeLines: string[] = [];
+
+  let i = 0;
+  while (i < patchLines.length) {
+    const line = patchLines[i];
+
+    // Skip standard patch headers and hunk metadata
+    if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('@@')) {
+      i++;
+      continue;
+    }
+
+    // Check for identical remove/add pairs (which means no effective change for these two lines)
+    if (line.startsWith('-')) {
+      let nextDiffLineIndex = i + 1;
+      // Skip empty lines to find the next actual diff line
+      while (nextDiffLineIndex < patchLines.length && patchLines[nextDiffLineIndex].trim() === '') {
+        nextDiffLineIndex++;
+      }
+
+      if (nextDiffLineIndex < patchLines.length && patchLines[nextDiffLineIndex].startsWith('+')) {
+        const removedText = line.substring(1).trim();
+        const addedText = patchLines[nextDiffLineIndex].substring(1).trim();
+        if (removedText === addedText) {
+          // Advance i past the current line, any skipped empty lines, and the matched added line
+          i = nextDiffLineIndex + 1;
+          continue;
+        }
+      }
+    }
+
+    // If the line starts with + or -, it's an actual change line to be included.
+    // (This won't match '---' or '+++' due to the first check in the loop)
+    if (line.startsWith('+') || line.startsWith('-')) {
+      effectiveChangeLines.push(line);
+    }
+    
+    i++;
+  }
+
+  if (effectiveChangeLines.length > 0) {
+    return `\`\`\`diff\n${filePath}\n${effectiveChangeLines.join('\n')}\n\`\`\`\n\n`;
+  }
+  return null;
+}
+
+function generateRichSectionMarkdown(
+  section: Section,
+  projectRoot: string,
+  sectionWorkingDir: string,
+  walkthroughTargets: WalkthroughData['targets']
+): string {
+  let markdown = `# ${section.title}\n\n`;
+  if (section.text) {
+    markdown += `${section.text}\n\n`;
+  }
+
+  // Initialize section's virtual file state from the actual files in sectionWorkingDir
+  const sectionVirtualFileState = new Map<string, string>();
+  if (fs.existsSync(sectionWorkingDir)) {
+    const readFilesRecursively = (dir: string) => {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        const relativePath = path.relative(sectionWorkingDir, fullPath);
+        if (entry.isDirectory()) {
+          readFilesRecursively(fullPath);
+        } else {
+          try {
+            const content = fs.readFileSync(fullPath, 'utf8');
+            sectionVirtualFileState.set(relativePath, content);
+          } catch (error) {
+            console.warn(`Warning: Could not read file ${fullPath} for section README state`);
+          }
+        }
+      }
+    };
+    readFilesRecursively(sectionWorkingDir);
+  }
+
+  if (section.steps) {
+    for (const step of section.steps) {
+      if (step.text) {
+        markdown += `${step.text}\n\n`;
+      }
+
+      if (step.dir?.create) {
+        markdown += `    mkdir -p ${step.dir.path}\n\n`;
+      }
+
+      if (step.file) {
+        const srcAbsolutePath = path.resolve(projectRoot, step.file.src);
+        const destRelativePath = path.normalize(step.file.dest);
+
+        let newContent: string;
+        try {
+          newContent = fs.readFileSync(srcAbsolutePath, 'utf8');
+        } catch (error: any) {
+          console.warn(`Warning: Could not read source file ${srcAbsolutePath} for step: ${step.text || 'Unnamed step'}`);
+          continue;
+        }
+
+        const isExistingVirtualFile = sectionVirtualFileState.has(destRelativePath);
+        const oldContent = isExistingVirtualFile ? sectionVirtualFileState.get(destRelativePath)! : '';
+
+        if (isExistingVirtualFile) {
+          // File is being changed/overwritten
+          const shouldDiff = walkthroughTargets?.[0]?.onChange?.diff === true;
+          let diffPrintedThisStep = false;
+
+          if (shouldDiff && oldContent !== newContent) {
+            const diffOutput = formatMinimalDiff(destRelativePath, oldContent, newContent);
+            if (diffOutput) {
+              markdown += diffOutput;
+              diffPrintedThisStep = true;
+            }
+          }
+
+          const showCp = walkthroughTargets?.[0]?.onChange?.cp !== false;
+          if (showCp) {
+            const cpCommand = `cp ${step.file.src} ${step.file.dest}`;
+            if (diffPrintedThisStep) {
+              markdown += `<details>\n<summary>skip this step</summary>\n\n`;
+              markdown += `    ${cpCommand}\n\n`;
+              markdown += `</details>\n\n`;
+            } else {
+              markdown += `    ${cpCommand}\n\n`;
+              
+              // Add "show file" details block
+              let lang = path.extname(step.file.src).substring(1);
+              if (lang === 'baml') {
+                lang = 'rust';
+              }
+              markdown += `<details>\n<summary>show file</summary>\n\n`;
+              markdown += `\`\`\`${lang}\n`;
+              markdown += `// ${step.file.src}\n`;
+              markdown += `${newContent.trim()}\n`;
+              markdown += `\`\`\`\n\n`;
+              markdown += `</details>\n\n`;
+            }
+          }
+        } else {
+          // New file
+          const showCpForNew = walkthroughTargets?.[0]?.newFiles?.cp !== false;
+          if (showCpForNew) {
+            const cpCommand = `cp ${step.file.src} ${step.file.dest}`;
+            markdown += `    ${cpCommand}\n\n`;
+
+            // Add "show file" details block
+            let lang = path.extname(step.file.src).substring(1);
+            if (lang === 'baml') {
+              lang = 'rust';
+            }
+            markdown += `<details>\n<summary>show file</summary>\n\n`;
+            markdown += `\`\`\`${lang}\n`;
+            markdown += `// ${step.file.src}\n`;
+            markdown += `${newContent.trim()}\n`;
+            markdown += `\`\`\`\n\n`;
+            markdown += `</details>\n\n`;
+          }
+        }
+
+        sectionVirtualFileState.set(destRelativePath, newContent);
+      }
+
+      if (step.command) {
+        markdown += `    ${step.command.trim()}\n\n`;
+      }
+
       if (step.results) {
         for (const result of step.results) {
           markdown += `${result.text}\n\n`;
@@ -204,6 +400,14 @@ OPTIONS:
           console.log('Creating folders base path:', foldersBasePath);
           fs.mkdirSync(foldersBasePath, { recursive: true });
 
+          // Create global files if specified
+          if (currentFoldersTarget.global) {
+            for (const [filename, content] of Object.entries(currentFoldersTarget.global)) {
+              const globalFilePath = path.join(foldersBasePath, filename);
+              fs.writeFileSync(globalFilePath, content);
+            }
+          }
+
           // Create a temporary working directory to build up state
           const workingDirName = `.tmp-working-${Date.now()}`;
           const workingDir = path.join(foldersBasePath, workingDirName);
@@ -231,7 +435,7 @@ OPTIONS:
                   }
 
                   // Generate and write section README
-                  const sectionMarkdown = generateSectionMarkdown(section);
+                  const sectionMarkdown = generateRichSectionMarkdown(section, projectRoot, sectionPath, data.targets);
                   fs.writeFileSync(path.join(sectionPath, 'README.md'), sectionMarkdown);
 
                   // Copy source files to section's walkthrough/ directory
@@ -248,6 +452,14 @@ OPTIONS:
                 const finalDirPath = path.join(foldersBasePath, currentFoldersTarget.final.dirName);
                 fs.mkdirSync(finalDirPath, { recursive: true });
                 copyDirectory(workingDir, finalDirPath);
+
+                // Copy global files to final directory if they exist
+                if (currentFoldersTarget.global) {
+                  for (const [filename, content] of Object.entries(currentFoldersTarget.global)) {
+                    const finalGlobalFilePath = path.join(finalDirPath, filename);
+                    fs.writeFileSync(finalGlobalFilePath, content);
+                  }
+                }
 
                 // Optional: Generate cumulative README for final directory
                 const finalReadme = data.sections
@@ -301,23 +513,13 @@ OPTIONS:
                 let diffPrintedThisStep = false;
 
                 if (shouldDiff && oldContent !== newContent) {
-                  const patch = Diff.createPatch(destRelativePath, oldContent, newContent, '', '', { context: 2 });
-                  
-                  // Process the patch to show only filename and changed lines
-                  const patchLines = patch.split('\n');
-                  const minimalDiffOutput = [destRelativePath]; // Start with filename
-                  for (const line of patchLines) {
-                    if ((line.startsWith('+') && !line.startsWith('+++')) || 
-                        (line.startsWith('-') && !line.startsWith('---'))) {
-                      minimalDiffOutput.push(line);
-                    }
-                  }
-                  // Only add diff block if there are actual changes
-                  if (minimalDiffOutput.length > 1) { // more than just the filename
-                    markdown += `\`\`\`diff\n${minimalDiffOutput.join('\n')}\n\`\`\`\n\n`;
+                  const diffOutput = formatMinimalDiff(destRelativePath, oldContent, newContent);
+                  if (diffOutput) {
+                    markdown += diffOutput;
                     diffPrintedThisStep = true;
                   }
                 }
+
                 const showCp = data.targets?.[0]?.onChange?.cp !== false;
                 if (showCp) {
                   const cpCommand = `cp ${step.file.src} ${step.file.dest}`;
