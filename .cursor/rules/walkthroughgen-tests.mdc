@@ -1,0 +1,7 @@
+When files in the walkthroughgen package are modified:
+
+1. Navigate to the walkthroughgen package directory
+2. Run the test suite with `npm test`
+3. Report any test failures or errors
+
+This ensures that all changes to the walkthroughgen package are immediately tested. 
