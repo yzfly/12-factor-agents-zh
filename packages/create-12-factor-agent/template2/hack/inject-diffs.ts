@@ -80,6 +80,7 @@ for (let i = 0; i < lines.length; i++) {
             .filter((line: string) => !line.startsWith('diff --git') && !line.startsWith('index '))
             .join('\n');
 
+          output.push
           output.push('\n```diff\n' + cleanDiff + '```\n');
         } else {
           throw e;

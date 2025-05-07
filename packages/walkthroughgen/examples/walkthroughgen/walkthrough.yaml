@@ -41,6 +41,3 @@ sections:
         command: |
           cat walkthrough.md
         results:
-          - text: "you should see a walkthrough.md file"
-            code: |
-              # walkthrough.md
