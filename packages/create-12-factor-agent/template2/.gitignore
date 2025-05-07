@@ -3,6 +3,9 @@
 # baml-generated code
 baml_client/
 
+# wtg generated files
+build/
+
 # dependencies
 /node_modules
 /.pnp

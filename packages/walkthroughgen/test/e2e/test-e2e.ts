@@ -185,6 +185,23 @@ Create package.json
 
     cp ./walkthrough/00-package.json package.json
 
+<details>
+<summary>show file</summary>
+
+\`\`\`json
+// ./walkthrough/00-package.json
+{
+          "name": "walkthroughgen",
+          "version": "1.0.0",
+          "description": "A CLI tool for generating walkthroughs",
+          "dependencies": {
+            "typescript": "^5.0.0"
+          }
+        }
+\`\`\`
+
+</details>
+
 Install dependencies
 
     npm install
@@ -293,13 +310,31 @@ sections:
       // First file copy should not have a diff (it's new)
       expect(content).toContain("Create initial package.json");
       expect(content).toContain("cp ./walkthrough/v1-package.json package.json");
-      expect(content.indexOf("```diff")).toBeGreaterThan(content.indexOf("Create initial package.json"));
+      expect(content).toContain(`<details>
+<summary>show file</summary>
+
+\`\`\`json
+// ./walkthrough/v1-package.json
+{
+  "name": "example",
+  "version": "1.0.0",
+  "dependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+\`\`\`
+
+</details>`);
 
       // Second file copy should have a diff (it's an update)
       expect(content).toContain("Add express dependency");
-      expect(content).toContain("```diff");
-      expect(content).toContain("+    \"express\": \"^4.18.0\"");
-      expect(content).toContain("cp ./walkthrough/v2-package.json package.json");
+      expect(content).toContain("```diff\npackage.json\n-    \"typescript\": \"^5.0.0\"\n+    \"typescript\": \"^5.0.0\",\n+    \"express\": \"^4.18.0\"");
+      expect(content).toContain(`<details>
+<summary>skip this step</summary>
+
+    cp ./walkthrough/v2-package.json package.json
+
+</details>`);
 
       expect(output).toContain("Successfully generated walkthrough");
     });

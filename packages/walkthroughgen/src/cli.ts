@@ -104,19 +104,67 @@ OPTIONS:
               if (isExistingVirtualFile) {
                 // File is being changed/overwritten
                 const shouldDiff = data.targets?.[0]?.onChange?.diff === true;
+                let diffPrintedThisStep = false;
+
                 if (shouldDiff && oldContent !== newContent) {
                   const patch = Diff.createPatch(destRelativePath, oldContent, newContent, '', '', { context: 2 });
-                  markdown += `\`\`\`diff\n${patch}\n\`\`\`\n\n`;
+                  
+                  // Process the patch to show only filename and changed lines
+                  const patchLines = patch.split('\n');
+                  const minimalDiffOutput = [destRelativePath]; // Start with filename
+                  for (const line of patchLines) {
+                    if ((line.startsWith('+') && !line.startsWith('+++')) || 
+                        (line.startsWith('-') && !line.startsWith('---'))) {
+                      minimalDiffOutput.push(line);
+                    }
+                  }
+                  // Only add diff block if there are actual changes
+                  if (minimalDiffOutput.length > 1) { // more than just the filename
+                    markdown += `\`\`\`diff\n${minimalDiffOutput.join('\n')}\n\`\`\`\n\n`;
+                    diffPrintedThisStep = true;
+                  }
                 }
                 const showCp = data.targets?.[0]?.onChange?.cp !== false;
                 if (showCp) {
-                  markdown += `    cp ${step.file.src} ${step.file.dest}\n\n`;
+                  const cpCommand = `cp ${step.file.src} ${step.file.dest}`;
+                  if (diffPrintedThisStep) {
+                    markdown += `<details>\n<summary>skip this step</summary>\n\n`;
+                    markdown += `    ${cpCommand}\n\n`;
+                    markdown += `</details>\n\n`;
+                  } else {
+                    markdown += `    ${cpCommand}\n\n`;
+                    
+                    // Add "show file" details block
+                    let lang = path.extname(step.file.src).substring(1);
+                    if (lang === 'baml') {
+                      lang = 'rust';
+                    }
+                    markdown += `<details>\n<summary>show file</summary>\n\n`;
+                    markdown += `\`\`\`${lang}\n`;
+                    markdown += `// ${step.file.src}\n`;
+                    markdown += `${newContent.trim()}\n`;
+                    markdown += `\`\`\`\n\n`;
+                    markdown += `</details>\n\n`;
+                  }
                 }
               } else {
                 // New file
                 const showCpForNew = data.targets?.[0]?.newFiles?.cp !== false;
                 if (showCpForNew) {
-                  markdown += `    cp ${step.file.src} ${step.file.dest}\n\n`;
+                  const cpCommand = `cp ${step.file.src} ${step.file.dest}`;
+                  markdown += `    ${cpCommand}\n\n`;
+
+                  // Add "show file" details block
+                  let lang = path.extname(step.file.src).substring(1);
+                  if (lang === 'baml') {
+                    lang = 'rust';
+                  }
+                  markdown += `<details>\n<summary>show file</summary>\n\n`;
+                  markdown += `\`\`\`${lang}\n`;
+                  markdown += `// ${step.file.src}\n`;
+                  markdown += `${newContent.trim()}\n`;
+                  markdown += `\`\`\`\n\n`;
+                  markdown += `</details>\n\n`;
                 }
               }
 
