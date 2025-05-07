@@ -209,25 +209,9 @@ describe("CLI generate from example", () => {
       const destYamlPath = path.join(tempDir, 'walkthrough.yaml');
       fs.copyFileSync(sourceYamlPath, destYamlPath);
 
-      // Create destination walkthrough directory
+      // Copy walkthrough directory recursively
       const destWalkthroughSubDir = path.join(tempDir, 'walkthrough');
-      fs.mkdirSync(destWalkthroughSubDir, { recursive: true });
-
-      // Copy files from examples/typescript/walkthrough into tempDir/walkthrough
-      const filesToCopy = [
-        '00-package.json',
-        '00-package-lock.json',
-        '00-tsconfig.json',
-        '01-index.ts',
-        '02-cli.ts',
-        '02-index.ts',
-      ];
-      for (const file of filesToCopy) {
-        fs.copyFileSync(
-          path.join(exampleWalkthroughDir, file),
-          path.join(destWalkthroughSubDir, file)
-        );
-      }
+      fs.cpSync(exampleWalkthroughDir, destWalkthroughSubDir, { recursive: true });
 
       // Run CLI
       const output = withMockedConsole(() => {

@@ -6,7 +6,7 @@ interface Section {
   title: string;
   text?: string;
   steps?: Array<{
-    text: string;
+    text?: string; // Make text optional
     file?: { src: string; dest: string };
     command?: string;
     results?: Array<{ text: string; code: string }>;
@@ -77,7 +77,9 @@ OPTIONS:
         }
         if (section.steps) {
           for (const step of section.steps) {
-            markdown += `${step.text}\n\n`;
+            if (step.text) { // Only add step.text if it exists
+              markdown += `${step.text}\n\n`;
+            }
             if (step.file) {
               let fileLine = `    cp ${step.file.src} ${step.file.dest}`;
               markdown += fileLine;

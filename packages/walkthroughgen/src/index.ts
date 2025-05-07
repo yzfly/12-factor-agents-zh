@@ -1,5 +1,7 @@
+import { cli } from "./cli";
+
 const main = async () => {
-  console.log("Hello, world!");
+  cli(process.argv.slice(2));
 };
 
 main().catch(console.error);
