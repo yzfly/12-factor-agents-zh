@@ -15,10 +15,6 @@ targets:
         - "cleanup"
       final:
         dirName: "final"
-      global:
-        .gitignore: | 
-          "node_modules/"
-          "baml_src/"
 
 sections:
   - name: cleanup
@@ -41,6 +37,8 @@ sections:
         incremental: true
       - text: "Copy tsconfig.json"
         file: {src: ./walkthrough/00-tsconfig.json, dest: tsconfig.json}
+      - text: "add .gitignore"
+        file: {src: ./walkthrough/00-.gitignore, dest: .gitignore}
       - text: "Create src folder"
         dir: {create: true, path: src}
       - text: "Add a simple hello world index.ts"
