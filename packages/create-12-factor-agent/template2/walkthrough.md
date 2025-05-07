@@ -8,7 +8,7 @@ Make sure you're starting from a clean slate
 
 Clean up existing files
 
-    rm -rf baml_src/ && rm -rf src/ && mkdir src
+    rm -rf baml_src/ && rm -rf src/
 
 ## Chapter 0 - Hello World
 
@@ -86,6 +86,23 @@ Copy tsconfig.json
 
 </details>
 
+add .gitignore
+
+    cp ./walkthrough/00-.gitignore .gitignore
+
+<details>
+<summary>show file</summary>
+
+```gitignore
+// ./walkthrough/00-.gitignore
+baml_src/
+node_modules/
+```
+
+</details>
+
+Create src folder
+
 Add a simple hello world index.ts
 
     cp ./walkthrough/01-index.ts src/index.ts
@@ -141,7 +158,7 @@ Add our starter agent
 <details>
 <summary>show file</summary>
 
-```baml
+```rust
 // ./walkthrough/01-agent.baml
 class DoneForNow {
   intent "done_for_now"
@@ -311,7 +328,7 @@ Add calculator tools definition
 <details>
 <summary>show file</summary>
 
-```baml
+```rust
 // ./walkthrough/02-tool_calculator.baml
 type CalculatorTools = AddTool | SubtractTool | MultiplyTool | DivideTool
 
@@ -813,8 +830,6 @@ baml_src/agent.baml
 +        {...} // schema
 -        
 -
--
-+        
 ```
 
 <details>
@@ -1139,8 +1154,6 @@ src/server.ts
 +        thread_id: threadId,
 +        ...result 
 +    });
--// GET /thread/:id - Get thread status 
-+// GET /thread/:id - Get thread status
 -    // optional - add state
 -    res.status(404).json({ error: "Not implemented yet" });
 +    const thread = store.get(req.params.id);
@@ -1180,6 +1193,10 @@ src/server.ts
     cp ./walkthrough/09-server.ts src/server.ts
 
 </details>
+
+Start the server
+
+    npx tsx src/server.ts
 
 Test clarification flow
 
@@ -1310,6 +1327,10 @@ src/agent.ts
 
 </details>
 
+Start the server
+
+    npx tsx src/server.ts
+
 Test division with approval
 
     curl -X POST http://localhost:3000/thread \
@@ -1367,8 +1388,6 @@ src/cli.ts
 +        // determine if we should loop or if we're done
 +        needsResponse = newThread.awaitingHumanResponse() 
 +            || newThread.awaitingHumanApproval();
--    // optional - you could loop here too
-+    // optional - you could loop here too 
 -async function askHuman(message: string) {
 +async function askHuman(lastEvent: Event): Promise<Event> {
 +    if (process.env.HUMANLAYER_API_KEY) {
@@ -1446,6 +1465,10 @@ src/cli.ts
 
 </details>
 
+Run the CLI
+
+    npx tsx src/index.ts 'can divide 4 by 5?'
+
 ## Chapter 12 - HumanLayer Webhook Integration
 
 Add webhook support for HumanLayer.
@@ -1496,4 +1519,8 @@ src/server.ts
     cp ./walkthrough/12-server.ts src/server.ts
 
 </details>
+
+Start the server
+
+    npx tsx src/server.ts
 
