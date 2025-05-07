@@ -134,6 +134,9 @@ you should see a hello world message
 ## Add a CLI
 
 add a cli
+
+    ```
+    ```
  
     cp walkthrough/02-cli.ts src/cli.ts
 
