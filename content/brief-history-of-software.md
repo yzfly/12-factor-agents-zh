@@ -105,7 +105,7 @@ One thing that I **have** seen in the wild quite a bit is taking the agent patte
 
 ![micro-agent-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/028-micro-agent-dag.png)
 
-You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps without spinning out into context error loops. ([factor 1](./factor-1-natural-language-to-tool-calls.md), [factor 3](./factor-3-own-your-context-window.md) [factor 7](./factor-7-contact-humans-with-tools.md)).
+You might be asking - "why use agents at all in this case?" - we'll get into that shortly, but basically, having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback, translating it into workflow steps without spinning out into context error loops. ([factor 1](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md), [factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md) [factor 7](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md)).
 
 > #### having language models managing well-scoped sets of tasks makes it easy to incorporate live human feedback...without spinning out into context error loops
 
@@ -154,10 +154,10 @@ Here's another [more classic support / chatbot demo](https://x.com/chainlit_io/s
 
 ### So what's an agent really?
 
-- **prompt** - tell an LLM how to behave, and what "tools" it has available. The output of the prompt is a JSON object that describe the next step in the workflow (the "tool call" or "function call"). ([factor 2](./factor-2-own-your-prompts.md))
-- **switch statement** - based on the JSON that the LLM returns, decide what to do with it. (part of [factor 8](./factor-8-own-your-control-flow.md))
-- **accumulated context** - store the list of steps that have happened and their results ([factor 3](./factor-3-own-your-context-window.md))
-- **for loop** - until the LLM emits some sort of "Terminal" tool call (or plaintext response), add the result of the switch statement to the context window and ask the LLM to choose the next step. ([factor 8](./factor-8-own-your-control-flow.md))
+- **prompt** - tell an LLM how to behave, and what "tools" it has available. The output of the prompt is a JSON object that describe the next step in the workflow (the "tool call" or "function call"). ([factor 2](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md))
+- **switch statement** - based on the JSON that the LLM returns, decide what to do with it. (part of [factor 8](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md))
+- **accumulated context** - store the list of steps that have happened and their results ([factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md))
+- **for loop** - until the LLM emits some sort of "Terminal" tool call (or plaintext response), add the result of the switch statement to the context window and ask the LLM to choose the next step. ([factor 8](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md))
 
 ![040-4-components](https://github.com/humanlayer/12-factor-agents/blob/main/img/040-4-components.png)
 
