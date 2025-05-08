@@ -42,7 +42,7 @@ sections:
       - text: "Create src folder"
         dir: {create: true, path: src}
       - text: "Add a simple hello world index.ts"
-        file: {src: ./walkthrough/01-index.ts, dest: src/index.ts}
+        file: {src: ./walkthrough/00-index.ts, dest: src/index.ts}
       - text: "Run it to verify"
         command: |
           npx tsx src/index.ts

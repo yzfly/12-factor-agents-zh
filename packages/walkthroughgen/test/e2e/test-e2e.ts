@@ -585,8 +585,8 @@ sections:
 
       // --- Assertions ---
       const cleanupSectionPath = path.join(tempDir, 'build/sections/00-cleanup');
-      const helloWorldSectionPath = path.join(tempDir, 'build/sections/01-hello-world');
-      const cliSectionPath = path.join(tempDir, 'build/sections/02-cli-version');
+      const helloWorldSectionPath = path.join(tempDir, 'build/sections/00-hello-world');
+      const cliSectionPath = path.join(tempDir, 'build/sections/01-cli-version');
       const finalSectionPath = path.join(tempDir, 'build/sections/final');
 
       //

@@ -37,9 +37,8 @@ interface WalkthroughData {
   }>;
 }
 
-function getSectionFolderName(section: Section, index: number): string {
-  const name = section.name || section.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  return `${String(index).padStart(2, '0')}-${name}`;
+function getSectionBaseName(section: Section): string {
+  return section.name || section.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
 function copySourceFiles(srcFile: string, projectRoot: string, sectionDir: string): void {
@@ -418,19 +417,26 @@ OPTIONS:
           try {
             // Create section folders and build up working state
             if (data.sections) {
-              data.sections.forEach((section, index) => {
-                const sectionName = getSectionFolderName(section, index);
-                console.log('Processing section:', sectionName, 'with name:', section.name);
+              let visibleSectionIndex = 0; // Counter for non-skipped sections
+              data.sections.forEach((section, originalIndex) => {
+                const baseName = getSectionBaseName(section);
+                
+                // For logging, use original index to be clear about which section from YAML it is
+                const logSectionIdentifier = `${String(originalIndex).padStart(2, '0')}-${baseName}`;
+                console.log('Processing section:', logSectionIdentifier, 'with name:', section.name);
+                
                 const shouldSkip = currentFoldersTarget.skip?.includes(section.name || '');
 
+                let sectionPathForApplySteps: string | null = null;
+
                 if (!shouldSkip) {
-                  // Create section folder
-                  const sectionPath = path.join(foldersBasePath, sectionName);
+                  // Use visibleSectionIndex for the actual folder name
+                  const sectionFolderName = `${String(visibleSectionIndex).padStart(2, '0')}-${baseName}`;
+                  const sectionPath = path.join(foldersBasePath, sectionFolderName);
                   console.log('Creating section folder:', sectionPath);
                   fs.mkdirSync(sectionPath, { recursive: true });
 
                   // Copy current working state to section folder
-                  // This represents the state BEFORE this section's steps
                   if (fs.existsSync(workingDir) && fs.readdirSync(workingDir).length > 0) {
                     copyDirectory(workingDir, sectionPath);
                   }
@@ -438,14 +444,13 @@ OPTIONS:
                   // Generate and write section README
                   const sectionMarkdown = generateRichSectionMarkdown(section, projectRoot, sectionPath, data.targets);
                   fs.writeFileSync(path.join(sectionPath, 'README.md'), sectionMarkdown);
-
-                  // Copy source files to section's walkthrough/ directory
-                  // and apply steps to working directory
-                  applyStepsToWorkingDir(section.steps, projectRoot, workingDir, sectionPath);
-                } else {
-                  // Even for skipped sections, apply steps to working directory
-                  applyStepsToWorkingDir(section.steps, projectRoot, workingDir);
+                  
+                  sectionPathForApplySteps = sectionPath;
+                  visibleSectionIndex++; // Increment only for sections that get a folder
                 }
+                
+                // Apply steps to working directory
+                applyStepsToWorkingDir(section.steps, projectRoot, workingDir, sectionPathForApplySteps);
               });
 
               // Create final directory if specified
