@@ -641,65 +641,6 @@ sections:
     });
   });
 
-  it("should handle global files in folders target", () => {
-    withTmpDir((tempDir: string) => {
-      // Create walkthrough.yaml with global files
-      fs.writeFileSync(
-        path.join(tempDir, 'walkthrough.yaml'),
-        `title: "Test Global Files"
-text: "Testing global files in folders target"
-targets:
-  - folders:
-      path: "./build/sections"
-      global:
-        .gitignore: |
-          node_modules/
-          baml_src/
-        .env.example: |
-          API_KEY=your-key-here
-      final:
-        dirName: "final"
-sections:
-  - name: first-section
-    title: "First Section"
-    text: "First section text"
-    steps:
-      - text: "Create a file"
-        command: "echo 'hello' > hello.txt"
-        incremental: true`
-      );
-
-      // Run CLI
-      cli(["generate", path.join(tempDir, "walkthrough.yaml")]);
-
-      // Check global files in base path
-      const basePath = path.join(tempDir, 'build/sections');
-      expect(fs.existsSync(path.join(basePath, '.gitignore'))).toBe(true);
-      expect(fs.existsSync(path.join(basePath, '.env.example'))).toBe(true);
-
-      // Check content of global files
-      const gitignoreContent = fs.readFileSync(path.join(basePath, '.gitignore'), 'utf8');
-      expect(gitignoreContent).toContain('node_modules/');
-      expect(gitignoreContent).toContain('baml_src/');
-
-      const envExampleContent = fs.readFileSync(path.join(basePath, '.env.example'), 'utf8');
-      expect(envExampleContent).toContain('API_KEY=your-key-here');
-
-      // Check global files in final directory
-      const finalPath = path.join(basePath, 'final');
-      expect(fs.existsSync(path.join(finalPath, '.gitignore'))).toBe(true);
-      expect(fs.existsSync(path.join(finalPath, '.env.example'))).toBe(true);
-
-      // Check content of global files in final directory
-      const finalGitignoreContent = fs.readFileSync(path.join(finalPath, '.gitignore'), 'utf8');
-      expect(finalGitignoreContent).toContain('node_modules/');
-      expect(finalGitignoreContent).toContain('baml_src/');
-
-      const finalEnvExampleContent = fs.readFileSync(path.join(finalPath, '.env.example'), 'utf8');
-      expect(finalEnvExampleContent).toContain('API_KEY=your-key-here');
-    });
-  });
-
   it("should execute commands in the working directory for folders target", () => {
     withTmpDir((tempDir: string) => {
       // Create walkthrough.yaml

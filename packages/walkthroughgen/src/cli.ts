@@ -30,7 +30,6 @@ interface WalkthroughData {
       final?: {
         dirName: string; // Name of the final directory containing all steps' results
       };
-      global?: { [filename: string]: string }; // Global files to create in folders base path
     };
     onChange?: { diff?: boolean; cp?: boolean };
     newFiles?: { cat?: boolean; cp?: boolean };
@@ -401,14 +400,6 @@ OPTIONS:
           console.log('Creating folders base path:', foldersBasePath);
           fs.mkdirSync(foldersBasePath, { recursive: true });
 
-          // Create global files if specified
-          if (currentFoldersTarget.global) {
-            for (const [filename, content] of Object.entries(currentFoldersTarget.global)) {
-              const globalFilePath = path.join(foldersBasePath, filename);
-              fs.writeFileSync(globalFilePath, content);
-            }
-          }
-
           // Create a temporary working directory to build up state
           const workingDirName = `.tmp-working-${Date.now()}`;
           const workingDir = path.join(foldersBasePath, workingDirName);
@@ -459,14 +450,6 @@ OPTIONS:
                 const finalDirPath = path.join(foldersBasePath, currentFoldersTarget.final.dirName);
                 fs.mkdirSync(finalDirPath, { recursive: true });
                 copyDirectory(workingDir, finalDirPath);
-
-                // Copy global files to final directory if they exist
-                if (currentFoldersTarget.global) {
-                  for (const [filename, content] of Object.entries(currentFoldersTarget.global)) {
-                    const finalGlobalFilePath = path.join(finalDirPath, filename);
-                    fs.writeFileSync(finalGlobalFilePath, content);
-                  }
-                }
 
                 // Optional: Generate cumulative README for final directory
                 const finalReadme = data.sections
