@@ -139,6 +139,11 @@ sections:
         command: |
           npx baml-cli test
       - text: "Add more complex test cases"
+        file: {src: ./walkthrough/04b-agent.baml, dest: baml_src/agent.baml}
+      - text: "Run the tests"
+        command: |
+          npx baml-cli test
+      - text: "Add more complex test cases"
         file: {src: ./walkthrough/04c-agent.baml, dest: baml_src/agent.baml}
       - text: "Run the expanded test suite"
         command: |
