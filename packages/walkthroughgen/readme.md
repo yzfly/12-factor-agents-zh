@@ -100,8 +100,6 @@ targets:
       skip: ["cleanup"]          # Sections to skip
       final:
         dirName: "final"        # Name for final state directory
-      global:                   # Files to copy to base path
-        ".gitignore": "node_modules/"
 ```
 
 ### Sections
@@ -144,7 +142,7 @@ steps:
 steps:
   - text: "Install dependencies"
     command: "npm install"
-    incremental: true  # Only run for folders target
+    incremental: true  # run when building up folders target
 ```
 
 #### Command Results
