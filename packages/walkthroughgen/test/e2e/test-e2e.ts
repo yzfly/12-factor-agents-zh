@@ -328,7 +328,7 @@ sections:
 
       // Second file copy should have a diff (it's an update)
       expect(content).toContain("Add express dependency");
-      expect(content).toContain("```diff\npackage.json\n-    \"typescript\": \"^5.0.0\"\n+    \"typescript\": \"^5.0.0\",\n+    \"express\": \"^4.18.0\"");
+      expect(content).toContain("```diff\npackage.json\n   \"version\": \"1.0.0\",\n   \"dependencies\": {\n-    \"typescript\": \"^5.0.0\"\n+    \"typescript\": \"^5.0.0\",\n+    \"express\": \"^4.18.0\"\n   }\n }");
       expect(content).toContain(`<details>
 <summary>skip this step</summary>
 

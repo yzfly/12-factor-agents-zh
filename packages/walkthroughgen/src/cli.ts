@@ -156,8 +156,8 @@ function formatMinimalDiff(filePath: string, oldContent: string, newContent: str
     return null;
   }
 
-  // Using context: 0 ensures minimal context lines.
-  const patch = Diff.createPatch(filePath, normalizedOld, normalizedNew, '', '', { context: 0 });
+  // Using context: 2 to show some surrounding lines
+  const patch = Diff.createPatch(filePath, normalizedOld, normalizedNew, '', '', { context: 2 });
   const patchLines = patch.split('\n');
   const effectiveChangeLines: string[] = [];
 
@@ -174,9 +174,11 @@ function formatMinimalDiff(filePath: string, oldContent: string, newContent: str
     // Check for identical remove/add pairs (which means no effective change for these two lines)
     if (line.startsWith('-')) {
       let nextDiffLineIndex = i + 1;
-      // Skip empty lines AND "No newline" markers to find the next actual diff line
+      // Skip empty lines AND "No newline" markers AND context lines to find the next actual diff line
       while (nextDiffLineIndex < patchLines.length &&
-             (patchLines[nextDiffLineIndex].trim() === '' || patchLines[nextDiffLineIndex].startsWith('\\'))) {
+             (patchLines[nextDiffLineIndex].trim() === '' ||
+              patchLines[nextDiffLineIndex].startsWith('\\') ||
+              patchLines[nextDiffLineIndex].startsWith(' '))) {
         nextDiffLineIndex++;
       }
 
@@ -191,9 +193,8 @@ function formatMinimalDiff(filePath: string, oldContent: string, newContent: str
       }
     }
 
-    // If the line starts with + or -, it's an actual change line to be included.
-    // (This won't match '---' or '+++' due to the first check in the loop)
-    if (line.startsWith('+') || line.startsWith('-')) {
+    // If the line starts with +, -, or space (context), it's a line to be included
+    if (line.startsWith('+') || line.startsWith('-') || line.startsWith(' ')) {
       effectiveChangeLines.push(line);
     }
     
