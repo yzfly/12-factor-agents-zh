@@ -100,7 +100,7 @@ sections:
         incremental: true
       - text: "Try out the calculator"
         command: |
-          npx tsx src/index.ts 'can you add 3 and 4?'
+          npx tsx src/index.ts 'can you add 3 and 4'
 
   - name: tool-loop
     title: "Chapter 3 - Process Tool Calls in a Loop"
@@ -110,24 +110,24 @@ sections:
         file: {src: ./walkthrough/03-agent.ts, dest: src/agent.ts}
       - text: "Try a simple calculation"
         command: |
-          npx tsx src/index.ts 'can you add 3 and 4?'
+          npx tsx src/index.ts 'can you add 3 and 4'
       - text: "Turn off BAML logs for cleaner output"
         command: |
           export BAML_LOG=off
       - text: "Try a multi-step calculation"
         command: |
-          npx tsx src/index.ts 'can you add 3 and 4, then add 6 to that result?'
+          npx tsx src/index.ts 'can you add 3 and 4, then add 6 to that result'
       - text: "Add handlers for all calculator tools"
         file: {src: ./walkthrough/03b-agent.ts, dest: src/agent.ts}
       - text: "Test subtraction"
         command: |
-          npx tsx src/index.ts 'can you subtract 3 from 4?'
+          npx tsx src/index.ts 'can you subtract 3 from 4'
       - text: "Test multiplication"
         command: |
-          npx tsx src/index.ts 'can you multiply 3 and 4?'
+          npx tsx src/index.ts 'can you multiply 3 and 4'
       - text: "Test a complex calculation"
         command: |
-          npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result?'
+          npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
   - name: baml-tests
     title: "Chapter 4 - Add Tests to agent.baml"
@@ -165,7 +165,7 @@ sections:
         file: {src: ./walkthrough/05-cli.ts, dest: src/cli.ts}
       - text: "Test clarification flow"
         command: |
-          npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& ?'
+          npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& '
       - text: "Add tests for clarification"
         file: {src: ./walkthrough/05b-agent.baml, dest: baml_src/agent.baml}
       - text: "Run the tests"
@@ -196,12 +196,12 @@ sections:
         file: {src: ./walkthrough/07-agent.ts, dest: src/agent.ts}
       - text: "Test the formatting"
         command: |
-          BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result?'
+          BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
       - text: "Switch to XML formatting"
         file: {src: ./walkthrough/07b-agent.ts, dest: src/agent.ts}
       - text: "Test XML formatting"
         command: |
-          BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result?'
+          BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
       - text: "Update tests for XML format"
         file: {src: ./walkthrough/07c-agent.baml, dest: baml_src/agent.baml}
       - text: "Run the tests"
@@ -225,7 +225,7 @@ sections:
         command: |
           curl -X POST http://localhost:3000/thread \
             -H "Content-Type: application/json" \
-            -d '{"message":"can you add 3 and 4?"}'
+            -d '{"message":"can you add 3 and 4"}'
 
   - name: state-management
     title: "Chapter 9 - In-Memory State and Async Clarification"
@@ -242,7 +242,7 @@ sections:
         command: |
           curl -X POST http://localhost:3000/thread \
             -H "Content-Type: application/json" \
-            -d '{"message":"can you multiply 3 and xyz?"}'
+            -d '{"message":"can you multiply 3 and xyz"}'
 
   - name: human-approval
     title: "Chapter 10 - Adding Human Approval"
@@ -259,7 +259,7 @@ sections:
         command: |
           curl -X POST http://localhost:3000/thread \
             -H "Content-Type: application/json" \
-            -d '{"message":"can you divide 3 by 4?"}'
+            -d '{"message":"can you divide 3 by 4"}'
 
   - name: humanlayer-approval
     title: "Chapter 11 - Human Approval with HumanLayer"
@@ -275,7 +275,7 @@ sections:
         file: {src: ./walkthrough/11-cli.ts, dest: src/cli.ts}
       - text: "Run the CLI"
         command: |
-          npx tsx src/index.ts 'can divide 4 by 5?'
+          npx tsx src/index.ts 'can divide 4 by 5'
 
   - name: humanlayer-webhook
     title: "Chapter 12 - HumanLayer Webhook Integration"
