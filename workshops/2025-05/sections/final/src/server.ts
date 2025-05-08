@@ -1,6 +1,7 @@
 import express from 'express';
 import { Thread, agentLoop, handleNextStep } from '../src/agent';
 import { ThreadStore } from '../src/state';
+import { V1Beta2EmailEventReceived } from 'humanlayer';
 
 const app = express();
 app.use(express.json());
@@ -23,8 +24,6 @@ app.post('/thread', async (req, res) => {
     // If we exited the loop, include the response URL so the client can
     // push a new message onto the thread
     lastEvent.data.response_url = `/thread/${threadId}/response`;
-
-    console.log("returning last event from endpoint", lastEvent);
 
     res.json({ 
         thread_id: threadId,
@@ -57,7 +56,7 @@ type Payload = ApprovalPayload | ResponsePayload;
 
 // POST /thread/:id/response - Handle clarification response
 app.post('/thread/:id/response', async (req, res) => {
-    let thread = store.get(req.params.id);
+    const thread = store.get(req.params.id);
     if (!thread) {
         return res.status(404).json({ error: "Thread not found" });
     }
@@ -77,16 +76,15 @@ app.post('/thread/:id/response', async (req, res) => {
             type: "tool_response",
             data: `user denied the operation with feedback: "${body.comment}"`
         });
-    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && body.approved) {
+    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && !body.approved) {
         // approved, run the tool, pushing results onto the thread
-        await handleNextStep(lastEvent.data, thread);
+        await handleNextStep(lastEvent, thread);
     } else {
         res.status(400).json({
             error: "Invalid request: " + body.type,
             awaitingHumanResponse: thread.awaitingHumanResponse(),
             awaitingHumanApproval: thread.awaitingHumanApproval()
         });
-        return;
     }
 
     
@@ -97,11 +95,42 @@ app.post('/thread/:id/response', async (req, res) => {
 
     lastEvent = result.events[result.events.length - 1];
     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
-
-    console.log("returning last event from endpoint", lastEvent);
     
     res.json(result);
 });
+
+
+app.post('/webhook', async (req, res) => {
+    //todo verify webhook
+    const payload: V1Beta2EmailEventReceived = req.body
+
+    const { subject, body, to_address, from_address} = payload.event;
+
+    const thread = new Thread([{
+        type: "user_input",
+        data: {
+            subject,
+            body,
+            to_address,
+            from_address,
+        }
+    }]);
+    
+    const threadId = store.create(thread);
+    const newThread = await agentLoop(thread);
+    
+    store.update(threadId, newThread);
+
+    const lastEvent = newThread.events[newThread.events.length - 1];
+
+    
+
+
+
+
+    // don't return any content, we sent the next step to a human
+    res.json({ status: "ok" });
+})
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

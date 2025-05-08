@@ -24,8 +24,6 @@ app.post('/thread', async (req, res) => {
     // push a new message onto the thread
     lastEvent.data.response_url = `/thread/${threadId}/response`;
 
-    console.log("returning last event from endpoint", lastEvent);
-
     res.json({ 
         thread_id: threadId,
         ...newThread 
@@ -57,7 +55,7 @@ type Payload = ApprovalPayload | ResponsePayload;
 
 // POST /thread/:id/response - Handle clarification response
 app.post('/thread/:id/response', async (req, res) => {
-    let thread = store.get(req.params.id);
+    const thread = store.get(req.params.id);
     if (!thread) {
         return res.status(404).json({ error: "Thread not found" });
     }
@@ -77,16 +75,15 @@ app.post('/thread/:id/response', async (req, res) => {
             type: "tool_response",
             data: `user denied the operation with feedback: "${body.comment}"`
         });
-    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && body.approved) {
+    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && !body.approved) {
         // approved, run the tool, pushing results onto the thread
-        await handleNextStep(lastEvent.data, thread);
+        await handleNextStep(lastEvent, thread);
     } else {
         res.status(400).json({
             error: "Invalid request: " + body.type,
             awaitingHumanResponse: thread.awaitingHumanResponse(),
             awaitingHumanApproval: thread.awaitingHumanApproval()
         });
-        return;
     }
 
     
@@ -97,8 +94,6 @@ app.post('/thread/:id/response', async (req, res) => {
 
     lastEvent = result.events[result.events.length - 1];
     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
-
-    console.log("returning last event from endpoint", lastEvent);
     
     res.json(result);
 });

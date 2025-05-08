@@ -1,6 +1,7 @@
 import express from 'express';
 import { Thread, agentLoop, handleNextStep } from '../src/agent';
 import { ThreadStore } from '../src/state';
+import { DivideTool } from '../baml_client';
 
 const app = express();
 app.use(express.json());

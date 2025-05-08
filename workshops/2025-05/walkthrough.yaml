@@ -260,6 +260,83 @@ sections:
           curl -X POST http://localhost:3000/thread \
             -H "Content-Type: application/json" \
             -d '{"message":"can you divide 3 by 4"}'
+        results:
+          - text: "You should see:"
+            code: |
+              {
+                "thread_id": "2b243b66-215a-4f37-8bc6-9ace3849043b",
+                "events": [
+                  {
+                    "type": "user_input",
+                    "data": "can you divide 3 by 4"
+                  },
+                  {
+                    "type": "tool_call",
+                    "data": {
+                      "intent": "divide",
+                      "a": 3,
+                      "b": 4,
+                      "response_url": "/thread/2b243b66-215a-4f37-8bc6-9ace3849043b/response"
+                    }
+                  }
+                ]
+              }
+      - text: "reject the request with another curl call, changing the thread ID"
+        command: |
+          curl -X POST 'http://localhost:3000/thread/{thread_id}/response' \
+            -H "Content-Type: application/json" \
+            -d '{"type": "approval", "approved": false, "comment": "I dont think thats right, use 5 instead of 4"}'
+        results:
+          - text: 'You should see: the last tool call is now `"intent":"divide","a":3,"b":5`'
+            code: |
+              {
+                "events": [
+                  {
+                    "type": "user_input",
+                    "data": "can you divide 3 by 4"
+                  },
+                  {
+                    "type": "tool_call",
+                    "data": {
+                      "intent": "divide",
+                      "a": 3,
+                      "b": 4,
+                      "response_url": "/thread/2b243b66-215a-4f37-8bc6-9ace3849043b/response"
+                    }
+                  },
+                  {
+                    "type": "tool_response",
+                    "data": "user denied the operation with feedback: \"I dont think thats right, use 5 instead of 4\""
+                  },
+                  {
+                    "type": "tool_call",
+                    "data": {
+                      "intent": "divide",
+                      "a": 3,
+                      "b": 5,
+                      "response_url": "/thread/1f1f5ff5-20d7-4114-97b4-3fc52d5e0816/response"
+                    }
+                  }
+                ]
+              }
+      - text: "now you can approve the operation"
+        command: |
+          curl -X POST 'http://localhost:3000/thread/{thread_id}/response' \
+            -H "Content-Type: application/json" \
+            -d '{"type": "approval", "approved": true}'
+        results:
+          - text: "you should see the final message includes the tool response and final result!"
+            code: |
+              ...
+              {
+                "type": "tool_response",
+                "data": 0.5
+              },
+              {
+                "type": "done_for_now",
+                "message": "I divided 3 by 6 and the result is 0.5. If you have any more operations or queries, feel free to ask!",
+                "response_url": "/thread/2b469403-c497-4797-b253-043aae830209/response"
+              }
 
   - name: humanlayer-approval
     title: "Chapter 11 - Human Approval with HumanLayer"
