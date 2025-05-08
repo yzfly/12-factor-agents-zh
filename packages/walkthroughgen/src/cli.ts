@@ -175,8 +175,9 @@ function formatMinimalDiff(filePath: string, oldContent: string, newContent: str
     // Check for identical remove/add pairs (which means no effective change for these two lines)
     if (line.startsWith('-')) {
       let nextDiffLineIndex = i + 1;
-      // Skip empty lines to find the next actual diff line
-      while (nextDiffLineIndex < patchLines.length && patchLines[nextDiffLineIndex].trim() === '') {
+      // Skip empty lines AND "No newline" markers to find the next actual diff line
+      while (nextDiffLineIndex < patchLines.length &&
+             (patchLines[nextDiffLineIndex].trim() === '' || patchLines[nextDiffLineIndex].startsWith('\\'))) {
         nextDiffLineIndex++;
       }
 

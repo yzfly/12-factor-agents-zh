@@ -1,0 +1,182 @@
+# Chapter 1 - CLI and Agent Loop
+
+Now let's add BAML and create our first agent with a CLI interface.
+
+Install BAML
+
+    npm i baml
+
+Initialize BAML
+
+    npx baml-cli init
+
+Remove default resume.baml
+
+    rm baml_src/resume.baml
+
+Add our starter agent
+
+    cp ./walkthrough/01-agent.baml baml_src/agent.baml
+
+<details>
+<summary>show file</summary>
+
+```rust
+// ./walkthrough/01-agent.baml
+class DoneForNow {
+  intent "done_for_now"
+  message string 
+}
+
+function DetermineNextStep(
+    thread: string 
+) -> DoneForNow {
+    client "openai/gpt-4o"
+
+    prompt #"
+        {{ _.role("system") }}
+
+        You are a helpful assistant that can help with tasks.
+
+        {{ _.role("user") }}
+
+        You are working on the following thread:
+
+        {{ thread }}
+
+        What should the next step be?
+
+        {{ ctx.output_format }}
+    "#
+}
+
+test HelloWorld {
+  functions [DetermineNextStep]
+  args {
+    thread #"
+      {
+        "type": "user_input",
+        "data": "hello!"
+      }
+    "#
+  }
+}
+```
+
+</details>
+
+Generate BAML client code
+
+    npx baml-cli generate
+
+Enable BAML logging for development
+
+    export BAML_LOG=debug
+
+Add the CLI interface
+
+    cp ./walkthrough/01-cli.ts src/cli.ts
+
+<details>
+<summary>show file</summary>
+
+```ts
+// ./walkthrough/01-cli.ts
+// cli.ts lets you invoke the agent loop from the command line
+
+import { agentLoop, Thread, Event } from "./agent";
+
+export async function cli() {
+    // Get command line arguments, skipping the first two (node and script name)
+    const args = process.argv.slice(2);
+
+    if (args.length === 0) {
+        console.error("Error: Please provide a message as a command line argument");
+        process.exit(1);
+    }
+
+    // Join all arguments into a single message
+    const message = args.join(" ");
+
+    // Create a new thread with the user's message as the initial event
+    const thread = new Thread([{ type: "user_input", data: message }]);
+
+    // Run the agent loop with the thread
+    const result = await agentLoop(thread);
+    console.log(result);
+}
+```
+
+</details>
+
+Update index.ts to use the CLI
+
+    cp ./walkthrough/01-index.ts src/index.ts
+
+<details>
+<summary>show file</summary>
+
+```ts
+// ./walkthrough/01-index.ts
+import { cli } from "./cli"
+
+async function hello(): Promise<void> {
+    console.log('hello, world!')
+}
+
+async function main() {
+    await cli()
+}
+
+main().catch(console.error)
+```
+
+</details>
+
+Add the agent implementation
+
+    cp ./walkthrough/01-agent.ts src/agent.ts
+
+<details>
+<summary>show file</summary>
+
+```ts
+// ./walkthrough/01-agent.ts
+import { b } from "../baml_client";
+
+// tool call or a respond to human tool
+type AgentResponse = Awaited<ReturnType<typeof b.DetermineNextStep>>;
+
+export interface Event {
+    type: string
+    data: any;
+}
+
+export class Thread {
+    events: Event[] = [];
+
+    constructor(events: Event[]) {
+        this.events = events;
+    }
+
+    serializeForLLM() {
+        // can change this to whatever custom serialization you want to do, XML, etc
+        // e.g. https://github.com/got-agents/agents/blob/59ebbfa236fc376618f16ee08eb0f3bf7b698892/linear-assistant-ts/src/agent.ts#L66-L105
+        return JSON.stringify(this.events);
+    }
+}
+
+// right now this just runs one turn with the LLM, but
+// we'll update this function to handle all the agent logic
+export async function agentLoop(thread: Thread): Promise<AgentResponse> {
+    const nextStep = await b.DetermineNextStep(thread.serializeForLLM());
+    return nextStep;
+}
+```
+
+</details>
+
+Try it out
+
+    npx tsx src/index.ts hello
+
