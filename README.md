@@ -12,6 +12,8 @@ Preview - this is a draft of everything I've learned in a year working with agen
 
 *In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
 
+**🎉 NOTE - 5/09 - want to learn about 12-factor agents in a hands on workshop?** upcoming FREE workshops in [NYC](https://hlyr.dev/aitw-nyc), [SF](https://hlyr.dev/sf), and Seattle (date TBD). Check out [AI That Works](https://hlyr.dev/aitw) for more info and virtual sessions.
+
 This is the current version of 12-factor agents, version 1.0. There is a draft of version 1.1  on the [v1.1 branch](https://github.com/humanlayer/12-factor-agents/tree/v1.1). There are a few [Issues to track work on v1.1](https://github.com/humanlayer/12-factor-agents/issues?q=is%3Aissue%20state%3Aopen%20label%3Aversion%3A%3A1.1).
 
  
