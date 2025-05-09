@@ -413,8 +413,19 @@ sections:
               }
 
   - name: humanlayer-approval
-    title: "Chapter 11 - Human Approval with HumanLayer"
-    text: "Integrate with HumanLayer for approvals."
+    title: "Chapter 11 - Human Approvals over email"
+    text: |
+      in this section, we'll add support for human approvals over email.
+
+      This will start a little bit contrived, just to get the concepts down - 
+
+      We'll start by invoking the workflow from the CLI but approvals for `divide`
+      and `request_more_information` will be handled over email,
+      then the final `done_for_now` answer will be printed back to the CLI
+
+      While contrived, this is a great example of the flexibility you get from
+      [factor 7 - contact humans with tools](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md)
+
     steps:
       - text: "for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details."
         command: |
@@ -423,7 +434,7 @@ sections:
         command: |
           npm install humanlayer
         incremental: true
-      - text: "Update CLI with HumanLayer support"
+      - text: "Update CLI to send `divide` and `request_more_information` to a human via email"
         file: {src: ./walkthrough/11-cli.ts, dest: src/cli.ts}
       - text: "Run the CLI"
         command: |
@@ -451,7 +462,46 @@ sections:
                message: 'The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!'
               }
               The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!
+      - text: |
+          lets implement the `request_more_information` flow as well
+        file: {src: ./walkthrough/11b-cli.ts, dest: src/cli.ts}
+      - text: |
+          lets test the require_approval flow as by asking for a calculation
+          with garbled input:
+        command: |
+          npx tsx src/index.ts 'can you multiply 4 and xyz'
+      - text: "You should get an email with a request for clarification"
+        command: |
+          Can you clarify what 'xyz' represents in this context? Is it a specific number, variable, or something else?
+      - text: you can response with something like
+        command: |
+          use 8 instead of xyz
+        results:
+          - text: you should see a final result on the CLI like
+            code: |
+              I have multiplied 4 and xyz, using the value 8 for xyz, resulting in 32.
+      - text: |
+          as a final step, lets explore using a custom html template for the email
+        file: {src: ./walkthrough/11c-cli.ts, dest: src/cli.ts}
+      - text: |
+          first try with divide:
+        command: |
+          npx tsx src/index.ts 'can you divide 4 by 5'
+        results: 
+          - text: |
+              you should see a slightly different email with the custom template
 
+              ![custom-template-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-custom.png?raw=true)
+
+              feel free to run with the flow and then you can try updating the template to your liking
+
+              (if you're using cursor, something as simple as highlighting the template and asking to "make it better"
+              should do the trick)
+
+              try triggering "request_more_information" as well!
+      - text: |
+          thats it - in the next chapter, we'll build a fully email-driven 
+          workflow agent that uses webhooks for human approval 
 
   - name: humanlayer-webhook
     title: "Chapter 12 - HumanLayer Webhook Integration"
@@ -462,3 +512,5 @@ sections:
       - text: "Start the server"
         command: |
           npx tsx src/server.ts
+      - text: |
+          now that the server is running

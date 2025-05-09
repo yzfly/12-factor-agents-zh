@@ -68,13 +68,6 @@ export async function askHumanEmail(lastEvent: Event): Promise<Event> {
             // agent should request permission via email
             email: {
                 address: process.env.HUMANLAYER_EMAIL,
-                // custom email body - jinja
-                template: `
-                agent {{ event.run_id }} is requesting approval for {{event.spec.fn}}
-                with args: {{event.spec.kwargs}}
-                <br><br>
-                reply to this email to approve
-                `
             }
         }
     }) 
