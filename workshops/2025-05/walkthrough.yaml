@@ -93,7 +93,7 @@ sections:
         command: |
           npx baml-cli generate
         incremental: true
-      - text: "Enable BAML logging for development"
+      - text: "Enable BAML logging for this section"
         command: |
           export BAML_LOG=debug
       - text: "Add the CLI interface"
@@ -177,6 +177,9 @@ sections:
     title: "Chapter 4 - Add Tests to agent.baml"
     text: "Let's add some tests to our BAML agent."
     steps:
+      - text: to start, leave the baml logs enabled
+        command: |
+          export BAML_LOG=debug
       - text: "Update agent with tests"
         file: {src: ./walkthrough/04-agent.baml, dest: baml_src/agent.baml}
       - text: "Run the tests"
@@ -187,6 +190,11 @@ sections:
       - text: "Run the tests"
         command: |
           npx baml-cli test
+      - text: |
+          as you add more tests, you can disable the logs to keep the output clean. 
+          You may want to turn them on as you iterate on specific tests.
+        command: |
+          export BAML_LOG=off
       - text: "Add more complex test cases"
         file: {src: ./walkthrough/04c-agent.baml, dest: baml_src/agent.baml}
       - text: "Run the expanded test suite"
@@ -197,6 +205,9 @@ sections:
     title: "Chapter 5 - Multiple Human Tools"
     text: "Add support for requesting clarification from humans."
     steps:
+      - text: "for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details."
+        command: |
+          export BAML_LOG=off
       - text: "Update agent with clarification support"
         file: {src: ./walkthrough/05-agent.baml, dest: baml_src/agent.baml}
       - text: "Generate updated client"
@@ -225,6 +236,9 @@ sections:
     title: "Chapter 6 - Customize Your Prompt with Reasoning"
     text: "Improve the agent's prompting by adding reasoning steps."
     steps:
+      - text: "for this section, it will be helpful to leave the baml logs enabled"
+        command: |
+          export BAML_LOG=debug
       - text: "Update agent with reasoning steps"
         file: {src: ./walkthrough/06-agent.baml, dest: baml_src/agent.baml}
       - text: "Generate updated client"
@@ -256,6 +270,9 @@ sections:
     title: "Chapter 8 - Adding API Endpoints"
     text: "Add an Express server to expose the agent via HTTP."
     steps:
+      - text: "for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details."
+        command: |
+          export BAML_LOG=off
       - text: "Install Express and types"
         command: |
           npm install express && npm install --save-dev @types/express supertest
@@ -270,11 +287,21 @@ sections:
           curl -X POST http://localhost:3000/thread \
             -H "Content-Type: application/json" \
             -d '{"message":"can you add 3 and 4"}'
+        results:
+          - text: |
+             You should get an answer from the agent which includes the
+             agentic trace, ending in a message like: 
+
+            code: |
+              {"intent":"done_for_now","message":"The sum of 3 and 4 is 7."}
 
   - name: state-management
     title: "Chapter 9 - In-Memory State and Async Clarification"
     text: "Add state management and async clarification support."
     steps:
+      - text: "for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details."
+        command: |
+          export BAML_LOG=off
       - text: "Add state management"
         file: {src: ./walkthrough/09-state.ts, dest: src/state.ts}
       - text: "Update server with state support"
@@ -292,6 +319,9 @@ sections:
     title: "Chapter 10 - Adding Human Approval"
     text: "Add support for human approval of operations."
     steps:
+      - text: "for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details."
+        command: |
+          export BAML_LOG=off
       - text: "Update server with approval flow"
         file: {src: ./walkthrough/10-server.ts, dest: src/server.ts}
       - text: "Update agent with approval checks"
@@ -386,6 +416,9 @@ sections:
     title: "Chapter 11 - Human Approval with HumanLayer"
     text: "Integrate with HumanLayer for approvals."
     steps:
+      - text: "for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details."
+        command: |
+          export BAML_LOG=off
       - text: "Install HumanLayer"
         command: |
           npm install humanlayer

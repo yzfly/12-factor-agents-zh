@@ -4,6 +4,7 @@ import { ThreadStore } from '../src/state';
 
 const app = express();
 app.use(express.json());
+app.set('json spaces', 2);
 
 const store = new ThreadStore();
 
