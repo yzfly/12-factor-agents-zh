@@ -29,6 +29,24 @@ sections:
     title: "Chapter 0 - Hello World"
     text: "Let's start with a basic TypeScript setup and a hello world program."
     steps:
+      - text: |
+          This guide is written in TypeScript (yes, a python version is coming soon)
+
+          There are many checkpoints between the every file edit in theworkshop steps, 
+          so even if you aren't super familiar with typescript,
+          you should be able to keep up and run each example.
+
+          To run this guide, you'll need a relatively recent version of nodejs and npm installed
+
+          You can use whatever nodejs version manager you want, [homebrew](https://formulae.brew.sh/formula/node) is fine
+
+        command:
+            brew install node@20
+        results:
+          - text: "You should see the node version"
+            code: |
+              node --version
+
       - text: "Copy initial package.json"
         file: {src: ./walkthrough/00-package.json, dest: package.json}
       - text: "Install dependencies"
@@ -55,7 +73,9 @@ sections:
     title: "Chapter 1 - CLI and Agent Loop"
     text: "Now let's add BAML and create our first agent with a CLI interface."
     steps:
-      - text: "Install BAML"
+      - text: |
+           First, we'll need to install [BAML](https://github.com/boundaryml/baml)
+           which is a tool for prompting and structured outputs.
         command: |
           npm i baml
         incremental: true
@@ -67,7 +87,7 @@ sections:
         command: |
           rm baml_src/resume.baml
         incremental: true
-      - text: "Add our starter agent"
+      - text: "Add our starter agent, a single baml prompt that we'll build on"
         file: {src: ./walkthrough/01-agent.baml, dest: baml_src/agent.baml}
       - text: "Generate BAML client code"
         command: |
@@ -82,9 +102,33 @@ sections:
         file: {src: ./walkthrough/01-index.ts, dest: src/index.ts}
       - text: "Add the agent implementation"
         file: {src: ./walkthrough/01-agent.ts, dest: src/agent.ts}
+      - text: |
+          The the BAML code is configured to use OPENAI_API_KEY by default
+
+          As you're testing, you can change the model / provider to something else
+          as you please
+
+                  client "openai/gpt-4o"
+
+          [Docs on baml clients can be found here](https://docs.boundaryml.com/guide/baml-basics/switching-llms)
+
+          For example, you can configure [gemini](https://docs.boundaryml.com/ref/llm-client-providers/google-ai-gemini) 
+          or [anthropic](https://docs.boundaryml.com/ref/llm-client-providers/anthropic) as your model provider.
+
+          If you want to run the example with no changes, you can set the OPENAI_API_KEY env var to any valid openai key.
+          
+        command: |
+          export OPENAI_API_KEY=...
       - text: "Try it out"
         command: |
           npx tsx src/index.ts hello
+        results:
+          - text: you should see a familiar response from the model 
+            code: |
+              {
+                intent: 'done_for_now',
+                message: 'Hello! How can I assist you today?'
+              }
 
   - name: calculator-tools
     title: "Chapter 2 - Add Calculator Tools"
@@ -346,13 +390,35 @@ sections:
         command: |
           npm install humanlayer
         incremental: true
-      - text: "Update agent with HumanLayer integration"
-        file: {src: ./walkthrough/11-agent.ts, dest: src/agent.ts}
       - text: "Update CLI with HumanLayer support"
         file: {src: ./walkthrough/11-cli.ts, dest: src/cli.ts}
       - text: "Run the CLI"
         command: |
-          npx tsx src/index.ts 'can divide 4 by 5'
+          npx tsx src/index.ts 'can you divide 4 by 5'
+        results:
+          - text: "The last line of your program should mention human review step"
+            code: |
+              nextStep { intent: 'divide', a: 4, b: 5 }
+              HumanLayer: Requested human approval from HumanLayer cloud
+      - text: |
+          go ahead and respond to the email with some feedback:
+
+          ![reject-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-reject.png?raw=true)
+      - text: |
+          you should get another email with an updated attempt based on your feedback!
+
+          You can go ahead and approve this one:
+
+          ![appove-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-approve.png?raw=true)
+        results:
+          - text: and your final output will look like
+            code: |
+              nextStep {
+               intent: 'done_for_now',
+               message: 'The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!'
+              }
+              The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!
+
 
   - name: humanlayer-webhook
     title: "Chapter 12 - HumanLayer Webhook Integration"
