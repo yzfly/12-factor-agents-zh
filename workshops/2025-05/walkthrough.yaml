@@ -324,7 +324,7 @@ sections:
           export BAML_LOG=off
       - text: "Update server with approval flow"
         file: {src: ./walkthrough/10-server.ts, dest: src/server.ts}
-      - text: "Update agent with approval checks"
+      - text: "Add a few methods to the agent to "
         file: {src: ./walkthrough/10-agent.ts, dest: src/agent.ts}
       - text: "Start the server"
         command: |
@@ -504,13 +504,43 @@ sections:
           workflow agent that uses webhooks for human approval 
 
   - name: humanlayer-webhook
-    title: "Chapter 12 - HumanLayer Webhook Integration"
-    text: "Add webhook support for HumanLayer."
+    title: "Chapter XX - HumanLayer Webhook Integration"
+    text: |
+      the previous sections used the humanlayer SDK in "synchronous mode" - that 
+      means every time we wait for human approval, we sit in a loop 
+      polling until the human response if received.
+
+      That's obviously not ideal, especially for production workloads,
+      so in this section we'll implement [factor 6 - launch / pause / resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)
+      by updating the server to end processing after contacting a human, and use webhooks to receive the results. 
+
     steps:
-      - text: "Update server with webhook support"
-        file: {src: ./walkthrough/12-server.ts, dest: src/server.ts}
-      - text: "Start the server"
+      - text: |
+          add code to initialize humanlayer in the server
+        file: {src: ./walkthrough/12-1-server-init.ts, dest: src/server.ts}
+      - text: |
+          next, lets update the /thread endpoint to 
+            
+          1. handle requests asynchronously, returning immediately
+          2. create a human contact on request_more_information and done_for_now calls
+
+        file: {src: }
+      - text: |
+          Update the server to be able to handle request_clarification responses
+
+          - remove the old /response endpoint and types
+          - update the /thread endpoint to run processing asynchronously, return immediately
+          - send a state.threadId when requesting human responses
+          - add a handleHumanResponse function to process the human response
+          - add a /webhook endpoint to handle the webhook response
+
+        file: {src: ./walkthrough/12a-server.ts, dest: src/server.ts}
+      - text: "Start the server in another terminal"
         command: |
           npx tsx src/server.ts
       - text: |
-          now that the server is running
+          now that the server is running, send a payload to the '/thread' endpoint
+      - text: __ do the response step
+      - text: __ now handle approvals for divide
+      - text: __ now also handle done_for_now
+        
