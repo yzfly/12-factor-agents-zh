@@ -8,16 +8,6 @@ Preview - this is a draft of everything I've learned in a year working with agen
 
 # 12-Factor Agents - Principles for building reliable LLM applications
 
-
-
-*In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
-
-> [!TIP]
-> want to learn about 12-factor agents in a **hands-on workshop?** upcoming workshops in [NYC](https://hlyr.dev/aitw-nyc), [SF](https://hlyr.dev/sf), and Seattle (date TBD). Check out [AI That Works](https://hlyr.dev/aitw) for more info and virtual sessions.
-
-This is the current version of 12-factor agents, version 1.0. There is a draft of version 1.1  on the [v1.1 branch](https://github.com/humanlayer/12-factor-agents/tree/v1.1). There are a few [Issues to track work on v1.1](https://github.com/humanlayer/12-factor-agents/issues?q=is%3Aissue%20state%3Aopen%20label%3Aversion%3A%3A1.1).
-
- 
 <div align="center">
 <a href="https://creativecommons.org/licenses/by-sa/4.0/">
         <img src="https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg" alt="License: CC BY-SA 4.0"></a>
@@ -28,6 +18,16 @@ This is the current version of 12-factor agents, version 1.0. There is a draft o
 Deep Dive"></a>
     
 </div>
+
+*In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
+
+> [!TIP]
+> want to learn about 12-factor agents in a **hands-on workshop?** upcoming workshops in [NYC](https://hlyr.dev/aitw-nyc), [SF](https://hlyr.dev/sf), and Seattle (date TBD). Check out [AI That Works](https://hlyr.dev/aitw) for more info and virtual sessions.
+
+This is the current version of 12-factor agents, version 1.0. There is a draft of version 1.1  on the [v1.1 branch](https://github.com/humanlayer/12-factor-agents/tree/v1.1). There are a few [Issues to track work on v1.1](https://github.com/humanlayer/12-factor-agents/issues?q=is%3Aissue%20state%3Aopen%20label%3Aversion%3A%3A1.1).
+
+ 
+
 
 
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=2acad99a-c2d9-48df-86f5-9ca8061b7bf9" />
