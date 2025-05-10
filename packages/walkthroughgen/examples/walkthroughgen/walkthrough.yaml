@@ -1,0 +1,43 @@
+title: "using walkthroughgen"
+targets:
+  - markdown: "./walkthrough.md" # generates a walkthrough.md file
+    diffs: true
+  - final: "./final" # outputs the final project to the final folder
+  - folders: "./by-section" # creates a separate working folder for each section
+init:
+  - file: {src: ./walkthrough/00-package.json, dest: package.json}
+  - file: {src: ./walkthrough/00-package-lock.json, dest: package-lock.json}
+sections:
+  - name: initialize
+    title: "initialize the project"
+    steps:
+      - text: "initialize walkthroughgen"
+        command: |
+          npx wtg init my-project
+          cd my-project
+      - text: "this will create an empty project with a walkthrough.yaml file"
+        command: |
+          ls -la
+          cat walkthrough.yaml
+        results:
+          - text: "you should see a walkthrough.yaml file"
+            code: |
+              # walkthrough.yaml
+              title: "hello world"
+              sections:
+                - name: initialize
+                  title: "initialize the project"
+                  steps:
+                    - text: "initialize the project"
+                      command: |
+                        # your code here
+  - name: build
+    title: "build the project"
+    steps:
+      - text: "build the project"
+        command: |
+          npx wtg build
+      - text: "this will create a walkthrough.md file"
+        command: |
+          cat walkthrough.md
+        results:

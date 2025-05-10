@@ -146,6 +146,6 @@ Overall:
 
 > #### If you already know what tools you'll want the model to call, just call them DETERMINISTICALLY and let the model do the hard part of figuring out how to use their outputs
 
-Again, AI engineering is all about [Context Engineering](./factor-3-own-your-context-window.md).
+Again, AI engineering is all about [Context Engineering](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md).
 
-[← Stateless Reducer](./factor-12-stateless-reducer.md) | [Further Reading →](../README.md#related-resources)
+[← Stateless Reducer](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md) | [Further Reading →](https://github.com/humanlayer/12-factor-agents/blob/main/README.md#related-resources)

@@ -41,7 +41,7 @@ nextStep = await llm.determineNextStep(
   """
   )
 
-// Handle the structured output based on its function
+# Handle the structured output based on its function
 if nextStep.function == 'create_payment_link':
     stripe.paymentlinks.create(nextStep.parameters)
     return  # or whatever you want, see below

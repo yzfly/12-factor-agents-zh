@@ -8,13 +8,6 @@ Preview - this is a draft of everything I've learned in a year working with agen
 
 # 12-Factor Agents - Principles for building reliable LLM applications
 
-
-
-*In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
-
-This is the current version of 12-factor agents, version 1.0. There is a draft of version 1.1  on the [v1.1 branch](https://github.com/humanlayer/12-factor-agents/tree/v1.1). There are a few [Issues to track work on v1.1](https://github.com/humanlayer/12-factor-agents/issues?q=is%3Aissue%20state%3Aopen%20label%3Aversion%3A%3A1.1).
-
- 
 <div align="center">
 <a href="https://creativecommons.org/licenses/by-sa/4.0/">
         <img src="https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg" alt="License: CC BY-SA 4.0"></a>
@@ -25,6 +18,16 @@ This is the current version of 12-factor agents, version 1.0. There is a draft o
 Deep Dive"></a>
     
 </div>
+
+*In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
+
+> [!TIP]
+> want to learn about 12-factor agents in a **hands-on workshop?** upcoming workshops in [NYC](https://hlyr.dev/aitw-nyc), [SF](https://hlyr.dev/sf), and Seattle (date TBD). Check out [AI That Works](https://hlyr.dev/aitw) for more info and virtual sessions.
+
+This is the current version of 12-factor agents, version 1.0. There is a draft of version 1.1  on the [v1.1 branch](https://github.com/humanlayer/12-factor-agents/tree/v1.1). There are a few [Issues to track work on v1.1](https://github.com/humanlayer/12-factor-agents/issues?q=is%3Aissue%20state%3Aopen%20label%3Aversion%3A%3A1.1).
+
+ 
+
 
 
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=2acad99a-c2d9-48df-86f5-9ca8061b7bf9" />
@@ -73,14 +76,14 @@ Even if LLMs [continue to get exponentially more powerful](https://github.com/hu
 
 |    |    |    |
 |----|----|-----|
-|[![factor 1](https://github.com/humanlayer/12-factor-agents/blob/main/img/110-natural-language-tool-calls.png)](./content/factor-1-natural-language-to-tool-calls.md) | [![factor 2](https://github.com/humanlayer/12-factor-agents/blob/main/img/120-own-your-prompts.png)](./content/factor-2-own-your-prompts.md) | [![factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png)](./content/factor-3-own-your-context-window.md) |
-|[![factor 4](https://github.com/humanlayer/12-factor-agents/blob/main/img/140-tools-are-just-structured-outputs.png)](./content/factor-4-tools-are-structured-outputs.md) | [![factor 5](https://github.com/humanlayer/12-factor-agents/blob/main/img/150-unify-state.png)](./content/factor-5-unify-execution-state.md) | [![factor 6](https://github.com/humanlayer/12-factor-agents/blob/main/img/160-pause-resume-with-simple-apis.png)](./content/factor-6-launch-pause-resume.md) |
-| [![factor 7](https://github.com/humanlayer/12-factor-agents/blob/main/img/170-contact-humans-with-tools.png)](./content/factor-7-contact-humans-with-tools.md) | [![factor 8](https://github.com/humanlayer/12-factor-agents/blob/main/img/180-control-flow.png)](./content/factor-8-own-your-control-flow.md) | [![factor 9](https://github.com/humanlayer/12-factor-agents/blob/main/img/190-factor-9-errors-static.png)](./content/factor-9-compact-errors.md) |
-| [![factor 10](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a0-small-focused-agents.png)](./content/factor-10-small-focused-agents.md) | [![factor 11](https://github.com/humanlayer/12-factor-agents/blob/main/img/1b0-trigger-from-anywhere.png)](./content/factor-11-trigger-from-anywhere.md) | [![factor 12](https://github.com/humanlayer/12-factor-agents/blob/main/img/1c0-stateless-reducer.png)](./content/factor-12-stateless-reducer.md) |
+|[![factor 1](https://github.com/humanlayer/12-factor-agents/blob/main/img/110-natural-language-tool-calls.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md) | [![factor 2](https://github.com/humanlayer/12-factor-agents/blob/main/img/120-own-your-prompts.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md) | [![factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md) |
+|[![factor 4](https://github.com/humanlayer/12-factor-agents/blob/main/img/140-tools-are-just-structured-outputs.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-4-tools-are-structured-outputs.md) | [![factor 5](https://github.com/humanlayer/12-factor-agents/blob/main/img/150-unify-state.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-5-unify-execution-state.md) | [![factor 6](https://github.com/humanlayer/12-factor-agents/blob/main/img/160-pause-resume-with-simple-apis.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md) |
+| [![factor 7](https://github.com/humanlayer/12-factor-agents/blob/main/img/170-contact-humans-with-tools.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md) | [![factor 8](https://github.com/humanlayer/12-factor-agents/blob/main/img/180-control-flow.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-8-own-your-control-flow.md) | [![factor 9](https://github.com/humanlayer/12-factor-agents/blob/main/img/190-factor-9-errors-static.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-9-compact-errors.md) |
+| [![factor 10](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a0-small-focused-agents.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md) | [![factor 11](https://github.com/humanlayer/12-factor-agents/blob/main/img/1b0-trigger-from-anywhere.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md) | [![factor 12](https://github.com/humanlayer/12-factor-agents/blob/main/img/1c0-stateless-reducer.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md) |
 
 ## How we got here
 
-For a deeper dive on my agent journey and what led us here, check out [A Brief History of Software](./content/brief-history-of-software.md) - a quick summary here:
+For a deeper dive on my agent journey and what led us here, check out [A Brief History of Software](https://github.com/humanlayer/12-factor-agents/blob/main/content/brief-history-of-software.md) - a quick summary here:
 
 ### The promise of agents
 
@@ -193,7 +196,7 @@ After digging through hundreds of AI libriaries and working with dozens of found
 ## The 12 Factors (again)
 
 
-- [How We Got Here: A Brief History of Software](./content/brief-history-of-software.md)
+- [How We Got Here: A Brief History of Software](https://github.com/humanlayer/12-factor-agents/blob/main/content/brief-history-of-software.md)
 - [Factor 1: Natural Language to Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-1-natural-language-to-tool-calls.md)
 - [Factor 2: Own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
 - [Factor 3: Own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
@@ -209,7 +212,7 @@ After digging through hundreds of AI libriaries and working with dozens of found
 
 ## Honorable Mentions / other advice
 
-- [Factor 13: Pre-fetch all the context you might need](./content/appendix-13-pre-fetch.md)
+- [Factor 13: Pre-fetch all the context you might need](https://github.com/humanlayer/12-factor-agents/blob/main/content/appendix-13-pre-fetch.md)
 
 ## Related Resources
 
@@ -237,7 +240,7 @@ After digging through hundreds of AI libriaries and working with dozens of found
   - [Airflow](https://airflow.apache.org/)
   - [Prefect](https://www.prefect.io/)
   - [Dagster](https://dagster.io/)
-  - [Inngest](https://www.inngest.dev/)
+  - [Inngest](https://www.inngest.com/)
   - [Windmill](https://www.windmill.dev/)
   - [The AI Agent Index (MIT)](https://aiagentindex.mit.edu/)
   - [NotebookLM on Finding Model Capability Boundaries](https://open.substack.com/pub/swyx/p/notebooklm?selection=08e1187c-cfee-4c63-93c9-71216640a5f8)
