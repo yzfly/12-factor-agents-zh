@@ -22,18 +22,11 @@ export async function cli() {
     let newThread = await agentLoop(thread);
     let lastEvent = newThread.events.slice(-1)[0];
 
-    let needsResponse = 
-        newThread.awaitingHumanResponse() ||
-        newThread.awaitingHumanApproval();
-
-    while (needsResponse) {
-        lastEvent = newThread.events.slice(-1)[0];
+    while (lastEvent.data.intent !== "done_for_now") {
         const responseEvent = await askHuman(lastEvent);
         thread.events.push(responseEvent);
         newThread = await agentLoop(thread);
-        // determine if we should loop or if we're done
-        needsResponse = newThread.awaitingHumanResponse() 
-            || newThread.awaitingHumanApproval();
+        lastEvent = newThread.events.slice(-1)[0];
     }
 
     // print the final result
@@ -69,7 +62,8 @@ export async function askHumanEmail(lastEvent: Event): Promise<Event> {
     }
     const hl = humanlayer({ //reads apiKey from env
         // name of this agent
-        runId: "cli-agent",
+        runId: "12fa-cli-agent",
+        verbose: true,
         contactChannel: {
             // agent should request permission via email
             email: {
@@ -79,6 +73,7 @@ export async function askHumanEmail(lastEvent: Event): Promise<Event> {
     }) 
 
     if (lastEvent.data.intent === "request_more_information") {
+        // fetch response synchronously - this will block until reply
         const response = await hl.fetchHumanResponse({
             spec: {
                 msg: lastEvent.data.message
@@ -91,7 +86,7 @@ export async function askHumanEmail(lastEvent: Event): Promise<Event> {
     }
     
     if (lastEvent.data.intent === "divide") {
-        // fetch approval synchronously
+        // fetch approval synchronously - this will block until reply
         const response = await hl.fetchHumanApproval({
             spec: {
                 fn: "divide",
@@ -112,7 +107,8 @@ export async function askHumanEmail(lastEvent: Event): Promise<Event> {
         } else {
             return {
                 "type": "tool_response",
-                "data": `user denied operation ${lastEvent.data.intent}`
+                "data": `user denied operation ${lastEvent.data.intent}
+                with feedback: ${response.comment}`
             };
         }
     }

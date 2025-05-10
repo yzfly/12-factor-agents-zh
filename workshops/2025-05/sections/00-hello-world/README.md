@@ -2,6 +2,23 @@
 
 Let's start with a basic TypeScript setup and a hello world program.
 
+This guide is written in TypeScript (yes, a python version is coming soon)
+
+There are many checkpoints between the every file edit in theworkshop steps, 
+so even if you aren't super familiar with typescript,
+you should be able to keep up and run each example.
+
+To run this guide, you'll need a relatively recent version of nodejs and npm installed
+
+You can use whatever nodejs version manager you want, [homebrew](https://formulae.brew.sh/formula/node) is fine
+
+
+    brew install node@20
+
+You should see the node version
+
+    node --version
+
 Copy initial package.json
 
     cp ./walkthrough/00-package.json package.json

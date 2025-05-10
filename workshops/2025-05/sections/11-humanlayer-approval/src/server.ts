@@ -4,6 +4,7 @@ import { ThreadStore } from '../src/state';
 
 const app = express();
 app.use(express.json());
+app.set('json spaces', 2);
 
 const store = new ThreadStore();
 
@@ -91,16 +92,16 @@ app.post('/thread/:id/response', async (req, res) => {
 
     
     // loop until stop event
-    const result = await agentLoop(thread);
+    const newThread = await agentLoop(thread);
 
-    store.update(req.params.id, result);
+    store.update(req.params.id, newThread);
 
-    lastEvent = result.events[result.events.length - 1];
+    lastEvent = newThread.events[newThread.events.length - 1];
     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
 
     console.log("returning last event from endpoint", lastEvent);
     
-    res.json(result);
+    res.json(newThread);
 });
 
 const port = process.env.PORT || 3000;

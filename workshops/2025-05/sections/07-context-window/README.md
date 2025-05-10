@@ -1,8 +1,13 @@
 # Chapter 7 - Customize Your Context Window
 
-Improve the context window formatting.
+In this section, we'll explore how to customize the context window
+of the agent.
 
-Update agent with better JSON formatting
+this is core to [factor 3 - own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
+
+
+update the agent to pretty-print the Context window for the model
+
 
 ```diff
 src/agent.ts
@@ -25,7 +30,12 @@ Test the formatting
 
     BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
-Switch to XML formatting
+next, let's update the agent to use XML formatting instead 
+
+this is a very popular format for passing data to a model,
+
+among other things, because of the token efficiency of XML.
+
 
 ```diff
 src/agent.ts
@@ -61,14 +71,22 @@ src/agent.ts
 
 </details>
 
-Test XML formatting
+let's try it out
+
 
     BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
-Update tests for XML format
+lets update our tests to match the new output format
+
 
 ```diff
 baml_src/agent.baml
+         {{ ctx.output_format }}
+ 
+-        First, always plan out what to do next, for example:
++        Always think about what to do next first, like:
+ 
+         - ...
    args {
      thread #"
 -      {
@@ -214,7 +232,8 @@ baml_src/agent.baml
 
 </details>
 
-Run the tests
+check out the updated tests
+
 
     npx baml-cli test
 

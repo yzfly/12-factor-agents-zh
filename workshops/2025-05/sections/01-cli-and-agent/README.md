@@ -2,7 +2,9 @@
 
 Now let's add BAML and create our first agent with a CLI interface.
 
-Install BAML
+First, we'll need to install [BAML](https://github.com/boundaryml/baml)
+which is a tool for prompting and structured outputs.
+
 
     npm i baml
 
@@ -14,7 +16,7 @@ Remove default resume.baml
 
     rm baml_src/resume.baml
 
-Add our starter agent
+Add our starter agent, a single baml prompt that we'll build on
 
     cp ./walkthrough/01-agent.baml baml_src/agent.baml
 
@@ -69,7 +71,7 @@ Generate BAML client code
 
     npx baml-cli generate
 
-Enable BAML logging for development
+Enable BAML logging for this section
 
     export BAML_LOG=debug
 
@@ -175,7 +177,31 @@ export async function agentLoop(thread: Thread): Promise<AgentResponse> {
 
 </details>
 
+The the BAML code is configured to use OPENAI_API_KEY by default
+
+As you're testing, you can change the model / provider to something else
+as you please
+
+        client "openai/gpt-4o"
+
+[Docs on baml clients can be found here](https://docs.boundaryml.com/guide/baml-basics/switching-llms)
+
+For example, you can configure [gemini](https://docs.boundaryml.com/ref/llm-client-providers/google-ai-gemini) 
+or [anthropic](https://docs.boundaryml.com/ref/llm-client-providers/anthropic) as your model provider.
+
+If you want to run the example with no changes, you can set the OPENAI_API_KEY env var to any valid openai key.
+
+
+    export OPENAI_API_KEY=...
+
 Try it out
 
     npx tsx src/index.ts hello
+
+you should see a familiar response from the model
+
+    {
+  intent: 'done_for_now',
+  message: 'Hello! How can I assist you today?'
+}
 

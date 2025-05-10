@@ -2,6 +2,23 @@
 
 Let's start with a basic TypeScript setup and a hello world program.
 
+This guide is written in TypeScript (yes, a python version is coming soon)
+
+There are many checkpoints between the every file edit in theworkshop steps, 
+so even if you aren't super familiar with typescript,
+you should be able to keep up and run each example.
+
+To run this guide, you'll need a relatively recent version of nodejs and npm installed
+
+You can use whatever nodejs version manager you want, [homebrew](https://formulae.brew.sh/formula/node) is fine
+
+
+    brew install node@20
+
+You should see the node version
+
+    node --version
+
 Copy initial package.json
 
     cp ./walkthrough/00-package.json package.json
@@ -39,7 +56,9 @@ You should see:
 
 Now let's add BAML and create our first agent with a CLI interface.
 
-Install BAML
+First, we'll need to install [BAML](https://github.com/boundaryml/baml)
+which is a tool for prompting and structured outputs.
+
 
     npm i baml
 
@@ -51,7 +70,7 @@ Remove default resume.baml
 
     rm baml_src/resume.baml
 
-Add our starter agent
+Add our starter agent, a single baml prompt that we'll build on
 
     cp ./walkthrough/01-agent.baml baml_src/agent.baml
 
@@ -59,7 +78,7 @@ Generate BAML client code
 
     npx baml-cli generate
 
-Enable BAML logging for development
+Enable BAML logging for this section
 
     export BAML_LOG=debug
 
@@ -75,20 +94,50 @@ Add the agent implementation
 
     cp ./walkthrough/01-agent.ts src/agent.ts
 
+The the BAML code is configured to use OPENAI_API_KEY by default
+
+As you're testing, you can change the model / provider to something else
+as you please
+
+        client "openai/gpt-4o"
+
+[Docs on baml clients can be found here](https://docs.boundaryml.com/guide/baml-basics/switching-llms)
+
+For example, you can configure [gemini](https://docs.boundaryml.com/ref/llm-client-providers/google-ai-gemini) 
+or [anthropic](https://docs.boundaryml.com/ref/llm-client-providers/anthropic) as your model provider.
+
+If you want to run the example with no changes, you can set the OPENAI_API_KEY env var to any valid openai key.
+
+
+    export OPENAI_API_KEY=...
+
 Try it out
 
     npx tsx src/index.ts hello
+
+you should see a familiar response from the model
+
+    {
+  intent: 'done_for_now',
+  message: 'Hello! How can I assist you today?'
+}
 
 
 # Chapter 2 - Add Calculator Tools
 
 Let's add some calculator tools to our agent.
 
-Add calculator tools definition
+Let's start by adding a tool definition for the calculator
+
+These are simpile structured outputs that we'll ask the model to 
+return as a "next step" in the agentic loop.
+
 
     cp ./walkthrough/02-tool_calculator.baml baml_src/tool_calculator.baml
 
-Update agent to use calculator tools
+Now, let's update the agent's DetermineNextStep method to
+expose the calculator tools as potential next steps
+
 
     cp ./walkthrough/02-agent.baml baml_src/agent.baml
 
@@ -100,20 +149,37 @@ Try out the calculator
 
     npx tsx src/index.ts 'can you add 3 and 4'
 
+You should see a tool call to the calculator
+
+    {
+  intent: 'add',
+  a: 3,
+  b: 4
+}
+
 
 # Chapter 3 - Process Tool Calls in a Loop
 
 Now let's add a real agentic loop that can run the tools and get a final answer from the LLM.
 
-Update agent with tool handling
+First, lets update the agent to handle the tool call
+
 
     cp ./walkthrough/03-agent.ts src/agent.ts
 
-Try a simple calculation
+Now, lets try it out
+
 
     npx tsx src/index.ts 'can you add 3 and 4'
 
-Turn off BAML logs for cleaner output
+you should see the agent call the tool and then return the result
+
+    {
+  intent: 'done_for_now',
+  message: 'The sum of 3 and 4 is 7.'
+}
+
+For the next step, we'll do a more complex calculation, let's turn off the baml logs for more concise output
 
     export BAML_LOG=off
 
@@ -121,7 +187,12 @@ Try a multi-step calculation
 
     npx tsx src/index.ts 'can you add 3 and 4, then add 6 to that result'
 
-Add handlers for all calculator tools
+you'll notice that tools like multiply and divide are not available
+
+    npx tsx src/index.ts 'can you multiply 3 and 4'
+
+next, let's add handlers for the rest of the calculator tools
+
 
     cp ./walkthrough/03b-agent.ts src/agent.ts
 
@@ -129,11 +200,13 @@ Test subtraction
 
     npx tsx src/index.ts 'can you subtract 3 from 4'
 
-Test multiplication
+now, let's test the multiplication tool
+
 
     npx tsx src/index.ts 'can you multiply 3 and 4'
 
-Test a complex calculation
+finally, let's test a more complex calculation with multiple operations
+
 
     npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
@@ -142,7 +215,15 @@ Test a complex calculation
 
 Let's add some tests to our BAML agent.
 
-Update agent with tests
+to start, leave the baml logs enabled
+
+    export BAML_LOG=debug
+
+next, let's add some tests to the agent
+
+We'll start with a simple test that checks the agent's ability to handle
+a basic calculation.
+
 
     cp ./walkthrough/04-agent.baml baml_src/agent.baml
 
@@ -150,7 +231,11 @@ Run the tests
 
     npx baml-cli test
 
-Add more complex test cases
+now, let's improve the test with assertions!
+
+Assertions are a great way to make sure the agent is working as expected,
+and can easily be extended to check for more complex behavior.
+
 
     cp ./walkthrough/04b-agent.baml baml_src/agent.baml
 
@@ -158,48 +243,84 @@ Run the tests
 
     npx baml-cli test
 
-Add more complex test cases
+as you add more tests, you can disable the logs to keep the output clean. 
+You may want to turn them on as you iterate on specific tests.
+
+
+    export BAML_LOG=off
+
+now, let's add some more complex test cases,
+where we resume from in the middle of an in-progress
+agentic context window
+
 
     cp ./walkthrough/04c-agent.baml baml_src/agent.baml
 
-Run the expanded test suite
+let's try to run it
+
 
     npx baml-cli test
 
 
 # Chapter 5 - Multiple Human Tools
 
-Add support for requesting clarification from humans.
+In this section, we'll add support for multiple tools that serve to 
+contact humans.
 
-Update agent with clarification support
+
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
+
+first, let's add a tool that can request clarification from a human 
+
+this will be different from the "done_for_now" tool,
+and can be used to more flexibly handle different types of human interactions
+in your agent.
+
 
     cp ./walkthrough/05-agent.baml baml_src/agent.baml
 
-Generate updated client
+next, let's re-generate the client code
+
+NOTE - if you're using the VSCode extension for BAML,
+the client will be regenerated automatically when you save the file
+in your editor.
+
 
     npx baml-cli generate
 
-Update agent implementation
+now, let's update the agent to use the new tool
+
 
     cp ./walkthrough/05-agent.ts src/agent.ts
 
-Update CLI to handle clarification requests
+next, let's update the CLI to handle clarification requests
+by requesting input from the user on the CLI
+
 
     cp ./walkthrough/05-cli.ts src/cli.ts
 
-Test clarification flow
+let's try it out
+
 
     npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& '
 
-Add tests for clarification
+next, let's add a test that checks the agent's ability to handle
+a clarification request
+
 
     cp ./walkthrough/05b-agent.baml baml_src/agent.baml
 
-Run the tests
+and now we can run the tests again
+
 
     npx baml-cli test
 
-Fix hello world test
+you'll notice the new test passes, but the hello world test fails
+
+This is because the agent's default behavior is to return "done_for_now"
+
 
     cp ./walkthrough/05c-agent.baml baml_src/agent.baml
 
@@ -210,22 +331,50 @@ Verify tests pass
 
 # Chapter 6 - Customize Your Prompt with Reasoning
 
-Improve the agent's prompting by adding reasoning steps.
+In this section, we'll explore how to customize the prompt of the agent
+with reasoning steps.
 
-Update agent with reasoning steps
+this is core to [factor 2 - own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
+
+there's a deep dive on reasoning on AI That Works [reasoning models versus reasoning steps](https://github.com/hellovai/ai-that-works/tree/main/2025-04-07-reasoning-models-vs-prompts)
+
+
+for this section, it will be helpful to leave the baml logs enabled
+
+    export BAML_LOG=debug
+
+update the agent prompt to include a reasoning step
+
 
     cp ./walkthrough/06-agent.baml baml_src/agent.baml
 
-Generate updated client
+generate the updated client
 
     npx baml-cli generate
+
+now, you can try it out with a simple prompt
+
+
+    npx tsx src/index.ts 'can you multiply 3 and 4'
+
+you should see output from the baml logs showing the reasoning steps
+
+#### optional challenge 
+
+add a field to your tool output format that includes the reasoning steps in the output!
+
 
 
 # Chapter 7 - Customize Your Context Window
 
-Improve the context window formatting.
+In this section, we'll explore how to customize the context window
+of the agent.
 
-Update agent with better JSON formatting
+this is core to [factor 3 - own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
+
+
+update the agent to pretty-print the Context window for the model
+
 
     cp ./walkthrough/07-agent.ts src/agent.ts
 
@@ -233,19 +382,27 @@ Test the formatting
 
     BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
-Switch to XML formatting
+next, let's update the agent to use XML formatting instead 
+
+this is a very popular format for passing data to a model,
+
+among other things, because of the token efficiency of XML.
+
 
     cp ./walkthrough/07b-agent.ts src/agent.ts
 
-Test XML formatting
+let's try it out
+
 
     BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
-Update tests for XML format
+lets update our tests to match the new output format
+
 
     cp ./walkthrough/07c-agent.baml baml_src/agent.baml
 
-Run the tests
+check out the updated tests
+
 
     npx baml-cli test
 
@@ -253,6 +410,10 @@ Run the tests
 # Chapter 8 - Adding API Endpoints
 
 Add an Express server to expose the agent via HTTP.
+
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
 
 Install Express and types
 
@@ -272,16 +433,32 @@ Test with curl (in another terminal)
   -H "Content-Type: application/json" \
   -d '{"message":"can you add 3 and 4"}'
 
+You should get an answer from the agent which includes the
+agentic trace, ending in a message like: 
+
+
+    {"intent":"done_for_now","message":"The sum of 3 and 4 is 7."}
+
 
 # Chapter 9 - In-Memory State and Async Clarification
 
 Add state management and async clarification support.
 
-Add state management
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
+
+Add some simple in-memory state management for threads
 
     cp ./walkthrough/09-state.ts src/state.ts
 
-Update server with state support
+update the server to use the state management
+
+* Add thread state management using `ThreadStore`
+* return thread IDs and response URLs from the /thread endpoint
+* implement GET /thread/:id 
+* implement POST /thread/:id/response
+
 
     cp ./walkthrough/09-server.ts src/server.ts
 
@@ -300,11 +477,21 @@ Test clarification flow
 
 Add support for human approval of operations.
 
-Update server with approval flow
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
+
+update the server to handle human approvals
+
+* Import `handleNextStep` to execute approved actions
+* Add two payload types to distinguish approvals from responses
+* Handle responses and approvals differently in the endpoint
+* Show better error messages when things go wrongs
+
 
     cp ./walkthrough/10-server.ts src/server.ts
 
-Update agent with approval checks
+Add a few methods to the agent to handle approvals and responses
 
     cp ./walkthrough/10-agent.ts src/agent.ts
 
@@ -398,36 +585,154 @@ you should see the final message includes the tool response and final result!
 }
 
 
-# Chapter 11 - Human Approval with HumanLayer
+# Chapter 11 - Human Approvals over email
 
-Integrate with HumanLayer for approvals.
+in this section, we'll add support for human approvals over email.
+
+This will start a little bit contrived, just to get the concepts down - 
+
+We'll start by invoking the workflow from the CLI but approvals for `divide`
+and `request_more_information` will be handled over email,
+then the final `done_for_now` answer will be printed back to the CLI
+
+While contrived, this is a great example of the flexibility you get from
+[factor 7 - contact humans with tools](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md)
+
+
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
 
 Install HumanLayer
 
     npm install humanlayer
 
-Update agent with HumanLayer integration
-
-    cp ./walkthrough/11-agent.ts src/agent.ts
-
-Update CLI with HumanLayer support
+Update CLI to send `divide` and `request_more_information` to a human via email
 
     cp ./walkthrough/11-cli.ts src/cli.ts
 
 Run the CLI
 
-    npx tsx src/index.ts 'can divide 4 by 5'
+    npx tsx src/index.ts 'can you divide 4 by 5'
+
+The last line of your program should mention human review step
+
+    nextStep { intent: 'divide', a: 4, b: 5 }
+HumanLayer: Requested human approval from HumanLayer cloud
+
+go ahead and respond to the email with some feedback:
+
+![reject-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-reject.png?raw=true)
 
 
-# Chapter 12 - HumanLayer Webhook Integration
+you should get another email with an updated attempt based on your feedback!
 
-Add webhook support for HumanLayer.
+You can go ahead and approve this one:
 
-Update server with webhook support
+![appove-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-approve.png?raw=true)
 
-    cp ./walkthrough/12-server.ts src/server.ts
 
-Start the server
+and your final output will look like
+
+    nextStep {
+ intent: 'done_for_now',
+ message: 'The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!'
+}
+The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!
+
+lets implement the `request_more_information` flow as well
+
+
+    cp ./walkthrough/11b-cli.ts src/cli.ts
+
+lets test the require_approval flow as by asking for a calculation
+with garbled input:
+
+
+    npx tsx src/index.ts 'can you multiply 4 and xyz'
+
+You should get an email with a request for clarification
+
+    Can you clarify what 'xyz' represents in this context? Is it a specific number, variable, or something else?
+
+you can response with something like
+
+    use 8 instead of xyz
+
+you should see a final result on the CLI like
+
+    I have multiplied 4 and xyz, using the value 8 for xyz, resulting in 32.
+
+as a final step, lets explore using a custom html template for the email
+
+
+    cp ./walkthrough/11c-cli.ts src/cli.ts
+
+first try with divide:
+
+
+    npx tsx src/index.ts 'can you divide 4 by 5'
+
+you should see a slightly different email with the custom template
+
+![custom-template-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-custom.png?raw=true)
+
+feel free to run with the flow and then you can try updating the template to your liking
+
+(if you're using cursor, something as simple as highlighting the template and asking to "make it better"
+should do the trick)
+
+try triggering "request_more_information" as well!
+
+
+thats it - in the next chapter, we'll build a fully email-driven 
+workflow agent that uses webhooks for human approval 
+
+
+
+# Chapter XX - HumanLayer Webhook Integration
+
+the previous sections used the humanlayer SDK in "synchronous mode" - that 
+means every time we wait for human approval, we sit in a loop 
+polling until the human response if received.
+
+That's obviously not ideal, especially for production workloads,
+so in this section we'll implement [factor 6 - launch / pause / resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)
+by updating the server to end processing after contacting a human, and use webhooks to receive the results. 
+
+
+add code to initialize humanlayer in the server
+
+
+    cp ./walkthrough/12-1-server-init.ts src/server.ts
+
+next, lets update the /thread endpoint to 
+  
+1. handle requests asynchronously, returning immediately
+2. create a human contact on request_more_information and done_for_now calls
+
+
+Update the server to be able to handle request_clarification responses
+
+- remove the old /response endpoint and types
+- update the /thread endpoint to run processing asynchronously, return immediately
+- send a state.threadId when requesting human responses
+- add a handleHumanResponse function to process the human response
+- add a /webhook endpoint to handle the webhook response
+
+
+    cp ./walkthrough/12a-server.ts src/server.ts
+
+Start the server in another terminal
 
     npx tsx src/server.ts
+
+now that the server is running, send a payload to the '/thread' endpoint
+
+
+__ do the response step
+
+__ now handle approvals for divide
+
+__ now also handle done_for_now
 

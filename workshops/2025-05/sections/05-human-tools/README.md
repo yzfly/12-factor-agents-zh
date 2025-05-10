@@ -1,8 +1,19 @@
 # Chapter 5 - Multiple Human Tools
 
-Add support for requesting clarification from humans.
+In this section, we'll add support for multiple tools that serve to 
+contact humans.
 
-Update agent with clarification support
+
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
+
+first, let's add a tool that can request clarification from a human 
+
+this will be different from the "done_for_now" tool,
+and can be used to more flexibly handle different types of human interactions
+in your agent.
+
 
 ```diff
 baml_src/agent.baml
@@ -41,11 +52,17 @@ baml_src/agent.baml
 
 </details>
 
-Generate updated client
+next, let's re-generate the client code
+
+NOTE - if you're using the VSCode extension for BAML,
+the client will be regenerated automatically when you save the file
+in your editor.
+
 
     npx baml-cli generate
 
-Update agent implementation
+now, let's update the agent to use the new tool
+
 
 ```diff
 src/agent.ts
@@ -73,7 +90,9 @@ src/agent.ts
 
 </details>
 
-Update CLI to handle clarification requests
+next, let's update the CLI to handle clarification requests
+by requesting input from the user on the CLI
+
 
 ```diff
 src/cli.ts
@@ -125,11 +144,14 @@ src/cli.ts
 
 </details>
 
-Test clarification flow
+let's try it out
+
 
     npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& '
 
-Add tests for clarification
+next, let's add a test that checks the agent's ability to handle
+a clarification request
+
 
 ```diff
 baml_src/agent.baml
@@ -173,11 +195,15 @@ baml_src/agent.baml
 
 </details>
 
-Run the tests
+and now we can run the tests again
+
 
     npx baml-cli test
 
-Fix hello world test
+you'll notice the new test passes, but the hello world test fails
+
+This is because the agent's default behavior is to return "done_for_now"
+
 
 ```diff
 baml_src/agent.baml
