@@ -134,9 +134,17 @@ sections:
     title: "Chapter 2 - Add Calculator Tools"
     text: "Let's add some calculator tools to our agent."
     steps:
-      - text: "Add calculator tools definition"
+      - text: |
+          Let's start by adding a tool definition for the calculator
+
+          These are simpile structured outputs that we'll ask the model to 
+          return as a "next step" in the agentic loop.
+
         file: {src: ./walkthrough/02-tool_calculator.baml, dest: baml_src/tool_calculator.baml}
-      - text: "Update agent to use calculator tools"
+      - text: |
+          Now, let's update the agent's DetermineNextStep method to
+          expose the calculator tools as potential next steps
+
         file: {src: ./walkthrough/02-agent.baml, dest: baml_src/agent.baml}
       - text: "Generate updated BAML client"
         command: |
@@ -145,31 +153,54 @@ sections:
       - text: "Try out the calculator"
         command: |
           npx tsx src/index.ts 'can you add 3 and 4'
+        results:
+          - text: "You should see a tool call to the calculator"
+            code: |
+              {
+                intent: 'add',
+                a: 3,
+                b: 4
+              }
 
   - name: tool-loop
     title: "Chapter 3 - Process Tool Calls in a Loop"
     text: "Now let's add a real agentic loop that can run the tools and get a final answer from the LLM."
     steps:
-      - text: "Update agent with tool handling"
+      - text: |
+          First, lets update the agent to handle the tool call
         file: {src: ./walkthrough/03-agent.ts, dest: src/agent.ts}
-      - text: "Try a simple calculation"
+      - text: |
+          Now, lets try it out
         command: |
           npx tsx src/index.ts 'can you add 3 and 4'
-      - text: "Turn off BAML logs for cleaner output"
+        results:
+          - text: you should see the agent call the tool and then return the result
+            code: |
+              {
+                intent: 'done_for_now',
+                message: 'The sum of 3 and 4 is 7.'
+              }
+      - text: "For the next step, we'll do a more complex calculation, let's turn off the baml logs for more concise output"
         command: |
           export BAML_LOG=off
       - text: "Try a multi-step calculation"
         command: |
           npx tsx src/index.ts 'can you add 3 and 4, then add 6 to that result'
-      - text: "Add handlers for all calculator tools"
+      - text: "you'll notice that tools like multiply and divide are not available"
+        command: |
+          npx tsx src/index.ts 'can you multiply 3 and 4'
+      - text: |
+          next, let's add handlers for the rest of the calculator tools
         file: {src: ./walkthrough/03b-agent.ts, dest: src/agent.ts}
       - text: "Test subtraction"
         command: |
           npx tsx src/index.ts 'can you subtract 3 from 4'
-      - text: "Test multiplication"
+      - text: |
+          now, let's test the multiplication tool
         command: |
           npx tsx src/index.ts 'can you multiply 3 and 4'
-      - text: "Test a complex calculation"
+      - text: |
+          finally, let's test a more complex calculation with multiple operations
         command: |
           npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
@@ -180,12 +211,22 @@ sections:
       - text: to start, leave the baml logs enabled
         command: |
           export BAML_LOG=debug
-      - text: "Update agent with tests"
+      - text: |
+          next, let's add some tests to the agent
+
+          We'll start with a simple test that checks the agent's ability to handle
+          a basic calculation.
+          
         file: {src: ./walkthrough/04-agent.baml, dest: baml_src/agent.baml}
       - text: "Run the tests"
         command: |
           npx baml-cli test
-      - text: "Add more complex test cases"
+      - text: |
+          now, let's improve the test with assertions!
+
+          Assertions are a great way to make sure the agent is working as expected,
+          and can easily be extended to check for more complex behavior.
+
         file: {src: ./walkthrough/04b-agent.baml, dest: baml_src/agent.baml}
       - text: "Run the tests"
         command: |
@@ -195,38 +236,76 @@ sections:
           You may want to turn them on as you iterate on specific tests.
         command: |
           export BAML_LOG=off
-      - text: "Add more complex test cases"
+      - text: |
+          now, let's add some more complex test cases,
+          where we resume from in the middle of an in-progress
+          agentic context window
+
+          
         file: {src: ./walkthrough/04c-agent.baml, dest: baml_src/agent.baml}
-      - text: "Run the expanded test suite"
+      - text: |
+          let's try to run it
         command: |
           npx baml-cli test
 
   - name: human-tools
     title: "Chapter 5 - Multiple Human Tools"
-    text: "Add support for requesting clarification from humans."
+    text: |
+      In this section, we'll add support for multiple tools that serve to 
+      contact humans.
+
+
+      
     steps:
       - text: "for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details."
         command: |
           export BAML_LOG=off
-      - text: "Update agent with clarification support"
+      - text: |
+          first, let's add a tool that can request clarification from a human 
+
+          this will be different from the "done_for_now" tool,
+          and can be used to more flexibly handle different types of human interactions
+          in your agent.
+
         file: {src: ./walkthrough/05-agent.baml, dest: baml_src/agent.baml}
-      - text: "Generate updated client"
+      - text: |
+          next, let's re-generate the client code
+
+          NOTE - if you're using the VSCode extension for BAML,
+          the client will be regenerated automatically when you save the file
+          in your editor.
+
         command: |
           npx baml-cli generate
         incremental: true
-      - text: "Update agent implementation"
+      - text: |
+          now, let's update the agent to use the new tool
+
         file: {src: ./walkthrough/05-agent.ts, dest: src/agent.ts}
-      - text: "Update CLI to handle clarification requests"
+      - text: |
+          next, let's update the CLI to handle clarification requests
+          by requesting input from the user on the CLI
+
         file: {src: ./walkthrough/05-cli.ts, dest: src/cli.ts}
-      - text: "Test clarification flow"
+      - text: |
+          let's try it out
+
         command: |
           npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& '
-      - text: "Add tests for clarification"
+      - text: |
+          next, let's add a test that checks the agent's ability to handle
+          a clarification request
+          
         file: {src: ./walkthrough/05b-agent.baml, dest: baml_src/agent.baml}
-      - text: "Run the tests"
+      - text: |
+          and now we can run the tests again
         command: |
           npx baml-cli test
-      - text: "Fix hello world test"
+      - text: |
+          you'll notice the new test passes, but the hello world test fails
+
+          This is because the agent's default behavior is to return "done_for_now"
+
         file: {src: ./walkthrough/05c-agent.baml, dest: baml_src/agent.baml}
       - text: "Verify tests pass"
         command: |
@@ -337,7 +416,7 @@ sections:
           * Show better error messages when things go wrongs
 
         file: {src: ./walkthrough/10-server.ts, dest: src/server.ts}
-      - text: "Add a few methods to the agent to "
+      - text: "Add a few methods to the agent to handle approvals and responses"
         file: {src: ./walkthrough/10-agent.ts, dest: src/agent.ts}
       - text: "Start the server"
         command: |
@@ -537,7 +616,7 @@ sections:
           1. handle requests asynchronously, returning immediately
           2. create a human contact on request_more_information and done_for_now calls
 
-        file: {src: }
+        # file: {src: }
       - text: |
           Update the server to be able to handle request_clarification responses
 
