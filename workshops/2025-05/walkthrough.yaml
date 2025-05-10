@@ -338,7 +338,10 @@ sections:
           npx tsx src/index.ts 'can you multiply 3 and 4'
         results:
           - text: you should see output from the baml logs showing the reasoning steps
+      - text: |
+           #### optional challenge 
 
+           add a field to your tool output format that includes the reasoning steps in the output!
 
   - name: context-window
     title: "Chapter 7 - Customize Your Context Window"
@@ -356,14 +359,22 @@ sections:
         command: |
           BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
       - text: |
-          next, let's update the agent to use XML formatting
+          next, let's update the agent to use XML formatting instead 
+
+          this is a very popular format for passing data to a model,
+
+          among other things, because of the token efficiency of XML.
+
         file: {src: ./walkthrough/07b-agent.ts, dest: src/agent.ts}
-      - text: "Test XML formatting"
+      - text: |
+          let's try it out
         command: |
           BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
-      - text: "Update tests for XML format"
+      - text: |
+          lets update our tests to match the new output format
         file: {src: ./walkthrough/07c-agent.baml, dest: baml_src/agent.baml}
-      - text: "Run the tests"
+      - text: |
+          check out the updated tests
         command: |
           npx baml-cli test
 
