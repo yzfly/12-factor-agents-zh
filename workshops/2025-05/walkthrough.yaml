@@ -302,9 +302,15 @@ sections:
       - text: "for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details."
         command: |
           export BAML_LOG=off
-      - text: "Add state management"
+      - text: "Add some simple in-memory state management for threads"
         file: {src: ./walkthrough/09-state.ts, dest: src/state.ts}
-      - text: "Update server with state support"
+      - text: |
+          update the server to use the state management
+
+          * Add thread state management using `ThreadStore`
+          * return thread IDs and response URLs from the /thread endpoint
+          * implement GET /thread/:id 
+          * implement POST /thread/:id/response
         file: {src: ./walkthrough/09-server.ts, dest: src/server.ts}
       - text: "Start the server"
         command: |
@@ -322,7 +328,14 @@ sections:
       - text: "for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details."
         command: |
           export BAML_LOG=off
-      - text: "Update server with approval flow"
+      - text: |
+          update the server to handle human approvals
+
+          * Import `handleNextStep` to execute approved actions
+          * Add two payload types to distinguish approvals from responses
+          * Handle responses and approvals differently in the endpoint
+          * Show better error messages when things go wrongs
+
         file: {src: ./walkthrough/10-server.ts, dest: src/server.ts}
       - text: "Add a few methods to the agent to "
         file: {src: ./walkthrough/10-agent.ts, dest: src/agent.ts}
