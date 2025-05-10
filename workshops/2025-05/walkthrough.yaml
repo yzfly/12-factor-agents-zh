@@ -313,28 +313,50 @@ sections:
 
   - name: customize-prompt
     title: "Chapter 6 - Customize Your Prompt with Reasoning"
-    text: "Improve the agent's prompting by adding reasoning steps."
+    text: |
+      In this section, we'll explore how to customize the prompt of the agent
+      with reasoning steps.
+
+      this is core to [factor 2 - own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
+
+      there's a deep dive on reasoning on AI That Works [reasoning models versus reasoning steps](https://github.com/hellovai/ai-that-works/tree/main/2025-04-07-reasoning-models-vs-prompts)
+      
     steps:
       - text: "for this section, it will be helpful to leave the baml logs enabled"
         command: |
           export BAML_LOG=debug
-      - text: "Update agent with reasoning steps"
+      - text: |
+          update the agent prompt to include a reasoning step
         file: {src: ./walkthrough/06-agent.baml, dest: baml_src/agent.baml}
-      - text: "Generate updated client"
+      - text: generate the updated client
         command: |
           npx baml-cli generate
         incremental: true
+      - text: | 
+          now, you can try it out with a simple prompt
+        command: |
+          npx tsx src/index.ts 'can you multiply 3 and 4'
+        results:
+          - text: you should see output from the baml logs showing the reasoning steps
+
 
   - name: context-window
     title: "Chapter 7 - Customize Your Context Window"
-    text: "Improve the context window formatting."
+    text: |
+      In this section, we'll explore how to customize the context window
+      of the agent.
+
+      this is core to [factor 3 - own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
+      
     steps:
-      - text: "Update agent with better JSON formatting"
+      - text: |
+          update the agent to pretty-print the Context window for the model
         file: {src: ./walkthrough/07-agent.ts, dest: src/agent.ts}
       - text: "Test the formatting"
         command: |
           BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
-      - text: "Switch to XML formatting"
+      - text: |
+          next, let's update the agent to use XML formatting
         file: {src: ./walkthrough/07b-agent.ts, dest: src/agent.ts}
       - text: "Test XML formatting"
         command: |
