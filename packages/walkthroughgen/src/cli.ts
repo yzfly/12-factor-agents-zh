@@ -136,7 +136,7 @@ function generateSectionMarkdown(section: Section): string {
         for (const result of step.results) {
           markdown += `${result.text}\n\n`;
           if (result.code) {
-            markdown += `    ${result.code.trim()}\n\n`;
+            markdown += result.code.trim().split('\n').map(line => `    ${line}`).join('\n') + '\n\n';
           }
         }
       }
@@ -326,14 +326,14 @@ function generateRichSectionMarkdown(
       }
 
       if (step.command) {
-        markdown += `    ${step.command.trim()}\n\n`;
+        markdown += step.command.trim().split('\n').map(line => `    ${line}`).join('\n') + '\n\n';
       }
 
       if (step.results) {
         for (const result of step.results) {
           markdown += `${result.text}\n\n`;
           if (result.code) {
-            markdown += `    ${result.code.trim()}\n\n`;
+            markdown += result.code.trim().split('\n').map(line => `    ${line}`).join('\n') + '\n\n';
           }
         }
       }
@@ -565,9 +565,7 @@ OPTIONS:
               for (const result of step.results) {
                 markdown += `${result.text}\n\n`;
                 if (result.code) {
-                  let codeLine = `    ${result.code.trim()}`;
-                  markdown += codeLine;
-                  markdown += "\n\n";
+                  markdown += result.code.trim().split('\n').map(line => `    ${line}`).join('\n') + '\n\n';
                 }
               }
             }

@@ -127,6 +127,7 @@ sections:
 
               client "openai/gpt-4o"
           
+      - text: Set your env vars
         command: |
           export BASETEN_API_KEY=...
           export BASETEN_BASE_URL=...
