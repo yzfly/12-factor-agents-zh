@@ -2,7 +2,15 @@
 
 Let's add some tests to our BAML agent.
 
-Update agent with tests
+to start, leave the baml logs enabled
+
+    export BAML_LOG=debug
+
+next, let's add some tests to the agent
+
+We'll start with a simple test that checks the agent's ability to handle
+a basic calculation.
+
 
 ```diff
 baml_src/agent.baml
@@ -34,7 +42,11 @@ Run the tests
 
     npx baml-cli test
 
-Add more complex test cases
+now, let's improve the test with assertions!
+
+Assertions are a great way to make sure the agent is working as expected,
+and can easily be extended to check for more complex behavior.
+
 
 ```diff
 baml_src/agent.baml
@@ -61,7 +73,16 @@ Run the tests
 
     npx baml-cli test
 
-Add more complex test cases
+as you add more tests, you can disable the logs to keep the output clean. 
+You may want to turn them on as you iterate on specific tests.
+
+
+    export BAML_LOG=off
+
+now, let's add some more complex test cases,
+where we resume from in the middle of an in-progress
+agentic context window
+
 
 ```diff
 baml_src/agent.baml
@@ -138,7 +159,8 @@ baml_src/agent.baml
 
 </details>
 
-Run the expanded test suite
+let's try to run it
+
 
     npx baml-cli test
 

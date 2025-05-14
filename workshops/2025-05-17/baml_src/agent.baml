@@ -16,7 +16,7 @@ function DetermineNextStep(
 ) -> DoneForNow {
     client Qwen3
 
-    // use /nothink for now because the thinking tokens screw with baml
+    // use /nothink for now because the thinking tokens (or streaming thereof) screw with baml (i think (no pun intended))
     prompt #"
         {{ _.role("system") }}
 

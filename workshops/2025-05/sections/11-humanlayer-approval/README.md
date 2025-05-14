@@ -1,31 +1,26 @@
-# Chapter 11 - Human Approval with HumanLayer
+# Chapter 11 - Human Approvals over email
 
-Integrate with HumanLayer for approvals.
+in this section, we'll add support for human approvals over email.
+
+This will start a little bit contrived, just to get the concepts down - 
+
+We'll start by invoking the workflow from the CLI but approvals for `divide`
+and `request_more_information` will be handled over email,
+then the final `done_for_now` answer will be printed back to the CLI
+
+While contrived, this is a great example of the flexibility you get from
+[factor 7 - contact humans with tools](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md)
+
+
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
 
 Install HumanLayer
 
     npm install humanlayer
 
-Update agent with HumanLayer integration
-
-```diff
-src/agent.ts
-             case "done_for_now":
-             case "request_more_information":
--                // response to human, return the thread
-+                // response to human, return the next step object
-                 return thread;
-             case "divide":
-```
-
-<details>
-<summary>skip this step</summary>
-
-    cp ./walkthrough/11-agent.ts src/agent.ts
-
-</details>
-
-Update CLI with HumanLayer support
+Update CLI to send `divide` and `request_more_information` to a human via email
 
 ```diff
 src/cli.ts
@@ -50,18 +45,11 @@ src/cli.ts
 -        thread.events.push({ type: "human_response", data: message });
 -        const result = await agentLoop(thread);
 -        lastEvent = result.events.slice(-1)[0];
-+    let needsResponse = 
-+        newThread.awaitingHumanResponse() ||
-+        newThread.awaitingHumanApproval();
-+
-+    while (needsResponse) {
-+        lastEvent = newThread.events.slice(-1)[0];
++    while (lastEvent.data.intent !== "done_for_now") {
 +        const responseEvent = await askHuman(lastEvent);
 +        thread.events.push(responseEvent);
 +        newThread = await agentLoop(thread);
-+        // determine if we should loop or if we're done
-+        needsResponse = newThread.awaitingHumanResponse() 
-+            || newThread.awaitingHumanApproval();
++        lastEvent = newThread.events.slice(-1)[0];
      }
  
      // print the final result
@@ -95,7 +83,8 @@ src/cli.ts
 +    }
 +    const hl = humanlayer({ //reads apiKey from env
 +        // name of this agent
-+        runId: "cli-agent",
++        runId: "12fa-cli-agent",
++        verbose: true,
 +        contactChannel: {
 +            // agent should request permission via email
 +            email: {
@@ -104,20 +93,8 @@ src/cli.ts
 +        }
 +    }) 
 +
-+    if (lastEvent.data.intent === "request_more_information") {
-+        const response = await hl.fetchHumanResponse({
-+            spec: {
-+                msg: lastEvent.data.message
-+            }
-+        })
-+        return {
-+            "type": "tool_response",
-+            "data": response
-+        }
-+    }
-+    
 +    if (lastEvent.data.intent === "divide") {
-+        // fetch approval synchronously
++        // fetch approval synchronously - this will block until reply
 +        const response = await hl.fetchHumanApproval({
 +            spec: {
 +                fn: "divide",
@@ -138,7 +115,8 @@ src/cli.ts
 +        } else {
 +            return {
 +                "type": "tool_response",
-+                "data": `user denied operation ${lastEvent.data.intent}`
++                "data": `user denied operation ${lastEvent.data.intent}
++                with feedback: ${response.comment}`
 +            };
 +        }
 +    }
@@ -155,5 +133,127 @@ src/cli.ts
 
 Run the CLI
 
-    npx tsx src/index.ts 'can divide 4 by 5'
+    npx tsx src/index.ts 'can you divide 4 by 5'
+
+The last line of your program should mention human review step
+
+    nextStep { intent: 'divide', a: 4, b: 5 }
+HumanLayer: Requested human approval from HumanLayer cloud
+
+go ahead and respond to the email with some feedback:
+
+![reject-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-reject.png?raw=true)
+
+
+you should get another email with an updated attempt based on your feedback!
+
+You can go ahead and approve this one:
+
+![appove-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-approve.png?raw=true)
+
+
+and your final output will look like
+
+    nextStep {
+ intent: 'done_for_now',
+ message: 'The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!'
+}
+The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!
+
+lets implement the `request_more_information` flow as well
+
+
+```diff
+src/cli.ts
+     }) 
+ 
++    if (lastEvent.data.intent === "request_more_information") {
++        // fetch response synchronously - this will block until reply
++        const response = await hl.fetchHumanResponse({
++            spec: {
++                msg: lastEvent.data.message
++            }
++        })
++        return {
++            "type": "tool_response",
++            "data": response
++        }
++    }
++    
+     if (lastEvent.data.intent === "divide") {
+         // fetch approval synchronously - this will block until reply
+```
+
+<details>
+<summary>skip this step</summary>
+
+    cp ./walkthrough/11b-cli.ts src/cli.ts
+
+</details>
+
+lets test the require_approval flow as by asking for a calculation
+with garbled input:
+
+
+    npx tsx src/index.ts 'can you multiply 4 and xyz'
+
+You should get an email with a request for clarification
+
+    Can you clarify what 'xyz' represents in this context? Is it a specific number, variable, or something else?
+
+you can response with something like
+
+    use 8 instead of xyz
+
+you should see a final result on the CLI like
+
+    I have multiplied 4 and xyz, using the value 8 for xyz, resulting in 32.
+
+as a final step, lets explore using a custom html template for the email
+
+
+```diff
+src/cli.ts
+             email: {
+                 address: process.env.HUMANLAYER_EMAIL,
++                // custom email body - jinja
++                template: `{% if type == 'request_more_information' %}
++{{ event.spec.msg }}
++{% else %}
++agent {{ event.run_id }} is requesting approval for {{event.spec.fn}}
++with args: {{event.spec.kwargs}}
++<br><br>
++reply to this email to approve
++{% endif %}`
+             }
+         }
+```
+
+<details>
+<summary>skip this step</summary>
+
+    cp ./walkthrough/11c-cli.ts src/cli.ts
+
+</details>
+
+first try with divide:
+
+
+    npx tsx src/index.ts 'can you divide 4 by 5'
+
+you should see a slightly different email with the custom template
+
+![custom-template-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-custom.png?raw=true)
+
+feel free to run with the flow and then you can try updating the template to your liking
+
+(if you're using cursor, something as simple as highlighting the template and asking to "make it better"
+should do the trick)
+
+try triggering "request_more_information" as well!
+
+
+thats it - in the next chapter, we'll build a fully email-driven 
+workflow agent that uses webhooks for human approval 
+
 

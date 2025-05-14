@@ -34,7 +34,7 @@ function DetermineNextStep(
 
         {{ ctx.output_format }}
 
-        Always think about what to do next first, like:
+        First, always plan out what to do next, for example:
 
         - ...
         - ...

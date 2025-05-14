@@ -9,6 +9,7 @@
     "dependencies": {
         "baml": "^0.0.0",
         "express": "^5.1.0",
+        "humanlayer": "^0.7.7",
         "tsx": "^4.15.0",
         "typescript": "^5.0.0"
     },

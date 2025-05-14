@@ -2,7 +2,11 @@
 
 Let's add some calculator tools to our agent.
 
-Add calculator tools definition
+Let's start by adding a tool definition for the calculator
+
+These are simpile structured outputs that we'll ask the model to 
+return as a "next step" in the agentic loop.
+
 
     cp ./walkthrough/02-tool_calculator.baml baml_src/tool_calculator.baml
 
@@ -41,7 +45,9 @@ class DivideTool {
 
 </details>
 
-Update agent to use calculator tools
+Now, let's update the agent's DetermineNextStep method to
+expose the calculator tools as potential next steps
+
 
 ```diff
 baml_src/agent.baml
@@ -67,4 +73,12 @@ Generate updated BAML client
 Try out the calculator
 
     npx tsx src/index.ts 'can you add 3 and 4'
+
+You should see a tool call to the calculator
+
+    {
+  intent: 'add',
+  a: 3,
+  b: 4
+}
 

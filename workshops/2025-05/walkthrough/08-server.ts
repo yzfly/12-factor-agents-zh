@@ -3,6 +3,7 @@ import { Thread, agentLoop } from '../src/agent';
 
 const app = express();
 app.use(express.json());
+app.set('json spaces', 2);
 
 // POST /thread - Start new thread
 app.post('/thread', async (req, res) => {

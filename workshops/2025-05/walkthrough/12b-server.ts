@@ -1,6 +1,7 @@
 import express from 'express';
 import { Thread, agentLoop, handleNextStep } from '../src/agent';
 import { ThreadStore } from '../src/state';
+import { V1Beta2EmailEventReceived, V1Beta2FunctionCallCompleted, V1Beta2HumanContactCompleted } from 'humanlayer';
 
 const app = express();
 app.use(express.json());
@@ -92,16 +93,46 @@ app.post('/thread/:id/response', async (req, res) => {
 
     
     // loop until stop event
-    const newThread = await agentLoop(thread);
+    const result = await agentLoop(thread);
 
-    store.update(req.params.id, newThread);
+    store.update(req.params.id, result);
 
-    lastEvent = newThread.events[newThread.events.length - 1];
+    lastEvent = result.events[result.events.length - 1];
     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
 
     console.log("returning last event from endpoint", lastEvent);
     
-    res.json(newThread);
+    res.json(result);
+});
+
+type WebhookResponse = V1Beta2HumanContactCompleted;
+
+app.post('/webhook/response', async (req, res) => {
+    console.log("webhook response", req.body);
+    const response = req.body as WebhookResponse;
+
+    // response is guaranteed to be set on a webhook
+    const humanResponse: string = response.event.status?.response as string;
+
+    const threadId = response.event.spec.state?.thread_id;
+    if (!threadId) {
+        return res.status(400).json({ error: "Thread ID not found" });
+    }
+
+    const thread = store.get(threadId);
+    if (!thread) {
+        return res.status(404).json({ error: "Thread not found" });
+    }
+
+    if (!thread.awaitingHumanResponse()) {
+        return res.status(400).json({ error: "Thread is not awaiting human response" });
+    }
+
+    thread.events.push({
+        type: "human_response",
+        data: response.event.status?.response
+    });
+
 });
 
 const port = process.env.PORT || 3000;
