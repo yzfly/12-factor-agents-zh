@@ -1,0 +1,111 @@
+title: "Building the 12-factor agent template from scratch"
+text: "Steps to start from a bare TS repo and build up a 12-factor agent. This walkthrough will guide you through creating a TypeScript agent that follows the 12-factor methodology."
+
+targets:
+  - markdown: "./build/walkthrough.md"
+    onChange:
+      diff: true
+      cp: true
+    newFiles:
+      cat: false
+      cp: true
+  - folders:
+      path: "./build/sections"
+      skip:
+        - "cleanup"
+      final:
+        dirName: "final"
+
+sections:
+  - name: cleanup
+    title: "Cleanup"
+    text: "Make sure you're starting from a clean slate"
+    steps:
+      - text: "Clean up existing files"
+        command: |
+          rm -rf baml_src/ && rm -rf src/
+
+  - name: hello-world
+    title: "Chapter 0 - Hello World"
+    text: "Let's start with a basic TypeScript setup and a hello world program."
+    steps:
+      - text: "Copy initial package.json"
+        file: {src: ./walkthrough/00-package.json, dest: package.json}
+      - text: "Install dependencies"
+        command: |
+          npm install
+        incremental: true
+      - text: "Copy tsconfig.json"
+        file: {src: ./walkthrough/00-tsconfig.json, dest: tsconfig.json}
+      - text: "add .gitignore"
+        file: {src: ./walkthrough/00-.gitignore, dest: .gitignore}
+      - text: "Create src folder"
+        dir: {create: true, path: src}
+      - text: "Add a simple hello world index.ts"
+        file: {src: ./walkthrough/00-index.ts, dest: src/index.ts}
+      - text: "Run it to verify"
+        command: |
+          npx tsx src/index.ts
+        results:
+          - text: "You should see:"
+            code: |
+              hello, world!
+
+  - name: cli-and-agent
+    title: "Chapter 1 - CLI and Agent Loop"
+    text: "Now let's add BAML and create our first agent with a CLI interface."
+    steps:
+      - text: "Install BAML"
+        command: |
+          npm i baml
+        incremental: true
+      - text: "Initialize BAML"
+        command: |
+          npx baml-cli init
+        incremental: true
+      - text: "Remove default resume.baml"
+        command: |
+          rm baml_src/resume.baml
+        incremental: true
+      - text: "Add our starter agent"
+        file: {src: ./walkthrough/01-agent.baml, dest: baml_src/agent.baml}
+      - text: "Generate BAML client code"
+        command: |
+          npx baml-cli generate
+        incremental: true
+      - text: "Enable BAML logging for development"
+        command: |
+          export BAML_LOG=debug
+      - text: "Add the CLI interface"
+        file: {src: ./walkthrough/01-cli.ts, dest: src/cli.ts}
+      - text: "Update index.ts to use the CLI"
+        file: {src: ./walkthrough/01-index.ts, dest: src/index.ts}
+      - text: "Add the agent implementation"
+        file: {src: ./walkthrough/01-agent.ts, dest: src/agent.ts}
+      - text: "Try it out"
+        command: |
+          npx tsx src/index.ts hello
+
+  - name: calculator-tools
+    title: "Chapter 2 - Add Calculator Tools"
+    text: |
+      Let's add some calculator tools to our agent.
+
+      We'll start by adding a tool definition, then update the agent to use it, and finally try it out.
+    steps:
+      - text: "Add calculator tools definition"
+        file: {src: ./walkthrough/02-tool_calculator.baml, dest: baml_src/tool_calculator.baml}
+      - text: "Update agent to use calculator tools"
+        file: {src: ./walkthrough/02-agent.baml, dest: baml_src/agent.baml}
+      - text: "Generate updated BAML client"
+        command: |
+          npx baml-cli generate
+        incremental: true
+      - text: "Try out the calculator"
+        command: |
+          npx tsx src/index.ts 'can you add 3 and 4'
+        results:
+          - text: "You should see: output like"
+            code: |
+              { "intent": "add", "a": 3, "b": 4}
+          - text: note that there won't be any result here, yet, we're just illustrating
