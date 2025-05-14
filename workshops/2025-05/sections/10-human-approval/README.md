@@ -2,7 +2,17 @@
 
 Add support for human approval of operations.
 
-Update server with approval flow
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
+
+update the server to handle human approvals
+
+* Import `handleNextStep` to execute approved actions
+* Add two payload types to distinguish approvals from responses
+* Handle responses and approvals differently in the endpoint
+* Show better error messages when things go wrongs
+
 
 ```diff
 src/server.ts
@@ -11,33 +21,6 @@ src/server.ts
 +import { Thread, agentLoop, handleNextStep } from '../src/agent';
  import { ThreadStore } from '../src/state';
  
-     
-     const threadId = store.create(thread);
--    const result = await agentLoop(thread);
-+    const newThread = await agentLoop(thread);
-     
--    // If clarification is needed, include the response URL
--    const lastEvent = result.events[result.events.length - 1];
--    if (lastEvent.data.intent === 'request_more_information') {
--        lastEvent.data.response_url = `/thread/${threadId}/response`;
--    }
--    
--    store.update(threadId, result);
-+    store.update(threadId, newThread);
-+
-+    const lastEvent = newThread.events[newThread.events.length - 1];
-+    // If we exited the loop, include the response URL so the client can
-+    // push a new message onto the thread
-+    lastEvent.data.response_url = `/thread/${threadId}/response`;
-+
-+    console.log("returning last event from endpoint", lastEvent);
-+
-     res.json({ 
-         thread_id: threadId,
--        ...result 
-+        ...newThread 
-     });
- });
  });
  
 +
@@ -56,23 +39,8 @@ src/server.ts
 +
  // POST /thread/:id/response - Handle clarification response
  app.post('/thread/:id/response', async (req, res) => {
--    const thread = store.get(req.params.id);
-+    let thread = store.get(req.params.id);
-     if (!thread) {
          return res.status(404).json({ error: "Thread not found" });
      }
--    
--    thread.events.push({
--        type: "human_response",
--        data: req.body.message
--    });
--    
--    const result = await agentLoop(thread);
--    
--    // If another clarification is needed, include the response URL
--    const lastEvent = result.events[result.events.length - 1];
--    if (lastEvent.data.intent === 'request_more_information') {
--        lastEvent.data.response_url = `/thread/${req.params.id}/response`;
 +
 +    const body: Payload = req.body;
 +
@@ -99,21 +67,22 @@ src/server.ts
 +            awaitingHumanApproval: thread.awaitingHumanApproval()
 +        });
 +        return;
-     }
++    }
 +
      
-+    // loop until stop event
-+    const result = await agentLoop(thread);
-+
-     store.update(req.params.id, result);
-+
-+    lastEvent = result.events[result.events.length - 1];
-+    lastEvent.data.response_url = `/thread/${req.params.id}/response`;
-+
-+    console.log("returning last event from endpoint", lastEvent);
-+    
-     res.json(result);
- });
+-    thread.events.push({
+-        type: "human_response",
+-        data: req.body.message
+-    });
+-    
+     // loop until stop event
+     const newThread = await agentLoop(thread);
+     store.update(req.params.id, newThread);
+ 
+-    const lastEvent = newThread.events[newThread.events.length - 1];
++    lastEvent = newThread.events[newThread.events.length - 1];
+     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
+ 
 ```
 
 <details>
@@ -123,7 +92,7 @@ src/server.ts
 
 </details>
 
-Update agent with approval checks
+Add a few methods to the agent to handle approvals and responses
 
 ```diff
 src/agent.ts

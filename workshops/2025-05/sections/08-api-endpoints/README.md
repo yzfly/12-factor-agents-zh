@@ -2,6 +2,10 @@
 
 Add an Express server to expose the agent via HTTP.
 
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
+
 Install Express and types
 
     npm install express && npm install --save-dev @types/express supertest
@@ -20,6 +24,7 @@ import { Thread, agentLoop } from '../src/agent';
 
 const app = express();
 app.use(express.json());
+app.set('json spaces', 2);
 
 // POST /thread - Start new thread
 app.post('/thread', async (req, res) => {
@@ -56,4 +61,10 @@ Test with curl (in another terminal)
     curl -X POST http://localhost:3000/thread \
   -H "Content-Type: application/json" \
   -d '{"message":"can you add 3 and 4"}'
+
+You should get an answer from the agent which includes the
+agentic trace, ending in a message like: 
+
+
+    {"intent":"done_for_now","message":"The sum of 3 and 4 is 7."}
 

@@ -1,0 +1,6 @@
+baml_src/*.baml
+src/*.ts
+package.json
+package-lock.json
+tsconfig.json
+build/

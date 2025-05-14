@@ -14,6 +14,23 @@ Clean up existing files
 
 Let's start with a basic TypeScript setup and a hello world program.
 
+This guide is written in TypeScript (yes, a python version is coming soon)
+
+There are many checkpoints between the every file edit in theworkshop steps, 
+so even if you aren't super familiar with typescript,
+you should be able to keep up and run each example.
+
+To run this guide, you'll need a relatively recent version of nodejs and npm installed
+
+You can use whatever nodejs version manager you want, [homebrew](https://formulae.brew.sh/formula/node) is fine
+
+
+    brew install node@20
+
+You should see the node version
+
+    node --version
+
 Copy initial package.json
 
     cp ./walkthrough/00-package.json package.json
@@ -137,9 +154,11 @@ You should see:
 
 Now let's add BAML and create our first agent with a CLI interface.
 
-Install BAML
+First, we'll need to install [BAML](https://github.com/boundaryml/baml)
+which is a tool for prompting and structured outputs.
 
-    npm i baml
+
+    npm install @boundaryml/baml
 
 Initialize BAML
 
@@ -149,7 +168,7 @@ Remove default resume.baml
 
     rm baml_src/resume.baml
 
-Add our starter agent
+Add our starter agent, a single baml prompt that we'll build on
 
     cp ./walkthrough/01-agent.baml baml_src/agent.baml
 
@@ -204,7 +223,7 @@ Generate BAML client code
 
     npx baml-cli generate
 
-Enable BAML logging for development
+Enable BAML logging for this section
 
     export BAML_LOG=debug
 
@@ -310,15 +329,43 @@ export async function agentLoop(thread: Thread): Promise<AgentResponse> {
 
 </details>
 
+The the BAML code is configured to use OPENAI_API_KEY by default
+
+As you're testing, you can change the model / provider to something else
+as you please
+
+        client "openai/gpt-4o"
+
+[Docs on baml clients can be found here](https://docs.boundaryml.com/guide/baml-basics/switching-llms)
+
+For example, you can configure [gemini](https://docs.boundaryml.com/ref/llm-client-providers/google-ai-gemini) 
+or [anthropic](https://docs.boundaryml.com/ref/llm-client-providers/anthropic) as your model provider.
+
+If you want to run the example with no changes, you can set the OPENAI_API_KEY env var to any valid openai key.
+
+
+    export OPENAI_API_KEY=...
+
 Try it out
 
     npx tsx src/index.ts hello
+
+you should see a familiar response from the model
+
+    {
+  intent: 'done_for_now',
+  message: 'Hello! How can I assist you today?'
+}
 
 ## Chapter 2 - Add Calculator Tools
 
 Let's add some calculator tools to our agent.
 
-Add calculator tools definition
+Let's start by adding a tool definition for the calculator
+
+These are simpile structured outputs that we'll ask the model to 
+return as a "next step" in the agentic loop.
+
 
     cp ./walkthrough/02-tool_calculator.baml baml_src/tool_calculator.baml
 
@@ -357,7 +404,9 @@ class DivideTool {
 
 </details>
 
-Update agent to use calculator tools
+Now, let's update the agent's DetermineNextStep method to
+expose the calculator tools as potential next steps
+
 
 ```diff
 baml_src/agent.baml
@@ -384,11 +433,20 @@ Try out the calculator
 
     npx tsx src/index.ts 'can you add 3 and 4'
 
+You should see a tool call to the calculator
+
+    {
+  intent: 'add',
+  a: 3,
+  b: 4
+}
+
 ## Chapter 3 - Process Tool Calls in a Loop
 
 Now let's add a real agentic loop that can run the tools and get a final answer from the LLM.
 
-Update agent with tool handling
+First, lets update the agent to handle the tool call
+
 
 ```diff
 src/agent.ts
@@ -438,11 +496,19 @@ src/agent.ts
 
 </details>
 
-Try a simple calculation
+Now, lets try it out
+
 
     npx tsx src/index.ts 'can you add 3 and 4'
 
-Turn off BAML logs for cleaner output
+you should see the agent call the tool and then return the result
+
+    {
+  intent: 'done_for_now',
+  message: 'The sum of 3 and 4 is 7.'
+}
+
+For the next step, we'll do a more complex calculation, let's turn off the baml logs for more concise output
 
     export BAML_LOG=off
 
@@ -450,7 +516,12 @@ Try a multi-step calculation
 
     npx tsx src/index.ts 'can you add 3 and 4, then add 6 to that result'
 
-Add handlers for all calculator tools
+you'll notice that tools like multiply and divide are not available
+
+    npx tsx src/index.ts 'can you multiply 3 and 4'
+
+next, let's add handlers for the rest of the calculator tools
+
 
 ```diff
 src/agent.ts
@@ -548,11 +619,13 @@ Test subtraction
 
     npx tsx src/index.ts 'can you subtract 3 from 4'
 
-Test multiplication
+now, let's test the multiplication tool
+
 
     npx tsx src/index.ts 'can you multiply 3 and 4'
 
-Test a complex calculation
+finally, let's test a more complex calculation with multiple operations
+
 
     npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
@@ -560,7 +633,15 @@ Test a complex calculation
 
 Let's add some tests to our BAML agent.
 
-Update agent with tests
+to start, leave the baml logs enabled
+
+    export BAML_LOG=debug
+
+next, let's add some tests to the agent
+
+We'll start with a simple test that checks the agent's ability to handle
+a basic calculation.
+
 
 ```diff
 baml_src/agent.baml
@@ -592,7 +673,11 @@ Run the tests
 
     npx baml-cli test
 
-Add more complex test cases
+now, let's improve the test with assertions!
+
+Assertions are a great way to make sure the agent is working as expected,
+and can easily be extended to check for more complex behavior.
+
 
 ```diff
 baml_src/agent.baml
@@ -619,7 +704,16 @@ Run the tests
 
     npx baml-cli test
 
-Add more complex test cases
+as you add more tests, you can disable the logs to keep the output clean. 
+You may want to turn them on as you iterate on specific tests.
+
+
+    export BAML_LOG=off
+
+now, let's add some more complex test cases,
+where we resume from in the middle of an in-progress
+agentic context window
+
 
 ```diff
 baml_src/agent.baml
@@ -696,15 +790,27 @@ baml_src/agent.baml
 
 </details>
 
-Run the expanded test suite
+let's try to run it
+
 
     npx baml-cli test
 
 ## Chapter 5 - Multiple Human Tools
 
-Add support for requesting clarification from humans.
+In this section, we'll add support for multiple tools that serve to 
+contact humans.
 
-Update agent with clarification support
+
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
+
+first, let's add a tool that can request clarification from a human 
+
+this will be different from the "done_for_now" tool,
+and can be used to more flexibly handle different types of human interactions
+in your agent.
+
 
 ```diff
 baml_src/agent.baml
@@ -743,11 +849,17 @@ baml_src/agent.baml
 
 </details>
 
-Generate updated client
+next, let's re-generate the client code
+
+NOTE - if you're using the VSCode extension for BAML,
+the client will be regenerated automatically when you save the file
+in your editor.
+
 
     npx baml-cli generate
 
-Update agent implementation
+now, let's update the agent to use the new tool
+
 
 ```diff
 src/agent.ts
@@ -775,7 +887,9 @@ src/agent.ts
 
 </details>
 
-Update CLI to handle clarification requests
+next, let's update the CLI to handle clarification requests
+by requesting input from the user on the CLI
+
 
 ```diff
 src/cli.ts
@@ -827,11 +941,14 @@ src/cli.ts
 
 </details>
 
-Test clarification flow
+let's try it out
+
 
     npx tsx src/index.ts 'can you multiply 3 and FD*(#F&& '
 
-Add tests for clarification
+next, let's add a test that checks the agent's ability to handle
+a clarification request
+
 
 ```diff
 baml_src/agent.baml
@@ -875,11 +992,15 @@ baml_src/agent.baml
 
 </details>
 
-Run the tests
+and now we can run the tests again
+
 
     npx baml-cli test
 
-Fix hello world test
+you'll notice the new test passes, but the hello world test fails
+
+This is because the agent's default behavior is to return "done_for_now"
+
 
 ```diff
 baml_src/agent.baml
@@ -904,16 +1025,27 @@ Verify tests pass
 
 ## Chapter 6 - Customize Your Prompt with Reasoning
 
-Improve the agent's prompting by adding reasoning steps.
+In this section, we'll explore how to customize the prompt of the agent
+with reasoning steps.
 
-Update agent with reasoning steps
+this is core to [factor 2 - own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
+
+there's a deep dive on reasoning on AI That Works [reasoning models versus reasoning steps](https://github.com/hellovai/ai-that-works/tree/main/2025-04-07-reasoning-models-vs-prompts)
+
+
+for this section, it will be helpful to leave the baml logs enabled
+
+    export BAML_LOG=debug
+
+update the agent prompt to include a reasoning step
+
 
 ```diff
 baml_src/agent.baml
  
          {{ ctx.output_format }}
 +
-+        Always think about what to do next first, like:
++        First, always plan out what to do next, for example:
 +
 +        - ...
 +        - ...
@@ -935,15 +1067,32 @@ baml_src/agent.baml
 
 </details>
 
-Generate updated client
+generate the updated client
 
     npx baml-cli generate
 
+now, you can try it out with a simple prompt
+
+
+    npx tsx src/index.ts 'can you multiply 3 and 4'
+
+you should see output from the baml logs showing the reasoning steps
+
+#### optional challenge 
+
+add a field to your tool output format that includes the reasoning steps in the output!
+
+
 ## Chapter 7 - Customize Your Context Window
 
-Improve the context window formatting.
+In this section, we'll explore how to customize the context window
+of the agent.
 
-Update agent with better JSON formatting
+this is core to [factor 3 - own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
+
+
+update the agent to pretty-print the Context window for the model
+
 
 ```diff
 src/agent.ts
@@ -966,7 +1115,12 @@ Test the formatting
 
     BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
-Switch to XML formatting
+next, let's update the agent to use XML formatting instead 
+
+this is a very popular format for passing data to a model,
+
+among other things, because of the token efficiency of XML.
+
 
 ```diff
 src/agent.ts
@@ -1002,14 +1156,22 @@ src/agent.ts
 
 </details>
 
-Test XML formatting
+let's try it out
+
 
     BAML_LOG=info npx tsx src/index.ts 'can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result'
 
-Update tests for XML format
+lets update our tests to match the new output format
+
 
 ```diff
 baml_src/agent.baml
+         {{ ctx.output_format }}
+ 
+-        First, always plan out what to do next, for example:
++        Always think about what to do next first, like:
+ 
+         - ...
    args {
      thread #"
 -      {
@@ -1155,13 +1317,18 @@ baml_src/agent.baml
 
 </details>
 
-Run the tests
+check out the updated tests
+
 
     npx baml-cli test
 
 ## Chapter 8 - Adding API Endpoints
 
 Add an Express server to expose the agent via HTTP.
+
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
 
 Install Express and types
 
@@ -1181,6 +1348,7 @@ import { Thread, agentLoop } from '../src/agent';
 
 const app = express();
 app.use(express.json());
+app.set('json spaces', 2);
 
 // POST /thread - Start new thread
 app.post('/thread', async (req, res) => {
@@ -1218,11 +1386,21 @@ Test with curl (in another terminal)
   -H "Content-Type: application/json" \
   -d '{"message":"can you add 3 and 4"}'
 
+You should get an answer from the agent which includes the
+agentic trace, ending in a message like: 
+
+
+    {"intent":"done_for_now","message":"The sum of 3 and 4 is 7."}
+
 ## Chapter 9 - In-Memory State and Async Clarification
 
 Add state management and async clarification support.
 
-Add state management
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
+
+Add some simple in-memory state management for threads
 
     cp ./walkthrough/09-state.ts src/state.ts
 
@@ -1258,7 +1436,13 @@ export class ThreadStore {
 
 </details>
 
-Update server with state support
+update the server to use the state management
+
+* Add thread state management using `ThreadStore`
+* return thread IDs and response URLs from the /thread endpoint
+* implement GET /thread/:id 
+* implement POST /thread/:id/response
+
 
 ```diff
 src/server.ts
@@ -1267,7 +1451,7 @@ src/server.ts
 +import { ThreadStore } from '../src/state';
  
  const app = express();
- app.use(express.json());
+ app.set('json spaces', 2);
  
 +const store = new ThreadStore();
 +
@@ -1275,21 +1459,24 @@ src/server.ts
  app.post('/thread', async (req, res) => {
          data: req.body.message
      }]);
-+    
-+    const threadId = store.create(thread);
-     const result = await agentLoop(thread);
+-    const result = await agentLoop(thread);
 -    res.json(result);
 +    
-+    // If clarification is needed, include the response URL
-+    const lastEvent = result.events[result.events.length - 1];
-+    if (lastEvent.data.intent === 'request_more_information') {
-+        lastEvent.data.response_url = `/thread/${threadId}/response`;
-+    }
++    const threadId = store.create(thread);
++    const newThread = await agentLoop(thread);
 +    
-+    store.update(threadId, result);
++    store.update(threadId, newThread);
++
++    const lastEvent = newThread.events[newThread.events.length - 1];
++    // If we exited the loop, include the response URL so the client can
++    // push a new message onto the thread
++    lastEvent.data.response_url = `/thread/${threadId}/response`;
++
++    console.log("returning last event from endpoint", lastEvent);
++
 +    res.json({ 
 +        thread_id: threadId,
-+        ...result 
++        ...newThread 
 +    });
  });
  
@@ -1305,7 +1492,7 @@ src/server.ts
  
 +// POST /thread/:id/response - Handle clarification response
 +app.post('/thread/:id/response', async (req, res) => {
-+    const thread = store.get(req.params.id);
++    let thread = store.get(req.params.id);
 +    if (!thread) {
 +        return res.status(404).json({ error: "Thread not found" });
 +    }
@@ -1315,16 +1502,17 @@ src/server.ts
 +        data: req.body.message
 +    });
 +    
-+    const result = await agentLoop(thread);
++    // loop until stop event
++    const newThread = await agentLoop(thread);
 +    
-+    // If another clarification is needed, include the response URL
-+    const lastEvent = result.events[result.events.length - 1];
-+    if (lastEvent.data.intent === 'request_more_information') {
-+        lastEvent.data.response_url = `/thread/${req.params.id}/response`;
-+    }
++    store.update(req.params.id, newThread);
++
++    const lastEvent = newThread.events[newThread.events.length - 1];
++    lastEvent.data.response_url = `/thread/${req.params.id}/response`;
++
++    console.log("returning last event from endpoint", lastEvent);
 +    
-+    store.update(req.params.id, result);
-+    res.json(result);
++    res.json(newThread);
 +});
 +
  const port = process.env.PORT || 3000;
@@ -1352,7 +1540,17 @@ Test clarification flow
 
 Add support for human approval of operations.
 
-Update server with approval flow
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
+
+update the server to handle human approvals
+
+* Import `handleNextStep` to execute approved actions
+* Add two payload types to distinguish approvals from responses
+* Handle responses and approvals differently in the endpoint
+* Show better error messages when things go wrongs
+
 
 ```diff
 src/server.ts
@@ -1361,33 +1559,6 @@ src/server.ts
 +import { Thread, agentLoop, handleNextStep } from '../src/agent';
  import { ThreadStore } from '../src/state';
  
-     
-     const threadId = store.create(thread);
--    const result = await agentLoop(thread);
-+    const newThread = await agentLoop(thread);
-     
--    // If clarification is needed, include the response URL
--    const lastEvent = result.events[result.events.length - 1];
--    if (lastEvent.data.intent === 'request_more_information') {
--        lastEvent.data.response_url = `/thread/${threadId}/response`;
--    }
--    
--    store.update(threadId, result);
-+    store.update(threadId, newThread);
-+
-+    const lastEvent = newThread.events[newThread.events.length - 1];
-+    // If we exited the loop, include the response URL so the client can
-+    // push a new message onto the thread
-+    lastEvent.data.response_url = `/thread/${threadId}/response`;
-+
-+    console.log("returning last event from endpoint", lastEvent);
-+
-     res.json({ 
-         thread_id: threadId,
--        ...result 
-+        ...newThread 
-     });
- });
  });
  
 +
@@ -1406,23 +1577,8 @@ src/server.ts
 +
  // POST /thread/:id/response - Handle clarification response
  app.post('/thread/:id/response', async (req, res) => {
--    const thread = store.get(req.params.id);
-+    let thread = store.get(req.params.id);
-     if (!thread) {
          return res.status(404).json({ error: "Thread not found" });
      }
--    
--    thread.events.push({
--        type: "human_response",
--        data: req.body.message
--    });
--    
--    const result = await agentLoop(thread);
--    
--    // If another clarification is needed, include the response URL
--    const lastEvent = result.events[result.events.length - 1];
--    if (lastEvent.data.intent === 'request_more_information') {
--        lastEvent.data.response_url = `/thread/${req.params.id}/response`;
 +
 +    const body: Payload = req.body;
 +
@@ -1449,21 +1605,22 @@ src/server.ts
 +            awaitingHumanApproval: thread.awaitingHumanApproval()
 +        });
 +        return;
-     }
++    }
 +
      
-+    // loop until stop event
-+    const result = await agentLoop(thread);
-+
-     store.update(req.params.id, result);
-+
-+    lastEvent = result.events[result.events.length - 1];
-+    lastEvent.data.response_url = `/thread/${req.params.id}/response`;
-+
-+    console.log("returning last event from endpoint", lastEvent);
-+    
-     res.json(result);
- });
+-    thread.events.push({
+-        type: "human_response",
+-        data: req.body.message
+-    });
+-    
+     // loop until stop event
+     const newThread = await agentLoop(thread);
+     store.update(req.params.id, newThread);
+ 
+-    const lastEvent = newThread.events[newThread.events.length - 1];
++    lastEvent = newThread.events[newThread.events.length - 1];
+     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
+ 
 ```
 
 <details>
@@ -1473,7 +1630,7 @@ src/server.ts
 
 </details>
 
-Update agent with approval checks
+Add a few methods to the agent to handle approvals and responses
 
 ```diff
 src/agent.ts
@@ -1600,34 +1757,29 @@ you should see the final message includes the tool response and final result!
   "response_url": "/thread/2b469403-c497-4797-b253-043aae830209/response"
 }
 
-## Chapter 11 - Human Approval with HumanLayer
+## Chapter 11 - Human Approvals over email
 
-Integrate with HumanLayer for approvals.
+in this section, we'll add support for human approvals over email.
+
+This will start a little bit contrived, just to get the concepts down - 
+
+We'll start by invoking the workflow from the CLI but approvals for `divide`
+and `request_more_information` will be handled over email,
+then the final `done_for_now` answer will be printed back to the CLI
+
+While contrived, this is a great example of the flexibility you get from
+[factor 7 - contact humans with tools](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-7-contact-humans-with-tools.md)
+
+
+for this section, we'll disable the baml logs. You can optionally enable them if you want to see more details.
+
+    export BAML_LOG=off
 
 Install HumanLayer
 
     npm install humanlayer
 
-Update agent with HumanLayer integration
-
-```diff
-src/agent.ts
-             case "done_for_now":
-             case "request_more_information":
--                // response to human, return the thread
-+                // response to human, return the next step object
-                 return thread;
-             case "divide":
-```
-
-<details>
-<summary>skip this step</summary>
-
-    cp ./walkthrough/11-agent.ts src/agent.ts
-
-</details>
-
-Update CLI with HumanLayer support
+Update CLI to send `divide` and `request_more_information` to a human via email
 
 ```diff
 src/cli.ts
@@ -1652,18 +1804,11 @@ src/cli.ts
 -        thread.events.push({ type: "human_response", data: message });
 -        const result = await agentLoop(thread);
 -        lastEvent = result.events.slice(-1)[0];
-+    let needsResponse = 
-+        newThread.awaitingHumanResponse() ||
-+        newThread.awaitingHumanApproval();
-+
-+    while (needsResponse) {
-+        lastEvent = newThread.events.slice(-1)[0];
++    while (lastEvent.data.intent !== "done_for_now") {
 +        const responseEvent = await askHuman(lastEvent);
 +        thread.events.push(responseEvent);
 +        newThread = await agentLoop(thread);
-+        // determine if we should loop or if we're done
-+        needsResponse = newThread.awaitingHumanResponse() 
-+            || newThread.awaitingHumanApproval();
++        lastEvent = newThread.events.slice(-1)[0];
      }
  
      // print the final result
@@ -1697,7 +1842,8 @@ src/cli.ts
 +    }
 +    const hl = humanlayer({ //reads apiKey from env
 +        // name of this agent
-+        runId: "cli-agent",
++        runId: "12fa-cli-agent",
++        verbose: true,
 +        contactChannel: {
 +            // agent should request permission via email
 +            email: {
@@ -1706,20 +1852,8 @@ src/cli.ts
 +        }
 +    }) 
 +
-+    if (lastEvent.data.intent === "request_more_information") {
-+        const response = await hl.fetchHumanResponse({
-+            spec: {
-+                msg: lastEvent.data.message
-+            }
-+        })
-+        return {
-+            "type": "tool_response",
-+            "data": response
-+        }
-+    }
-+    
 +    if (lastEvent.data.intent === "divide") {
-+        // fetch approval synchronously
++        // fetch approval synchronously - this will block until reply
 +        const response = await hl.fetchHumanApproval({
 +            spec: {
 +                fn: "divide",
@@ -1740,7 +1874,8 @@ src/cli.ts
 +        } else {
 +            return {
 +                "type": "tool_response",
-+                "data": `user denied operation ${lastEvent.data.intent}`
++                "data": `user denied operation ${lastEvent.data.intent}
++                with feedback: ${response.comment}`
 +            };
 +        }
 +    }
@@ -1757,100 +1892,378 @@ src/cli.ts
 
 Run the CLI
 
-    npx tsx src/index.ts 'can divide 4 by 5'
+    npx tsx src/index.ts 'can you divide 4 by 5'
 
-## Chapter 12 - HumanLayer Webhook Integration
+The last line of your program should mention human review step
 
-Add webhook support for HumanLayer.
+    nextStep { intent: 'divide', a: 4, b: 5 }
+HumanLayer: Requested human approval from HumanLayer cloud
 
-Update server with webhook support
+go ahead and respond to the email with some feedback:
+
+![reject-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-reject.png?raw=true)
+
+
+you should get another email with an updated attempt based on your feedback!
+
+You can go ahead and approve this one:
+
+![appove-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-approve.png?raw=true)
+
+
+and your final output will look like
+
+    nextStep {
+ intent: 'done_for_now',
+ message: 'The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!'
+}
+The division of 4 by 5 is 0.8. If you have any other calculations or questions, feel free to ask!
+
+lets implement the `request_more_information` flow as well
+
 
 ```diff
-src/server.ts
- import { Thread, agentLoop, handleNextStep } from '../src/agent';
- import { ThreadStore } from '../src/state';
-+import { V1Beta2EmailEventReceived } from 'humanlayer';
+src/cli.ts
+     }) 
  
- const app = express();
-     lastEvent.data.response_url = `/thread/${threadId}/response`;
- 
--    console.log("returning last event from endpoint", lastEvent);
--
-     res.json({ 
-         thread_id: threadId,
- // POST /thread/:id/response - Handle clarification response
- app.post('/thread/:id/response', async (req, res) => {
--    let thread = store.get(req.params.id);
-+    const thread = store.get(req.params.id);
-     if (!thread) {
-         return res.status(404).json({ error: "Thread not found" });
-             data: `user denied the operation with feedback: "${body.comment}"`
-         });
--    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && body.approved) {
-+    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && !body.approved) {
-         // approved, run the tool, pushing results onto the thread
--        await handleNextStep(lastEvent.data, thread);
-+        await handleNextStep(lastEvent, thread);
-     } else {
-         res.status(400).json({
-             awaitingHumanApproval: thread.awaitingHumanApproval()
-         });
--        return;
-     }
- 
-     lastEvent = result.events[result.events.length - 1];
-     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
--
--    console.log("returning last event from endpoint", lastEvent);
-     
-     res.json(result);
- });
- 
-+
-+app.post('/webhook', async (req, res) => {
-+    //todo verify webhook
-+    const payload: V1Beta2EmailEventReceived = req.body
-+
-+    const { subject, body, to_address, from_address} = payload.event;
-+
-+    const thread = new Thread([{
-+        type: "user_input",
-+        data: {
-+            subject,
-+            body,
-+            to_address,
-+            from_address,
++    if (lastEvent.data.intent === "request_more_information") {
++        // fetch response synchronously - this will block until reply
++        const response = await hl.fetchHumanResponse({
++            spec: {
++                msg: lastEvent.data.message
++            }
++        })
++        return {
++            "type": "tool_response",
++            "data": response
 +        }
-+    }]);
++    }
 +    
-+    const threadId = store.create(thread);
-+    const newThread = await agentLoop(thread);
-+    
-+    store.update(threadId, newThread);
-+
-+    const lastEvent = newThread.events[newThread.events.length - 1];
-+
-+    
-+
-+
-+
-+
-+    // don't return any content, we sent the next step to a human
-+    res.json({ status: "ok" });
-+})
-+
- const port = process.env.PORT || 3000;
- app.listen(port, () => {
+     if (lastEvent.data.intent === "divide") {
+         // fetch approval synchronously - this will block until reply
 ```
 
 <details>
 <summary>skip this step</summary>
 
-    cp ./walkthrough/12-server.ts src/server.ts
+    cp ./walkthrough/11b-cli.ts src/cli.ts
 
 </details>
 
-Start the server
+lets test the require_approval flow as by asking for a calculation
+with garbled input:
+
+
+    npx tsx src/index.ts 'can you multiply 4 and xyz'
+
+You should get an email with a request for clarification
+
+    Can you clarify what 'xyz' represents in this context? Is it a specific number, variable, or something else?
+
+you can response with something like
+
+    use 8 instead of xyz
+
+you should see a final result on the CLI like
+
+    I have multiplied 4 and xyz, using the value 8 for xyz, resulting in 32.
+
+as a final step, lets explore using a custom html template for the email
+
+
+```diff
+src/cli.ts
+             email: {
+                 address: process.env.HUMANLAYER_EMAIL,
++                // custom email body - jinja
++                template: `{% if type == 'request_more_information' %}
++{{ event.spec.msg }}
++{% else %}
++agent {{ event.run_id }} is requesting approval for {{event.spec.fn}}
++with args: {{event.spec.kwargs}}
++<br><br>
++reply to this email to approve
++{% endif %}`
+             }
+         }
+```
+
+<details>
+<summary>skip this step</summary>
+
+    cp ./walkthrough/11c-cli.ts src/cli.ts
+
+</details>
+
+first try with divide:
+
+
+    npx tsx src/index.ts 'can you divide 4 by 5'
+
+you should see a slightly different email with the custom template
+
+![custom-template-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-custom.png?raw=true)
+
+feel free to run with the flow and then you can try updating the template to your liking
+
+(if you're using cursor, something as simple as highlighting the template and asking to "make it better"
+should do the trick)
+
+try triggering "request_more_information" as well!
+
+
+thats it - in the next chapter, we'll build a fully email-driven 
+workflow agent that uses webhooks for human approval 
+
+
+## Chapter XX - HumanLayer Webhook Integration
+
+the previous sections used the humanlayer SDK in "synchronous mode" - that 
+means every time we wait for human approval, we sit in a loop 
+polling until the human response if received.
+
+That's obviously not ideal, especially for production workloads,
+so in this section we'll implement [factor 6 - launch / pause / resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)
+by updating the server to end processing after contacting a human, and use webhooks to receive the results. 
+
+
+add code to initialize humanlayer in the server
+
+
+```diff
+src/server.ts
+ import { Thread, agentLoop, handleNextStep } from '../src/agent';
+ import { ThreadStore } from '../src/state';
++import { humanlayer } from 'humanlayer';
+ 
+ const app = express();
+ const store = new ThreadStore();
+ 
++const getHumanlayer = () => {
++    const HUMANLAYER_EMAIL = process.env.HUMANLAYER_EMAIL;
++    if (!HUMANLAYER_EMAIL) {
++        throw new Error("missing or invalid parameters: HUMANLAYER_EMAIL");
++    }
++
++    const HUMANLAYER_API_KEY = process.env.HUMANLAYER_API_KEY;
++    if (!HUMANLAYER_API_KEY) {
++        throw new Error("missing or invalid parameters: HUMANLAYER_API_KEY");
++    }
++    return humanlayer({
++        runId: `12fa-agent`,
++        contactChannel: {
++            email: { address: HUMANLAYER_EMAIL }
++        }
++    });
++}
++
+ // POST /thread - Start new thread
+ app.post('/thread', async (req, res) => {
+     
+     // loop until stop event
+-    const newThread = await agentLoop(thread);
++    const result = await agentLoop(thread);
+ 
+-    store.update(req.params.id, newThread);
++    store.update(req.params.id, result);
+ 
+-    lastEvent = newThread.events[newThread.events.length - 1];
++    lastEvent = result.events[result.events.length - 1];
+     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
+ 
+     console.log("returning last event from endpoint", lastEvent);
+     
+-    res.json(newThread);
++    res.json(result);
+ });
+ 
+```
+
+<details>
+<summary>skip this step</summary>
+
+    cp ./walkthrough/12-1-server-init.ts src/server.ts
+
+</details>
+
+next, lets update the /thread endpoint to 
+  
+1. handle requests asynchronously, returning immediately
+2. create a human contact on request_more_information and done_for_now calls
+
+
+Update the server to be able to handle request_clarification responses
+
+- remove the old /response endpoint and types
+- update the /thread endpoint to run processing asynchronously, return immediately
+- send a state.threadId when requesting human responses
+- add a handleHumanResponse function to process the human response
+- add a /webhook endpoint to handle the webhook response
+
+
+```diff
+src/server.ts
+-import express from 'express';
++import express, { Request, Response } from 'express';
+ import { Thread, agentLoop, handleNextStep } from '../src/agent';
+ import { ThreadStore } from '../src/state';
+-import { humanlayer } from 'humanlayer';
++import { humanlayer, V1Beta2HumanContactCompleted } from 'humanlayer';
+ 
+ const app = express();
+     });
+ }
+-
+ // POST /thread - Start new thread
+-app.post('/thread', async (req, res) => {
++app.post('/thread', async (req: Request, res: Response) => {
+     const thread = new Thread([{
+         type: "user_input",
+     }]);
+     
+-    const threadId = store.create(thread);
+-    const newThread = await agentLoop(thread);
+-    
+-    store.update(threadId, newThread);
++    // run agent loop asynchronously, return immediately
++    Promise.resolve().then(async () => {
++        const threadId = store.create(thread);
++        const newThread = await agentLoop(thread);
++        
++        store.update(threadId, newThread);
+ 
+-    const lastEvent = newThread.events[newThread.events.length - 1];
+-    // If we exited the loop, include the response URL so the client can
+-    // push a new message onto the thread
+-    lastEvent.data.response_url = `/thread/${threadId}/response`;
++        const lastEvent = newThread.events[newThread.events.length - 1];
+ 
+-    console.log("returning last event from endpoint", lastEvent);
+-
+-    res.json({ 
+-        thread_id: threadId,
+-        ...newThread 
++        if (thread.awaitingHumanResponse()) {
++            const hl = getHumanlayer();
++            // create a human contact - returns immediately
++            hl.createHumanContact({
++                spec: {
++                    msg: lastEvent.data.message,
++                    state: {
++                        thread_id: threadId,
++                    }
++                }
++            });
++        }
+     });
++
++    res.json({ status: "processing" });
+ });
+ 
+ // GET /thread/:id - Get thread status
+-app.get('/thread/:id', (req, res) => {
++app.get('/thread/:id', (req: Request, res: Response) => {
+     const thread = store.get(req.params.id);
+     if (!thread) {
+ });
+ 
++type WebhookResponse = V1Beta2HumanContactCompleted;
+ 
+-type ApprovalPayload = {
+-    type: "approval";
+-    approved: boolean;
+-    comment?: string;
+-}
++const handleHumanResponse = async (req: Request, res: Response) => {
+ 
+-type ResponsePayload = {
+-    type: "response";
+-    response: string;
+ }
+ 
+-type Payload = ApprovalPayload | ResponsePayload;
++app.post('/webhook', async (req: Request, res: Response) => {
++    console.log("webhook response", req.body);
++    const response = req.body as WebhookResponse;
+ 
+-// POST /thread/:id/response - Handle clarification response
+-app.post('/thread/:id/response', async (req, res) => {
+-    let thread = store.get(req.params.id);
++    // response is guaranteed to be set on a webhook
++    const humanResponse: string = response.event.status?.response as string;
++
++    const threadId = response.event.spec.state?.thread_id;
++    if (!threadId) {
++        return res.status(400).json({ error: "Thread ID not found" });
++    }
++
++    const thread = store.get(threadId);
+     if (!thread) {
+         return res.status(404).json({ error: "Thread not found" });
+     }
+ 
+-    const body: Payload = req.body;
+-
+-    let lastEvent = thread.events[thread.events.length - 1];
+-
+-    if (thread.awaitingHumanResponse() && body.type === 'response') {
+-        thread.events.push({
+-            type: "human_response",
+-            data: body.response
+-        });
+-    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && !body.approved) {
+-        // push feedback onto the thread
+-        thread.events.push({
+-            type: "tool_response",
+-            data: `user denied the operation with feedback: "${body.comment}"`
+-        });
+-    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && body.approved) {
+-        // approved, run the tool, pushing results onto the thread
+-        await handleNextStep(lastEvent.data, thread);
+-    } else {
+-        res.status(400).json({
+-            error: "Invalid request: " + body.type,
+-            awaitingHumanResponse: thread.awaitingHumanResponse(),
+-            awaitingHumanApproval: thread.awaitingHumanApproval()
+-        });
+-        return;
++    if (!thread.awaitingHumanResponse()) {
++        return res.status(400).json({ error: "Thread is not awaiting human response" });
+     }
+ 
+-    
+-    // loop until stop event
+-    const result = await agentLoop(thread);
+-
+-    store.update(req.params.id, result);
+-
+-    lastEvent = result.events[result.events.length - 1];
+-    lastEvent.data.response_url = `/thread/${req.params.id}/response`;
+-
+-    console.log("returning last event from endpoint", lastEvent);
+-    
+-    res.json(result);
+ });
+ 
+```
+
+<details>
+<summary>skip this step</summary>
+
+    cp ./walkthrough/12a-server.ts src/server.ts
+
+</details>
+
+Start the server in another terminal
 
     npx tsx src/server.ts
+
+now that the server is running, send a payload to the '/thread' endpoint
+
+
+__ do the response step
+
+__ now handle approvals for divide
+
+__ now also handle done_for_now
 

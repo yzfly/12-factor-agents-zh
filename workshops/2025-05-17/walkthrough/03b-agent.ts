@@ -13,31 +13,9 @@ export class Thread {
     }
 
     serializeForLLM() {
-        return this.events.map(e => this.serializeOneEvent(e)).join("\n");
-    }
-
-    trimLeadingWhitespace(s: string) {
-        return s.replace(/^[ \t]+/gm, '');
-    }
-
-    serializeOneEvent(e: Event) {
-        return this.trimLeadingWhitespace(`
-            <${e.data?.intent || e.type}>
-            ${
-            typeof e.data !== 'object' ? e.data :
-            Object.keys(e.data).filter(k => k !== 'intent').map(k => `${k}: ${e.data[k]}`).join("\n")}
-            </${e.data?.intent || e.type}>
-        `)
-    }
-
-    awaitingHumanResponse(): boolean {
-        const lastEvent = this.events[this.events.length - 1];
-        return ['request_more_information', 'done_for_now'].includes(lastEvent.data.intent);
-    }
-
-    awaitingHumanApproval(): boolean {
-        const lastEvent = this.events[this.events.length - 1];
-        return lastEvent.data.intent === 'divide';
+        // can change this to whatever custom serialization you want to do, XML, etc
+        // e.g. https://github.com/got-agents/agents/blob/59ebbfa236fc376618f16ee08eb0f3bf7b698892/linear-assistant-ts/src/agent.ts#L66-L105
+        return JSON.stringify(this.events);
     }
 }
 
@@ -81,7 +59,7 @@ export async function handleNextStep(nextStep: CalculatorTool, thread: Thread): 
     }
 }
 
-export async function agentLoop(thread: Thread): Promise<Thread> {
+export async function agentLoop(thread: Thread): Promise<string> {
 
     while (true) {
         const nextStep = await b.DetermineNextStep(thread.serializeForLLM());
@@ -94,15 +72,12 @@ export async function agentLoop(thread: Thread): Promise<Thread> {
 
         switch (nextStep.intent) {
             case "done_for_now":
-            case "request_more_information":
                 // response to human, return the next step object
-                return thread;
-            case "divide":
-                // divide is scary, return it for human approval
-                return thread;
+                return nextStep.message;
             case "add":
             case "subtract":
             case "multiply":
+            case "divide":
                 thread = await handleNextStep(nextStep, thread);
         }
     }

@@ -4,6 +4,7 @@ import { ThreadStore } from '../src/state';
 
 const app = express();
 app.use(express.json());
+app.set('json spaces', 2);
 
 const store = new ThreadStore();
 
@@ -15,18 +16,20 @@ app.post('/thread', async (req, res) => {
     }]);
     
     const threadId = store.create(thread);
-    const result = await agentLoop(thread);
+    const newThread = await agentLoop(thread);
     
-    // If clarification is needed, include the response URL
-    const lastEvent = result.events[result.events.length - 1];
-    if (lastEvent.data.intent === 'request_more_information') {
-        lastEvent.data.response_url = `/thread/${threadId}/response`;
-    }
-    
-    store.update(threadId, result);
+    store.update(threadId, newThread);
+
+    const lastEvent = newThread.events[newThread.events.length - 1];
+    // If we exited the loop, include the response URL so the client can
+    // push a new message onto the thread
+    lastEvent.data.response_url = `/thread/${threadId}/response`;
+
+    console.log("returning last event from endpoint", lastEvent);
+
     res.json({ 
         thread_id: threadId,
-        ...result 
+        ...newThread 
     });
 });
 
@@ -41,7 +44,7 @@ app.get('/thread/:id', (req, res) => {
 
 // POST /thread/:id/response - Handle clarification response
 app.post('/thread/:id/response', async (req, res) => {
-    const thread = store.get(req.params.id);
+    let thread = store.get(req.params.id);
     if (!thread) {
         return res.status(404).json({ error: "Thread not found" });
     }
@@ -51,16 +54,17 @@ app.post('/thread/:id/response', async (req, res) => {
         data: req.body.message
     });
     
-    const result = await agentLoop(thread);
+    // loop until stop event
+    const newThread = await agentLoop(thread);
     
-    // If another clarification is needed, include the response URL
-    const lastEvent = result.events[result.events.length - 1];
-    if (lastEvent.data.intent === 'request_more_information') {
-        lastEvent.data.response_url = `/thread/${req.params.id}/response`;
-    }
+    store.update(req.params.id, newThread);
+
+    const lastEvent = newThread.events[newThread.events.length - 1];
+    lastEvent.data.response_url = `/thread/${req.params.id}/response`;
+
+    console.log("returning last event from endpoint", lastEvent);
     
-    store.update(req.params.id, result);
-    res.json(result);
+    res.json(newThread);
 });
 
 const port = process.env.PORT || 3000;
