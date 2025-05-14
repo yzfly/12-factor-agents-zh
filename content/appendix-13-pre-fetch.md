@@ -28,7 +28,7 @@ Answer in JSON format with one of the following intents:
 and your code looks like
 
 ```python
-thread = {"events": [inital_message]}
+thread = {"events": [initial_message]}
 next_step = await determine_next_step(thread)
 
 while True:
@@ -85,7 +85,7 @@ Answer in JSON format with one of the following intents:
 and your code looks like
 
 ```diff
-thread = {"events": [inital_message]}
+thread = {"events": [initial_message]}
 + git_tags = await fetch_git_tags()
 
 - next_step = await determine_next_step(thread)
@@ -114,7 +114,7 @@ while True:
 or even just include the tags in the thread and remove the specific parameter from your prompt template:
 
 ```diff
-thread = {"events": [inital_message]}
+thread = {"events": [initial_message]}
 + # add the request
 + thread["events"].append({
 +  "type": 'list_git_tags',
@@ -146,6 +146,6 @@ Overall:
 
 > #### If you already know what tools you'll want the model to call, just call them DETERMINISTICALLY and let the model do the hard part of figuring out how to use their outputs
 
-Again, AI engineering is all about [Context Engineering](./factor-3-own-your-context-window.md).
+Again, AI engineering is all about [Context Engineering](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md).
 
-[← Stateless Reducer](./factor-12-stateless-reducer.md) | [Further Reading →](../README.md#related-resources)
+[← Stateless Reducer](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md) | [Further Reading →](https://github.com/humanlayer/12-factor-agents/blob/main/README.md#related-resources)
