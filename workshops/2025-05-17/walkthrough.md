@@ -182,13 +182,24 @@ class DoneForNow {
   message string 
 }
 
+client<llm> Qwen3 {
+  provider "openai-generic"
+  options {
+    base_url "https://model-4w7jrl6w.api.baseten.co/environments/production/sync/v1"
+    api_key env.BASETEN_API_KEY 
+  }
+}
+
 function DetermineNextStep(
     thread: string 
 ) -> DoneForNow {
-    client "openai/gpt-4o"
+    client Qwen3
 
+    // use /nothink for now because the thinking tokens (or streaming thereof) screw with baml (i think (no pun intended))
     prompt #"
         {{ _.role("system") }}
+
+        /nothink 
 
         You are a helpful assistant that can help with tasks.
 
@@ -329,22 +340,26 @@ export async function agentLoop(thread: Thread): Promise<AgentResponse> {
 
 </details>
 
-The the BAML code is configured to use OPENAI_API_KEY by default
+The the BAML code is configured to use BASETEN_API_KEY by default
 
 As you're testing, you can change the model / provider to something else
-as you please
+as you please - note where the code mentions
 
-        client "openai/gpt-4o"
+   client Qwen3
+
+If you want to run the example with no changes, you can set the BASETEN_API_KEY env var to any valid baseten key.
 
 [Docs on baml clients can be found here](https://docs.boundaryml.com/guide/baml-basics/switching-llms)
 
 For example, you can configure [gemini](https://docs.boundaryml.com/ref/llm-client-providers/google-ai-gemini) 
 or [anthropic](https://docs.boundaryml.com/ref/llm-client-providers/anthropic) as your model provider.
 
-If you want to run the example with no changes, you can set the OPENAI_API_KEY env var to any valid openai key.
+For example, to use openai with an OPENAI_API_KEY, you can do:
+
+    client "openai/gpt-4o"
 
 
-    export OPENAI_API_KEY=...
+    export BASETEN_API_KEY=...
 
 Try it out
 
@@ -410,11 +425,30 @@ expose the calculator tools as potential next steps
 
 ```diff
 baml_src/agent.baml
+ }
+ 
+-client<llm> Qwen3 {
+-  provider "openai-generic"
+-  options {
+-    base_url "https://model-4w7jrl6w.api.baseten.co/environments/production/sync/v1"
+-    api_key env.BASETEN_API_KEY 
+-  }
+-}
+-
  function DetermineNextStep(
      thread: string 
 -) -> DoneForNow {
+-    client Qwen3
 +) -> CalculatorTools | DoneForNow {
-     client "openai/gpt-4o"
++    client "openai/gpt-4o"
+ 
+-    // use /nothink for now because the thinking tokens (or streaming thereof) screw with baml (i think (no pun intended))
+     prompt #"
+         {{ _.role("system") }}
+ 
+-        /nothink 
+-
+         You are a helpful assistant that can help with tasks.
  
 ```
 
@@ -1045,7 +1079,7 @@ baml_src/agent.baml
  
          {{ ctx.output_format }}
 +
-+        First, always plan out what to do next, for example:
++        Always think about what to do next first, like:
 +
 +        - ...
 +        - ...
@@ -1166,12 +1200,6 @@ lets update our tests to match the new output format
 
 ```diff
 baml_src/agent.baml
-         {{ ctx.output_format }}
- 
--        First, always plan out what to do next, for example:
-+        Always think about what to do next first, like:
- 
-         - ...
    args {
      thread #"
 -      {
@@ -1348,7 +1376,6 @@ import { Thread, agentLoop } from '../src/agent';
 
 const app = express();
 app.use(express.json());
-app.set('json spaces', 2);
 
 // POST /thread - Start new thread
 app.post('/thread', async (req, res) => {
@@ -1451,7 +1478,7 @@ src/server.ts
 +import { ThreadStore } from '../src/state';
  
  const app = express();
- app.set('json spaces', 2);
+ app.use(express.json());
  
 +const store = new ThreadStore();
 +
@@ -1459,24 +1486,21 @@ src/server.ts
  app.post('/thread', async (req, res) => {
          data: req.body.message
      }]);
--    const result = await agentLoop(thread);
--    res.json(result);
 +    
 +    const threadId = store.create(thread);
-+    const newThread = await agentLoop(thread);
+     const result = await agentLoop(thread);
+-    res.json(result);
 +    
-+    store.update(threadId, newThread);
-+
-+    const lastEvent = newThread.events[newThread.events.length - 1];
-+    // If we exited the loop, include the response URL so the client can
-+    // push a new message onto the thread
-+    lastEvent.data.response_url = `/thread/${threadId}/response`;
-+
-+    console.log("returning last event from endpoint", lastEvent);
-+
++    // If clarification is needed, include the response URL
++    const lastEvent = result.events[result.events.length - 1];
++    if (lastEvent.data.intent === 'request_more_information') {
++        lastEvent.data.response_url = `/thread/${threadId}/response`;
++    }
++    
++    store.update(threadId, result);
 +    res.json({ 
 +        thread_id: threadId,
-+        ...newThread 
++        ...result 
 +    });
  });
  
@@ -1492,7 +1516,7 @@ src/server.ts
  
 +// POST /thread/:id/response - Handle clarification response
 +app.post('/thread/:id/response', async (req, res) => {
-+    let thread = store.get(req.params.id);
++    const thread = store.get(req.params.id);
 +    if (!thread) {
 +        return res.status(404).json({ error: "Thread not found" });
 +    }
@@ -1502,17 +1526,16 @@ src/server.ts
 +        data: req.body.message
 +    });
 +    
-+    // loop until stop event
-+    const newThread = await agentLoop(thread);
++    const result = await agentLoop(thread);
 +    
-+    store.update(req.params.id, newThread);
-+
-+    const lastEvent = newThread.events[newThread.events.length - 1];
-+    lastEvent.data.response_url = `/thread/${req.params.id}/response`;
-+
-+    console.log("returning last event from endpoint", lastEvent);
++    // If another clarification is needed, include the response URL
++    const lastEvent = result.events[result.events.length - 1];
++    if (lastEvent.data.intent === 'request_more_information') {
++        lastEvent.data.response_url = `/thread/${req.params.id}/response`;
++    }
 +    
-+    res.json(newThread);
++    store.update(req.params.id, result);
++    res.json(result);
 +});
 +
  const port = process.env.PORT || 3000;
@@ -1559,6 +1582,33 @@ src/server.ts
 +import { Thread, agentLoop, handleNextStep } from '../src/agent';
  import { ThreadStore } from '../src/state';
  
+     
+     const threadId = store.create(thread);
+-    const result = await agentLoop(thread);
++    const newThread = await agentLoop(thread);
+     
+-    // If clarification is needed, include the response URL
+-    const lastEvent = result.events[result.events.length - 1];
+-    if (lastEvent.data.intent === 'request_more_information') {
+-        lastEvent.data.response_url = `/thread/${threadId}/response`;
+-    }
+-    
+-    store.update(threadId, result);
++    store.update(threadId, newThread);
++
++    const lastEvent = newThread.events[newThread.events.length - 1];
++    // If we exited the loop, include the response URL so the client can
++    // push a new message onto the thread
++    lastEvent.data.response_url = `/thread/${threadId}/response`;
++
++    console.log("returning last event from endpoint", lastEvent);
++
+     res.json({ 
+         thread_id: threadId,
+-        ...result 
++        ...newThread 
+     });
+ });
  });
  
 +
@@ -1577,8 +1627,23 @@ src/server.ts
 +
  // POST /thread/:id/response - Handle clarification response
  app.post('/thread/:id/response', async (req, res) => {
+-    const thread = store.get(req.params.id);
++    let thread = store.get(req.params.id);
+     if (!thread) {
          return res.status(404).json({ error: "Thread not found" });
      }
+-    
+-    thread.events.push({
+-        type: "human_response",
+-        data: req.body.message
+-    });
+-    
+-    const result = await agentLoop(thread);
+-    
+-    // If another clarification is needed, include the response URL
+-    const lastEvent = result.events[result.events.length - 1];
+-    if (lastEvent.data.intent === 'request_more_information') {
+-        lastEvent.data.response_url = `/thread/${req.params.id}/response`;
 +
 +    const body: Payload = req.body;
 +
@@ -1605,22 +1670,21 @@ src/server.ts
 +            awaitingHumanApproval: thread.awaitingHumanApproval()
 +        });
 +        return;
-+    }
+     }
 +
      
--    thread.events.push({
--        type: "human_response",
--        data: req.body.message
--    });
--    
-     // loop until stop event
-     const newThread = await agentLoop(thread);
-     store.update(req.params.id, newThread);
- 
--    const lastEvent = newThread.events[newThread.events.length - 1];
-+    lastEvent = newThread.events[newThread.events.length - 1];
-     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
- 
++    // loop until stop event
++    const result = await agentLoop(thread);
++
+     store.update(req.params.id, result);
++
++    lastEvent = result.events[result.events.length - 1];
++    lastEvent.data.response_url = `/thread/${req.params.id}/response`;
++
++    console.log("returning last event from endpoint", lastEvent);
++    
+     res.json(result);
+ });
 ```
 
 <details>
@@ -1804,11 +1868,18 @@ src/cli.ts
 -        thread.events.push({ type: "human_response", data: message });
 -        const result = await agentLoop(thread);
 -        lastEvent = result.events.slice(-1)[0];
-+    while (lastEvent.data.intent !== "done_for_now") {
++    let needsResponse = 
++        newThread.awaitingHumanResponse() ||
++        newThread.awaitingHumanApproval();
++
++    while (needsResponse) {
++        lastEvent = newThread.events.slice(-1)[0];
 +        const responseEvent = await askHuman(lastEvent);
 +        thread.events.push(responseEvent);
 +        newThread = await agentLoop(thread);
-+        lastEvent = newThread.events.slice(-1)[0];
++        // determine if we should loop or if we're done
++        needsResponse = newThread.awaitingHumanResponse() 
++            || newThread.awaitingHumanApproval();
      }
  
      // print the final result
@@ -1842,8 +1913,7 @@ src/cli.ts
 +    }
 +    const hl = humanlayer({ //reads apiKey from env
 +        // name of this agent
-+        runId: "12fa-cli-agent",
-+        verbose: true,
++        runId: "cli-agent",
 +        contactChannel: {
 +            // agent should request permission via email
 +            email: {
@@ -1852,8 +1922,20 @@ src/cli.ts
 +        }
 +    }) 
 +
++    if (lastEvent.data.intent === "request_more_information") {
++        const response = await hl.fetchHumanResponse({
++            spec: {
++                msg: lastEvent.data.message
++            }
++        })
++        return {
++            "type": "tool_response",
++            "data": response
++        }
++    }
++    
 +    if (lastEvent.data.intent === "divide") {
-+        // fetch approval synchronously - this will block until reply
++        // fetch approval synchronously
 +        const response = await hl.fetchHumanApproval({
 +            spec: {
 +                fn: "divide",
@@ -1874,8 +1956,7 @@ src/cli.ts
 +        } else {
 +            return {
 +                "type": "tool_response",
-+                "data": `user denied operation ${lastEvent.data.intent}
-+                with feedback: ${response.comment}`
++                "data": `user denied operation ${lastEvent.data.intent}`
 +            };
 +        }
 +    }
@@ -1924,23 +2005,34 @@ lets implement the `request_more_information` flow as well
 
 ```diff
 src/cli.ts
-     }) 
  
-+    if (lastEvent.data.intent === "request_more_information") {
-+        // fetch response synchronously - this will block until reply
-+        const response = await hl.fetchHumanResponse({
-+            spec: {
-+                msg: lastEvent.data.message
-+            }
-+        })
-+        return {
-+            "type": "tool_response",
-+            "data": response
-+        }
-+    }
-+    
-     if (lastEvent.data.intent === "divide") {
-         // fetch approval synchronously - this will block until reply
+     // print the final result
+     console.log(lastEvent.data.message);
+     process.exit(0);
+ }
+ 
+-export async function askHumanEmail(lastEvent: Event): Promise<Event> {
++async function askHumanEmail(lastEvent: Event): Promise<Event> {
+     if (!process.env.HUMANLAYER_EMAIL) {
+         throw new Error("missing or invalid parameters: HUMANLAYER_EMAIL");
+             email: {
+                 address: process.env.HUMANLAYER_EMAIL,
++                // custom email body - jinja
++                template: `
++                 agent {{ event.run_id }} is requesting approval for {{event.spec.fn}}
++                 with args: {{event.spec.kwargs}}
++                 <br><br>
++                 reply to this email to approve
++                `
+             }
+         }
+             return {
+                 "type": "tool_response",
+-                "data": `user denied operation ${lastEvent.data.intent}`
++                "data": `user denied operation ${lastEvent.data.intent}
++                with feedback: ${response.comment}`
+             };
+         }
 ```
 
 <details>
@@ -1971,30 +2063,6 @@ you should see a final result on the CLI like
 as a final step, lets explore using a custom html template for the email
 
 
-```diff
-src/cli.ts
-             email: {
-                 address: process.env.HUMANLAYER_EMAIL,
-+                // custom email body - jinja
-+                template: `{% if type == 'request_more_information' %}
-+{{ event.spec.msg }}
-+{% else %}
-+agent {{ event.run_id }} is requesting approval for {{event.spec.fn}}
-+with args: {{event.spec.kwargs}}
-+<br><br>
-+reply to this email to approve
-+{% endif %}`
-             }
-         }
-```
-
-<details>
-<summary>skip this step</summary>
-
-    cp ./walkthrough/11c-cli.ts src/cli.ts
-
-</details>
-
 first try with divide:
 
 
@@ -2015,255 +2083,4 @@ try triggering "request_more_information" as well!
 thats it - in the next chapter, we'll build a fully email-driven 
 workflow agent that uses webhooks for human approval 
 
-
-## Chapter XX - HumanLayer Webhook Integration
-
-the previous sections used the humanlayer SDK in "synchronous mode" - that 
-means every time we wait for human approval, we sit in a loop 
-polling until the human response if received.
-
-That's obviously not ideal, especially for production workloads,
-so in this section we'll implement [factor 6 - launch / pause / resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-6-launch-pause-resume.md)
-by updating the server to end processing after contacting a human, and use webhooks to receive the results. 
-
-
-add code to initialize humanlayer in the server
-
-
-```diff
-src/server.ts
- import { Thread, agentLoop, handleNextStep } from '../src/agent';
- import { ThreadStore } from '../src/state';
-+import { humanlayer } from 'humanlayer';
- 
- const app = express();
- const store = new ThreadStore();
- 
-+const getHumanlayer = () => {
-+    const HUMANLAYER_EMAIL = process.env.HUMANLAYER_EMAIL;
-+    if (!HUMANLAYER_EMAIL) {
-+        throw new Error("missing or invalid parameters: HUMANLAYER_EMAIL");
-+    }
-+
-+    const HUMANLAYER_API_KEY = process.env.HUMANLAYER_API_KEY;
-+    if (!HUMANLAYER_API_KEY) {
-+        throw new Error("missing or invalid parameters: HUMANLAYER_API_KEY");
-+    }
-+    return humanlayer({
-+        runId: `12fa-agent`,
-+        contactChannel: {
-+            email: { address: HUMANLAYER_EMAIL }
-+        }
-+    });
-+}
-+
- // POST /thread - Start new thread
- app.post('/thread', async (req, res) => {
-     
-     // loop until stop event
--    const newThread = await agentLoop(thread);
-+    const result = await agentLoop(thread);
- 
--    store.update(req.params.id, newThread);
-+    store.update(req.params.id, result);
- 
--    lastEvent = newThread.events[newThread.events.length - 1];
-+    lastEvent = result.events[result.events.length - 1];
-     lastEvent.data.response_url = `/thread/${req.params.id}/response`;
- 
-     console.log("returning last event from endpoint", lastEvent);
-     
--    res.json(newThread);
-+    res.json(result);
- });
- 
-```
-
-<details>
-<summary>skip this step</summary>
-
-    cp ./walkthrough/12-1-server-init.ts src/server.ts
-
-</details>
-
-next, lets update the /thread endpoint to 
-  
-1. handle requests asynchronously, returning immediately
-2. create a human contact on request_more_information and done_for_now calls
-
-
-Update the server to be able to handle request_clarification responses
-
-- remove the old /response endpoint and types
-- update the /thread endpoint to run processing asynchronously, return immediately
-- send a state.threadId when requesting human responses
-- add a handleHumanResponse function to process the human response
-- add a /webhook endpoint to handle the webhook response
-
-
-```diff
-src/server.ts
--import express from 'express';
-+import express, { Request, Response } from 'express';
- import { Thread, agentLoop, handleNextStep } from '../src/agent';
- import { ThreadStore } from '../src/state';
--import { humanlayer } from 'humanlayer';
-+import { humanlayer, V1Beta2HumanContactCompleted } from 'humanlayer';
- 
- const app = express();
-     });
- }
--
- // POST /thread - Start new thread
--app.post('/thread', async (req, res) => {
-+app.post('/thread', async (req: Request, res: Response) => {
-     const thread = new Thread([{
-         type: "user_input",
-     }]);
-     
--    const threadId = store.create(thread);
--    const newThread = await agentLoop(thread);
--    
--    store.update(threadId, newThread);
-+    // run agent loop asynchronously, return immediately
-+    Promise.resolve().then(async () => {
-+        const threadId = store.create(thread);
-+        const newThread = await agentLoop(thread);
-+        
-+        store.update(threadId, newThread);
- 
--    const lastEvent = newThread.events[newThread.events.length - 1];
--    // If we exited the loop, include the response URL so the client can
--    // push a new message onto the thread
--    lastEvent.data.response_url = `/thread/${threadId}/response`;
-+        const lastEvent = newThread.events[newThread.events.length - 1];
- 
--    console.log("returning last event from endpoint", lastEvent);
--
--    res.json({ 
--        thread_id: threadId,
--        ...newThread 
-+        if (thread.awaitingHumanResponse()) {
-+            const hl = getHumanlayer();
-+            // create a human contact - returns immediately
-+            hl.createHumanContact({
-+                spec: {
-+                    msg: lastEvent.data.message,
-+                    state: {
-+                        thread_id: threadId,
-+                    }
-+                }
-+            });
-+        }
-     });
-+
-+    res.json({ status: "processing" });
- });
- 
- // GET /thread/:id - Get thread status
--app.get('/thread/:id', (req, res) => {
-+app.get('/thread/:id', (req: Request, res: Response) => {
-     const thread = store.get(req.params.id);
-     if (!thread) {
- });
- 
-+type WebhookResponse = V1Beta2HumanContactCompleted;
- 
--type ApprovalPayload = {
--    type: "approval";
--    approved: boolean;
--    comment?: string;
--}
-+const handleHumanResponse = async (req: Request, res: Response) => {
- 
--type ResponsePayload = {
--    type: "response";
--    response: string;
- }
- 
--type Payload = ApprovalPayload | ResponsePayload;
-+app.post('/webhook', async (req: Request, res: Response) => {
-+    console.log("webhook response", req.body);
-+    const response = req.body as WebhookResponse;
- 
--// POST /thread/:id/response - Handle clarification response
--app.post('/thread/:id/response', async (req, res) => {
--    let thread = store.get(req.params.id);
-+    // response is guaranteed to be set on a webhook
-+    const humanResponse: string = response.event.status?.response as string;
-+
-+    const threadId = response.event.spec.state?.thread_id;
-+    if (!threadId) {
-+        return res.status(400).json({ error: "Thread ID not found" });
-+    }
-+
-+    const thread = store.get(threadId);
-     if (!thread) {
-         return res.status(404).json({ error: "Thread not found" });
-     }
- 
--    const body: Payload = req.body;
--
--    let lastEvent = thread.events[thread.events.length - 1];
--
--    if (thread.awaitingHumanResponse() && body.type === 'response') {
--        thread.events.push({
--            type: "human_response",
--            data: body.response
--        });
--    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && !body.approved) {
--        // push feedback onto the thread
--        thread.events.push({
--            type: "tool_response",
--            data: `user denied the operation with feedback: "${body.comment}"`
--        });
--    } else if (thread.awaitingHumanApproval() && body.type === 'approval' && body.approved) {
--        // approved, run the tool, pushing results onto the thread
--        await handleNextStep(lastEvent.data, thread);
--    } else {
--        res.status(400).json({
--            error: "Invalid request: " + body.type,
--            awaitingHumanResponse: thread.awaitingHumanResponse(),
--            awaitingHumanApproval: thread.awaitingHumanApproval()
--        });
--        return;
-+    if (!thread.awaitingHumanResponse()) {
-+        return res.status(400).json({ error: "Thread is not awaiting human response" });
-     }
- 
--    
--    // loop until stop event
--    const result = await agentLoop(thread);
--
--    store.update(req.params.id, result);
--
--    lastEvent = result.events[result.events.length - 1];
--    lastEvent.data.response_url = `/thread/${req.params.id}/response`;
--
--    console.log("returning last event from endpoint", lastEvent);
--    
--    res.json(result);
- });
- 
-```
-
-<details>
-<summary>skip this step</summary>
-
-    cp ./walkthrough/12a-server.ts src/server.ts
-
-</details>
-
-Start the server in another terminal
-
-    npx tsx src/server.ts
-
-now that the server is running, send a payload to the '/thread' endpoint
-
-
-__ do the response step
-
-__ now handle approvals for divide
-
-__ now also handle done_for_now
 

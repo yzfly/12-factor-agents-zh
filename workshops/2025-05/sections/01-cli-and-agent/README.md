@@ -6,7 +6,7 @@ First, we'll need to install [BAML](https://github.com/boundaryml/baml)
 which is a tool for prompting and structured outputs.
 
 
-    npm i baml
+    npm install @boundaryml/baml
 
 Initialize BAML
 

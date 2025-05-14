@@ -6,7 +6,7 @@ class DoneForNow {
 client<llm> Qwen3 {
   provider "openai-generic"
   options {
-    base_url "https://model-4w7jrl6w.api.baseten.co/environments/production/sync/v1"
+    base_url env.BASETEN_BASE_URL
     api_key env.BASETEN_API_KEY 
   }
 }
