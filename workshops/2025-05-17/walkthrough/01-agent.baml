@@ -6,8 +6,8 @@ class DoneForNow {
 client<llm> Qwen3 {
   provider "openai-generic"
   options {
-    base_url "https://model-4w7jrl6w.api.baseten.co/environments/production/predict"
-    api_key "QQksI6f4.mFAZX9D0DevBQMUWs2OV8gcfzMUinN9N"
+    base_url "https://model-4w7jrl6w.api.baseten.co/environments/production/sync/v1"
+    api_key env.BASETEN_API_KEY 
   }
 }
 
@@ -16,8 +16,11 @@ function DetermineNextStep(
 ) -> DoneForNow {
     client Qwen3
 
+    // use /nothink for now because the thinking tokens (or streaming thereof) screw with baml (i think (no pun intended))
     prompt #"
         {{ _.role("system") }}
+
+        /nothink 
 
         You are a helpful assistant that can help with tasks.
 
