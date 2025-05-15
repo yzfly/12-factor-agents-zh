@@ -13,7 +13,7 @@ client<llm> Qwen3 {
 
 function DetermineNextStep(
     thread: string 
-) -> CalculatorTools | DoneForNow {
+) -> DoneForNow {
     client Qwen3
 
     // use /nothink for now because the thinking tokens (or streaming thereof) screw with baml (i think (no pun intended))
