@@ -26,6 +26,7 @@ function DetermineNextStep(
     thread: string 
 ) -> HumanTools | CalculatorTools {
     client Qwen3
+    // client "openai/gpt-4o"
 
     prompt #"
         {{ _.role("system") }}

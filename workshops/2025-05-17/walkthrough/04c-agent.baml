@@ -15,6 +15,8 @@ function DetermineNextStep(
 ) -> CalculatorTools | DoneForNow {
     client Qwen3
 
+    // client "openai/gpt-4o"
+
     prompt #"
         {{ _.role("system") }}
 
