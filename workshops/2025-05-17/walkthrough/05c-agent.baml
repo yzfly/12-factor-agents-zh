@@ -14,13 +14,23 @@ class DoneForNow {
   "#)
 }
 
+client<llm> Qwen3 {
+  provider "openai-generic"
+  options {
+    base_url env.BASETEN_BASE_URL
+    api_key env.BASETEN_API_KEY 
+  }
+} 
+
 function DetermineNextStep(
     thread: string 
 ) -> HumanTools | CalculatorTools {
-    client "openai/gpt-4o"
+    client Qwen3
 
     prompt #"
         {{ _.role("system") }}
+
+        /nothink
 
         You are a helpful assistant that can help with tasks.
 
