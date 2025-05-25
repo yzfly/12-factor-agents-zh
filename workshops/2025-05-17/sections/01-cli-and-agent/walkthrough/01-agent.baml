@@ -15,7 +15,6 @@ function DetermineNextStep(
     thread: string 
 ) -> DoneForNow {
     client Qwen3
-    // client "openai/gpt-4o"
 
     // use /nothink for now because the thinking tokens (or streaming thereof) screw with baml (i think (no pun intended))
     prompt #"

@@ -13,15 +13,14 @@ client<llm> Qwen3 {
 
 function DetermineNextStep(
     thread: string 
-) -> DoneForNow {
+) -> CalculatorTools | DoneForNow {
     client Qwen3
-    // client "openai/gpt-4o"
+    // client "openai/gpt-4o" 
 
-    // use /nothink for now because the thinking tokens (or streaming thereof) screw with baml (i think (no pun intended))
     prompt #"
         {{ _.role("system") }}
 
-        /nothink 
+        /nothink
 
         You are a helpful assistant that can help with tasks.
 
@@ -47,4 +46,19 @@ test HelloWorld {
       }
     "#
   }
+  @@assert(hello, {{this.intent == "done_for_now"}})
 }
+
+test MathOperation {
+  functions [DetermineNextStep]
+  args {
+    thread #"
+      {
+        "type": "user_input",
+        "data": "can you multiply 3 and 4?"
+      }
+    "#
+  }
+  @@assert(math_operation, {{this.intent == "multiply"}})
+}
+
