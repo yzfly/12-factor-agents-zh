@@ -12,7 +12,7 @@ targets:
   - folders: "./build/by-section" # creates a separate working folder for each section
 sections:
   - name: setup
-    title: "Copy inital files"
+    title: "Copy initial files"
     steps:
       - file: {src: ./walkthrough/00-package.json, dest: package.json}
       - file: {src: ./walkthrough/00-package-lock.json, dest: package-lock.json}
