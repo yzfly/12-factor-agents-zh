@@ -31,7 +31,7 @@ targets:
   - folders: "./build/by-section" # creates a separate working folder for each section
 sections:
   - name: setup
-    title: "Copy inital files"
+    title: "Copy initial files"
     steps:
       - file: {src: ./walkthrough/00-package.json, dest: package.json}
       - file: {src: ./walkthrough/00-package-lock.json, dest: package-lock.json}
@@ -67,7 +67,7 @@ npm i -g wtg
 wtg build
 ```
 
-based on your targets, thi would create the following files
+based on your targets, this would create the following files
 
 ```
 ├── walkthrough
@@ -106,7 +106,7 @@ and your walkthrough.md file will look like:
 
 this is a walkthrough for setting up a typescript cli
 
-## Copy inital files
+## Copy initial files
 
   cp walkthrough/00-package.json package.json
   cp walkthrough/00-package-lock.json package-lock.json

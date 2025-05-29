@@ -149,7 +149,7 @@ you should get another email with an updated attempt based on your feedback!
 
 You can go ahead and approve this one:
 
-![appove-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-approve.png?raw=true)
+![approve-email](https://github.com/humanlayer/12-factor-agents/blob/main/workshops/2025-05/walkthrough/11-email-approve.png?raw=true)
 
 
 and your final output will look like

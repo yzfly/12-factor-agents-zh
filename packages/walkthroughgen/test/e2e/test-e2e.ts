@@ -243,7 +243,7 @@ describe("CLI generate from example", () => {
       // Content checks
       const markdownContent = fs.readFileSync(expectedMarkdownPath, 'utf8').replace(/\r\n/g, '\n');
       expect(markdownContent).toContain("# setting up a typescript cli");
-      expect(markdownContent).toContain("## Copy inital files");
+      expect(markdownContent).toContain("## Copy initial files");
       expect(markdownContent).toContain("cp ./walkthrough/00-package.json package.json");
     });
   });
