@@ -82,7 +82,6 @@ export async function handleNextStep(nextStep: CalculatorTool, thread: Thread): 
 }
 
 export async function agentLoop(thread: Thread): Promise<Thread> {
-
     while (true) {
         const nextStep = await b.DetermineNextStep(thread.serializeForLLM());
         console.log("nextStep", nextStep);

@@ -9,6 +9,7 @@
     "dependencies": {
         "@boundaryml/baml": "^0.88.0",
         "@humanlayer/sdk": "^0.7.8",
+        "chalk": "^5.4.1",
         "express": "^5.1.0",
         "tsx": "^4.15.0",
         "typescript": "^5.0.0"

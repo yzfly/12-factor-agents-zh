@@ -1,20 +1,10 @@
 // cli.ts lets you invoke the agent loop from the command line
 
 import { humanlayer } from "humanlayer";
-import { agentLoop, Thread, Event } from "../src/agent";
+import { agentLoop, Thread, Event, handleNextStep } from "../src/agent";
+import chalk from "chalk";
 
-export async function cli() {
-    // Get command line arguments, skipping the first two (node and script name)
-    const args = process.argv.slice(2);
-
-    if (args.length === 0) {
-        console.error("Error: Please provide a message as a command line argument");
-        process.exit(1);
-    }
-
-    // Join all arguments into a single message
-    const message = args.join(" ");
-
+export async function cliOuterLoop(message: string) {
     // Create a new thread with the user's message as the initial event
     const thread = new Thread([{ type: "user_input", data: message }]);
 
@@ -22,24 +12,49 @@ export async function cli() {
     let newThread = await agentLoop(thread);
     let lastEvent = newThread.events.slice(-1)[0];
 
-    while (lastEvent.data.intent !== "done_for_now") {
+    // loop until ctrl+c
+    // optional, you could exit on done_for_now and print the final result
+    // while (lastEvent.data.intent !== "done_for_now") {
+    while (true) {
         const responseEvent = await askHuman(lastEvent);
         thread.events.push(responseEvent);
         newThread = await agentLoop(thread);
         lastEvent = newThread.events.slice(-1)[0];
     }
+}
 
-    // print the final result
-    // optional - you could loop here too 
-    console.log(lastEvent.data.message);
-    process.exit(0);
+export async function cli() {
+    // Get command line arguments, skipping the first two (node and script name)
+    const args = process.argv.slice(2);
+
+    const message = args.length === 0 ? "hello!" : args.join(" ");
+
+    await cliOuterLoop(message);
 }
 
 async function askHuman(lastEvent: Event): Promise<Event> {
-    if (process.env.HUMANLAYER_API_KEY) {
+    if (process.env.HUMANLAYER_API_KEY && process.env.HUMANLAYER_EMAIL) {
         return await askHumanEmail(lastEvent);
     } else {
-        return await askHumanCLI(lastEvent.data.message);
+        switch (lastEvent.data.intent) {
+            case "divide":
+                const result = await askHumanCLI(`agent wants to run ${chalk.green(JSON.stringify(lastEvent.data))}\nPress Enter to approve, or type feedback to cancel:`);
+                if (result.data.approved) {
+                    const thread = new Thread([lastEvent]);
+                    const result = await handleNextStep(lastEvent.data, thread);
+                    return result.events[result.events.length - 1];
+                } else {
+                    return {
+                        type: "tool_response",
+                        data: `user denied operation ${lastEvent.data.intent} with feedback: ${result.data.comment}`
+                    };
+                }
+            case "request_more_information":
+            case "done_for_now":
+                return await askHumanCLI(lastEvent.data.message);
+            default:
+                throw new Error(`unknown tool in outer loop: ${lastEvent.data.intent}`)
+        }
     }
 }
 
@@ -51,7 +66,14 @@ async function askHumanCLI(message: string): Promise<Event> {
 
     return new Promise((resolve) => {
         readline.question(`${message}\n> `, (answer: string) => {
-            resolve({ type: "human_response", data: answer });
+            readline.close();
+            // If the answer is empty (just pressed enter), treat it as approval
+            if (answer.trim() === '') {
+                resolve({ type: "human_response", data: { approved: true } });
+            } else {
+                // Any non-empty response is treated as rejection with feedback
+                resolve({ type: "human_response", data: { approved: false, comment: answer } });
+            }
         });
     });
 }
