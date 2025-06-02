@@ -6,6 +6,7 @@ export interface Event {
 }
 
 export class Thread {
+    
     events: Event[] = [];
 
     constructor(events: Event[]) {
@@ -38,6 +39,10 @@ export class Thread {
     awaitingHumanApproval(): boolean {
         const lastEvent = this.events[this.events.length - 1];
         return lastEvent.data.intent === 'divide';
+    }
+
+    lastEvent(): Event {
+        return this.events[this.events.length - 1];
     }
 }
 

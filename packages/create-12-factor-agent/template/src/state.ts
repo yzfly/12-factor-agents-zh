@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { Thread } from '../src/agent';
+import { Response } from 'express';
 
 export interface ThreadStore {
     create(thread: Thread): string;
@@ -22,7 +23,7 @@ export class InMemoryThreadStore implements ThreadStore {
     get(id: string): Thread | undefined {
         return this.threads.get(id);
     }
-    
+
     update(id: string, thread: Thread): void {
         this.threads.set(id, thread);
     }
