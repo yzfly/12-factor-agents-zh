@@ -1,4 +1,3 @@
-type CalculatorTools = AddTool | SubtractTool | MultiplyTool | DivideTool
 
 
 class AddTool {

@@ -2,24 +2,37 @@
 
 import { humanlayer } from "humanlayer";
 import { agentLoop, Thread, Event, handleNextStep } from "../src/agent";
+import { FileSystemThreadStore } from "./state";
 import chalk from "chalk";
+
+const threadStore = new FileSystemThreadStore();
 
 export async function cliOuterLoop(message: string) {
     // Create a new thread with the user's message as the initial event
     const thread = new Thread([{ type: "user_input", data: message }]);
+    const threadId = await threadStore.create(thread);
 
     // Run the agent loop with the thread
-    let newThread = await agentLoop(thread);
-    let lastEvent = newThread.events.slice(-1)[0];
 
     // loop until ctrl+c
     // optional, you could exit on done_for_now and print the final result
     // while (lastEvent.data.intent !== "done_for_now") {
     while (true) {
+        let newThread = await agentLoop(thread);
+        await threadStore.update(threadId, newThread);
+        let lastEvent = newThread.lastEvent();
+
+        // everything on CLI
         const responseEvent = await askHumanCLI(lastEvent);
-        thread.events.push(responseEvent);
-        newThread = await agentLoop(thread);
-        lastEvent = newThread.events.slice(-1)[0];
+        newThread.events.push(responseEvent);
+        // if (lastEvent.data.intent === "request_approval_from_manager") {
+        //     const responseEvent = await askManager(lastEvent);
+        //     thread.events.push(responseEvent);
+        // } else {
+        //     const responseEvent = await askHumanCLI(lastEvent);
+        //     thread.events.push(responseEvent);
+        // }
+        await threadStore.update(threadId, newThread);
     }
 }
 
@@ -31,6 +44,25 @@ export async function cli() {
 
     await cliOuterLoop(message);
 }
+
+// async function askManager(lastEvent: Event): Promise<Event> {
+//     const hl = humanlayer({
+//         contactChannel: {
+//              email: {
+//                 address: process.env.HUMANLAYER_EMAIL_ADDRESS || "manager@example.com"
+//             }
+//         }
+//     })
+//     const resp = await hl.fetchHumanResponse({
+//         spec: {
+//             msg: lastEvent.data.message
+//         }
+//      })
+//      return {
+//         type: "manager_response",
+//         data: resp
+//      }
+// }
 
 async function askHumanCLI(lastEvent: Event): Promise<Event> {
 
@@ -48,6 +80,7 @@ async function askHumanCLI(lastEvent: Event): Promise<Event> {
                 };
             }
         case "request_more_information":
+        case "request_approval_from_manager":
         case "done_for_now":
             const message = await messageCLI(lastEvent.data.message);
             return {

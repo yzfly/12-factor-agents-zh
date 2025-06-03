@@ -7,19 +7,18 @@
         "build": "tsc"
     },
     "dependencies": {
-        "@boundaryml/baml": "^0.88.0",
-        "@humanlayer/sdk": "^0.7.8",
-        "chalk": "^5.4.1",
+        "@boundaryml/baml": "latest",
         "express": "^5.1.0",
+        "humanlayer": "^0.7.7",
         "tsx": "^4.15.0",
         "typescript": "^5.0.0"
     },
     "devDependencies": {
-        "@types/express": "^5.0.2",
+        "@types/express": "^5.0.1",
         "@types/node": "^20.0.0",
         "@typescript-eslint/eslint-plugin": "^6.0.0",
         "@typescript-eslint/parser": "^6.0.0",
         "eslint": "^8.0.0",
-        "supertest": "^7.1.1"
+        "supertest": "^7.1.0"
     }
 }

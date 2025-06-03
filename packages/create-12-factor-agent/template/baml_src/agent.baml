@@ -1,6 +1,3 @@
-// human tools are async requests to a human
-type HumanTools = ClarificationRequest | DoneForNow
-
 class ClarificationRequest {
   intent "request_more_information" @description("you can request more information from me")
   message string
@@ -14,10 +11,26 @@ class DoneForNow {
   "#)
 }
 
+class RequestApprovalFromManager {
+  intent "request_approval_from_manager"
+  message string
+}
+
+class ProcessRefund {
+  intent "process_refund" @description("you can process a refund for a customer, always request approval from the manager before processing a refund")
+  order_id string
+  amount int | float
+  reason string
+}
+
+type HumanTools = ClarificationRequest | DoneForNow | RequestApprovalFromManager
+type CalculatorTools = AddTool | SubtractTool | MultiplyTool | DivideTool
+type CustomerSupportTools = ProcessRefund
+
 function DetermineNextStep(
     thread: string 
-) -> HumanTools | CalculatorTools {
-    client "openai/gpt-4o-mini"
+) -> HumanTools | CalculatorTools | CustomerSupportTools {
+    client "openai/gpt-4o"
 
     prompt #"
         {{ _.role("system") }}
@@ -43,6 +56,7 @@ function DetermineNextStep(
         {...} // schema
     "#
 }
+
 
 test HelloWorld {
   functions [DetermineNextStep]

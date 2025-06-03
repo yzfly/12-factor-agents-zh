@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express';
 import { Thread, agentLoop as innerLoop, handleNextStep } from '../src/agent';
-import { InMemoryThreadStore, ThreadStore } from '../src/state';
+import { FileSystemThreadStore, ThreadStore } from '../src/state';
 import { ContactChannel, FunctionCall, HumanContact, humanlayer, V1Beta2EmailEventReceived, V1Beta2HumanContactCompleted, V1Beta2SlackEventReceived } from '@humanlayer/sdk';
 
 const app = express();
 app.use(express.json());
 app.set('json spaces', 2);
 
-const store = new InMemoryThreadStore();
+const store = new FileSystemThreadStore();
 
 type V1Beta3ConversationCreated = {
     is_test: boolean;

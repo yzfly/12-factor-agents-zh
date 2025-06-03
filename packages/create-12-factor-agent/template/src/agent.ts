@@ -99,6 +99,7 @@ export async function agentLoop(thread: Thread): Promise<Thread> {
         switch (nextStep.intent) {
             case "done_for_now":
             case "request_more_information":
+            case "request_approval_from_manager":
                 // response to human, return the thread
                 return thread;
             case "divide":
