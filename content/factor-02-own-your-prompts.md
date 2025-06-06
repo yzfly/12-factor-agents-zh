@@ -1,8 +1,8 @@
-[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
+![image](https://github.com/user-attachments/assets/575bab37-0f96-49fb-9ce3-9a883cdd420b)[← Back to README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
 
 ### 2. Own your prompts
 
-Don't outsource your prompt engineering to a framework. 
+Don't outsource your prompt engineering to a framework. [this is not a novel idea](https://hamel.dev/blog/posts/prompt/)
 
 ![120-own-your-prompts](https://github.com/humanlayer/12-factor-agents/blob/main/img/120-own-your-prompts.png)
 
@@ -83,5 +83,9 @@ Remember: Your prompts are the primary interface between your application logic 
 Having full control over your prompts gives you the flexibility and prompt control you need for production-grade agents.
 
 I don't know what's the best prompt, but I know you want the flexibility to be able to try EVERYTHING.
+
+[This is not a novel idea](https://hamel.dev/blog/posts/prompt/)
+
+![image](https://github.com/user-attachments/assets/9cfdbeb2-1050-4a80-8b99-ad1906ba4383)
 
 [← Natural Language To Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-01-natural-language-to-tool-calls.md) | [Own Your Context Window →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)
