@@ -19,7 +19,8 @@ Creating great context means:
 - Any past messages or events from related but separate histories/conversations (Memory)
 - Instructions about what sorts of structured data to output
 
-![220-context-engineering](https://github.com/humanlayer/12-factor-agents/blob/main/img/220-context-engineering.png)
+![image](https://github.com/user-attachments/assets/0f1f193f-8e94-4044-a276-576bd7764fd0)
+
 
 This guide is all about getting as much as possible out of today's models. Notably not mentioned are:
 
