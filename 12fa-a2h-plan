@@ -1,0 +1,23 @@
+## Goals
+
+A working implementation of 
+
+npx create-12-factor-agent
+
+that follows the basic template in packages/create-12-factor-agent/template
+
+includes by default:
+- typescript 
+
+
+- everything in the package should be usable as a standalone package and exported, to support:
+- a npx @humanlayer/create command to create a new 12-factor agent with `humanlayer: true`
+
+
+### python pacakge
+
+A python repo template similar to the typescript template, but uses python and uv instead of typescript.
+
+A working implementation of 
+`uvx create-12-factor-agent` that follows
+all the above goals, but uses python to create the repo and uses a python repo template. all other flags and toggles are the same
