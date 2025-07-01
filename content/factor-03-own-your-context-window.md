@@ -23,7 +23,7 @@ Creating great context means:
 
 ### Don't take it from me
 
-I heard these folks are pretty smart too.
+About 2 months after 12-factor agents was published, context engineering started to become a pretty popular term.
 
 <a href="https://x.com/karpathy/status/1937902205765607626"><img width="583" alt="Screenshot 2025-06-25 at 4 11 45 PM" src="https://github.com/user-attachments/assets/97e6e667-c35f-4855-8233-af40f05d6bce" /></a>
 
