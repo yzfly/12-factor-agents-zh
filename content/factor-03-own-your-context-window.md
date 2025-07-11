@@ -29,6 +29,11 @@ About 2 months after 12-factor agents was published, context engineering started
 
 <a href="https://x.com/tobi/status/1935533422589399127"><img width="592" alt="Screenshot 2025-06-25 at 4 12 59 PM" src="https://github.com/user-attachments/assets/7e6f5738-0d38-4910-82d1-7f5785b82b99" /></a>
 
+There's also a quite good [Context Engineering Cheat Sheet](https://x.com/lenadroid/status/1943685060785524824) from [@lenadroid](https://x.com/lenadroid) from July 2025.
+
+<a href="https://x.com/lenadroid/status/1943685060785524824"><img width="256" height="115" alt="image" src="https://github.com/user-attachments/assets/cac88aa3-8faf-440b-9736-cab95a9de477" /></a>
+
+
 ### on context engineering
 
 This guide is all about getting as much as possible out of today's models. Notably not mentioned are:
