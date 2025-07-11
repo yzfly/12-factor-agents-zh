@@ -31,7 +31,7 @@ About 2 months after 12-factor agents was published, context engineering started
 
 There's also a quite good [Context Engineering Cheat Sheet](https://x.com/lenadroid/status/1943685060785524824) from [@lenadroid](https://x.com/lenadroid) from July 2025.
 
-<a href="https://x.com/lenadroid/status/1943685060785524824"><img width="256" height="115" alt="image" src="https://github.com/user-attachments/assets/cac88aa3-8faf-440b-9736-cab95a9de477" /></a>
+<a href="https://x.com/lenadroid/status/1943685060785524824"><img width="256" alt="image" src="https://github.com/user-attachments/assets/cac88aa3-8faf-440b-9736-cab95a9de477" /></a>
 
 
 ### on context engineering
