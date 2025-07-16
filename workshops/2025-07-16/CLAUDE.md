@@ -54,7 +54,6 @@
 ## Testing Commands
 
 • Generate notebook: `uv run python hack/walkthroughgen_py.py hack/walkthrough_python.yaml -o hack/test.ipynb`
-• Test locally: `uv run python hack/test_notebook.py hack/test.ipynb`
 • Full Colab sim: `cd hack && ./test_notebook_colab_sim.sh`
 • Run BAML tests: `baml-cli test` (from directory with baml_src)
 
@@ -64,6 +63,5 @@
 • `walkthrough/*.baml` - BAML files fetched from GitHub during notebook execution
 • `hack/walkthroughgen_py.py` - Main conversion tool
 • `hack/walkthrough_python.yaml` - Notebook definition with all chapters
-• `hack/test_notebook.py` - Local testing script (skips pip/baml-cli init)
 • `hack/test_notebook_colab_sim.sh` - Full Colab environment simulation
 • `hack/workshop_final.ipynb` - Final generated notebook ready for workshop
