@@ -1,0 +1,21 @@
+title: "Test Tree Command After Fetch"
+text: "Simple test to verify tree command works after fetch_file"
+
+targets:
+  - ipynb: "./tmp_test.ipynb"
+
+sections:
+  - name: test-tree
+    title: "Test Tree Command"
+    text: "Testing tree command after fetch_file"
+    steps:
+      - text: "Setting up BAML"
+      - baml_setup: true
+      - text: "Fetching a BAML file"
+      - fetch_file: {src: ./walkthrough/01-agent.baml, dest: baml_src/agent.baml}
+      - command: "!tree -I baml_client"
+      - text: "The tree command above should show our file structure"
+      - text: "Let's fetch another file"
+      - fetch_file: {src: ./walkthrough/02-tool_calculator.baml, dest: baml_src/tool_calculator.baml}
+      - command: "!tree -I baml_client"
+      - text: "Now we should see both BAML files in the tree"

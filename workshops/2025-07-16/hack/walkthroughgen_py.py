@@ -83,110 +83,38 @@ def get_baml_client():
     init_code = "!baml-cli init"
     nb.cells.append(new_code_cell(init_code))
     
-    # Fourth cell: BAML logging helper for Jupyter
-    logging_setup = '''# Enable BAML logging capture in Jupyter
+    # Fourth cell: Add BAML logging helper
+    logging_helper = '''# Helper function to capture BAML logs in notebook output
 import os
-import sys
 from IPython.utils.capture import capture_output
 
-# Set BAML logging level
-os.environ['BAML_LOG'] = 'info'
-
-# Helper function to run code with BAML log capture
 def run_with_baml_logs(func, *args, **kwargs):
-    """Run a function and display BAML logs in the notebook."""
-    print(f"Running with BAML_LOG={os.environ.get('BAML_LOG')}...")
-    
-    # Capture all output
+    """Run a function and capture BAML logs in the notebook output."""
+    # Capture both stdout and stderr
     with capture_output() as captured:
         result = func(*args, **kwargs)
     
-    # Display the result first
-    if result is not None:
-        print("=== Result ===")
-        print(result)
-    
-    # Display captured stdout
+    # Display the captured output
     if captured.stdout:
-        print("\\n=== Output ===")
         print(captured.stdout)
-    
-    # Display BAML logs from stderr
     if captured.stderr:
+        # BAML logs go to stderr - format them nicely
         print("\\n=== BAML Logs ===")
-        # Format the logs for better readability
-        log_lines = captured.stderr.strip().split('\\n')
-        for line in log_lines:
-            if 'reasoning' in line.lower() or '<reasoning>' in line:
-                print(f"🤔 {line}")
-            elif 'error' in line.lower():
-                print(f"❌ {line}")
-            elif 'warn' in line.lower():
-                print(f"⚠️  {line}")
-            else:
-                print(f"   {line}")
+        print(captured.stderr)
+        print("=================\\n")
     
     return result
 
-print("BAML logging helper loaded! Use run_with_baml_logs(main, 'your message') to see logs.")
+# Set BAML log level (options: error, warn, info, debug, trace)
+os.environ['BAML_LOG'] = 'info'
 '''
-    nb.cells.append(new_code_cell(logging_setup))
+    nb.cells.append(new_code_cell(logging_helper))
 
 def process_step(nb, step, base_path, current_functions, section_name=None):
     """Process different step types."""
     if 'text' in step:
         # Add markdown cell
         nb.cells.append(new_markdown_cell(step['text']))
-        
-        # Special handling for reasoning section
-        if section_name == 'customize-prompt' and 'reasoning in action' in step['text']:
-            # Add enhanced reasoning visualization after the text
-            reasoning_viz = '''# Enhanced logging for reasoning visualization
-import re
-from IPython.display import display, HTML
-
-def run_and_show_reasoning(func, *args, **kwargs):
-    """Run a function and highlight the reasoning steps from BAML logs."""
-    from IPython.utils.capture import capture_output
-    
-    with capture_output() as captured:
-        result = func(*args, **kwargs)
-    
-    # Extract and format reasoning from logs
-    if captured.stderr:
-        # Look for reasoning sections in the logs
-        log_text = captured.stderr
-        
-        # Find reasoning blocks
-        reasoning_pattern = r'<reasoning>(.*?)</reasoning>'
-        reasoning_matches = re.findall(reasoning_pattern, log_text, re.DOTALL)
-        
-        if reasoning_matches:
-            display(HTML("<h3>🧠 Model Reasoning:</h3>"))
-            for reasoning in reasoning_matches:
-                display(HTML(f"""
-                <div style='background-color: #f0f8ff; border-left: 4px solid #4169e1; 
-                            padding: 10px; margin: 10px 0; font-family: monospace;'>
-                    {reasoning.strip().replace(chr(10), '<br>')}
-                </div>
-                """))
-        
-        # Show the result
-        display(HTML("<h3>📤 Response:</h3>"))
-        display(HTML(f"<pre>{str(result)}</pre>"))
-        
-        # Optionally show full logs
-        display(HTML("""<details><summary>View Full BAML Logs</summary>
-                        <pre style='font-size: 0.8em; background-color: #f5f5f5; padding: 10px;'>""" + 
-                     log_text.replace('<', '&lt;').replace('>', '&gt;') + 
-                     "</pre></details>"))
-    
-    return result
-
-print("Enhanced reasoning visualization loaded! Use:")
-print("run_and_show_reasoning(main, 'can you multiply 3 and 4')")
-'''
-            nb.cells.append(new_code_cell(reasoning_viz))
     
     if 'baml_setup' in step:
         # Add BAML setup cells
@@ -256,18 +184,18 @@ print("run_and_show_reasoning(main, 'can you multiply 3 and 4')")
             else:
                 call_parts.append(f'{key}={value}')
         
-        # Generate the function call
-        main_call = f'main({", ".join(call_parts)})' if call_parts else "main()"
+        # Generate the function call - default to using logging for BAML sections
+        if call_parts:
+            main_call = f'main({", ".join(call_parts)})'
+        else:
+            main_call = "main()"
         
-        # Use different wrappers based on section
-        if section_name == 'customize-prompt':
-            # Use enhanced reasoning visualization for this section
-            nb.cells.append(new_code_cell(f'run_and_show_reasoning({main_call})'))
-        elif section_name in ['cli-and-agent', 'calculator-tools', 'tool-loop']:
-            # Use basic logging wrapper for these sections
+        # For sections with BAML, use logging wrapper
+        if section_name in ['cli-and-agent', 'calculator-tools', 'tool-loop', 'baml-tests', 
+                           'human-tools', 'customize-prompt', 'context-window']:
             nb.cells.append(new_code_cell(f'run_with_baml_logs({main_call})'))
         else:
-            # Default to plain call
+            # Only hello-world section runs without logging
             nb.cells.append(new_code_cell(main_call))
 
 def convert_walkthrough_to_notebook(yaml_path, output_path):

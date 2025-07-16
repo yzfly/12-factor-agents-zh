@@ -74,6 +74,7 @@ sections:
           
           This BAML file defines what our agent can do:
       - fetch_file: {src: ./walkthrough/01-agent.baml, dest: baml_src/agent.baml}
+      - command: "!tree -I baml_client"
       - text: |
           Now let's create our main function that accepts a message parameter:
       - file: {src: ./walkthrough/01-main.py}
@@ -279,9 +280,11 @@ sections:
       - fetch_file: {src: ./walkthrough/06-agent.baml, dest: baml_src/agent.baml}
       - text: |
           Now let's test it with a simple calculation to see the reasoning in action:
+          
+          **Note:** The BAML logs below will show the model's reasoning steps. Look for the `<reasoning>` tags in the logs to see how the model thinks through the problem before deciding what to do.
       - run_main: {regenerate_baml: true, args: "can you multiply 3 and 4"}
       - text: |
-          You should notice in the BAML logs (if enabled) that the model now includes reasoning steps before deciding what to do.
+          You should see the reasoning steps in the BAML logs above. The model explicitly thinks through what it needs to do before making a decision.
           
           ## Advanced Prompt Engineering
           
