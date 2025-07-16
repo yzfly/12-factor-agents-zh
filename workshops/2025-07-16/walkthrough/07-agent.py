@@ -12,6 +12,7 @@ class Thread:
     
     def serialize_as_xml(self):
         """Serialize thread events to XML format for better token efficiency."""
+        import yaml
         xml_parts = ["<thread>"]
         
         for event in self.events:
@@ -21,11 +22,11 @@ class Thread:
             if event_type == 'user_input':
                 xml_parts.append(f'  <user_input>{event_data}</user_input>')
             elif event_type == 'tool_call':
-                xml_parts.append(f'  <tool_call>')
-                xml_parts.append(f'    <tool>{event_data["tool"]}</tool>')
-                xml_parts.append(f'    <operation>{event_data["operation"]}</operation>')
-                xml_parts.append(f'    <result>{event_data["result"]}</result>')
-                xml_parts.append(f'  </tool_call>')
+                # Use YAML for tool call args - more compact than nested XML
+                yaml_content = yaml.dump(event_data, default_flow_style=False).strip()
+                xml_parts.append(f'  <{event_data["tool"]}>')
+                xml_parts.append('    ' + '\n    '.join(yaml_content.split('\n')))
+                xml_parts.append(f'  </{event_data["tool"]}>')
             elif event_type == 'clarification_request':
                 xml_parts.append(f'  <clarification_request>{event_data}</clarification_request>')
             elif event_type == 'clarification_response':
