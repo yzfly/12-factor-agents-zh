@@ -1,0 +1,23 @@
+title: "Test ls commands"
+text: "Quick test of ls baml_src commands"
+
+targets:
+  - ipynb: "./test_ls_simple.ipynb"
+
+sections:
+  - name: test-ls
+    title: "Test ls Commands"
+    text: "Testing ls after baml_setup and fetch_file"
+    steps:
+      - text: "Setting up BAML"
+      - baml_setup: true
+      - command: "!ls baml_src"
+      - text: "After setup, we should see the default BAML files"
+      - text: "Now fetching agent.baml"
+      - fetch_file: {src: ./walkthrough/01-agent.baml, dest: baml_src/agent.baml}
+      - command: "!ls baml_src"
+      - text: "Now we should see agent.baml added"
+      - text: "Fetching calculator tools"
+      - fetch_file: {src: ./walkthrough/02-tool_calculator.baml, dest: baml_src/tool_calculator.baml}
+      - command: "!ls baml_src"
+      - text: "Now we should see both agent.baml and tool_calculator.baml"

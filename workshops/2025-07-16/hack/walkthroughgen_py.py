@@ -184,18 +184,23 @@ def process_step(nb, step, base_path, current_functions, section_name=None):
             else:
                 call_parts.append(f'{key}={value}')
         
-        # Generate the function call - default to using logging for BAML sections
+        # Generate the function call
         if call_parts:
             main_call = f'main({", ".join(call_parts)})'
         else:
             main_call = "main()"
         
-        # For sections with BAML, use logging wrapper
-        if section_name in ['cli-and-agent', 'calculator-tools', 'tool-loop', 'baml-tests', 
-                           'human-tools', 'customize-prompt', 'context-window']:
-            nb.cells.append(new_code_cell(f'run_with_baml_logs({main_call})'))
+        # Check if we should use logging wrapper
+        use_logging = step['run_main'].get('show_logs', False)
+        
+        if use_logging:
+            # Use logging wrapper
+            if call_parts:
+                nb.cells.append(new_code_cell(f'run_with_baml_logs(main, {", ".join(call_parts)})'))
+            else:
+                nb.cells.append(new_code_cell('run_with_baml_logs(main)'))
         else:
-            # Only hello-world section runs without logging
+            # Normal execution without logging
             nb.cells.append(new_code_cell(main_call))
 
 def convert_walkthrough_to_notebook(yaml_path, output_path):
