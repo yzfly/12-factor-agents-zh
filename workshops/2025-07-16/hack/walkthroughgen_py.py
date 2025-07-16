@@ -141,11 +141,25 @@ def process_step(nb, step, base_path, current_functions):
         if regenerate:
             nb.cells.append(new_code_cell("baml_generate()"))
         
+        # Build the main() call
+        call_parts = []
+        
         # Check if args are provided
         args = step['run_main'].get('args', '')
         if args:
-            # Pass the args as a string to main()
-            nb.cells.append(new_code_cell(f'main("{args}")'))
+            call_parts.append(f'"{args}"')
+        
+        # Check if kwargs are provided
+        kwargs = step['run_main'].get('kwargs', {})
+        for key, value in kwargs.items():
+            if isinstance(value, str):
+                call_parts.append(f'{key}="{value}"')
+            else:
+                call_parts.append(f'{key}={value}')
+        
+        # Generate the function call
+        if call_parts:
+            nb.cells.append(new_code_cell(f'main({", ".join(call_parts)})'))
         else:
             nb.cells.append(new_code_cell("main()"))
 

@@ -1,22 +1,40 @@
-// human tools are async requests to a human
-type HumanTools = ClarificationRequest | DoneForNow
-
-class ClarificationRequest {
-  intent "request_more_information" @description("you can request more information from me")
-  message string
-}
-
 class DoneForNow {
   intent "done_for_now"
+  message string 
+}
 
-  message string @description(#"
-    message to send to the user about the work that was done. 
-  "#)
+class AddTool {
+    intent "add"
+    a int | float
+    b int | float
+}
+
+class SubtractTool {
+    intent "subtract"
+    a int | float
+    b int | float
+}
+
+class MultiplyTool {
+    intent "multiply"
+    a int | float
+    b int | float
+}
+
+class DivideTool {
+    intent "divide"
+    a int | float
+    b int | float
+}
+
+class ClarificationRequest {
+    intent "request_more_information"
+    message string @description("you can request more information from the user")
 }
 
 function DetermineNextStep(
     thread: string 
-) -> HumanTools | CalculatorTools {
+) -> DoneForNow | AddTool | SubtractTool | MultiplyTool | DivideTool | ClarificationRequest {
     client "openai/gpt-4o"
 
     prompt #"
@@ -35,83 +53,3 @@ function DetermineNextStep(
         {{ ctx.output_format }}
     "#
 }
-
-test HelloWorld {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-      {
-        "type": "user_input",
-        "data": "hello!"
-      }
-    "#
-  }
-  @@assert(intent, {{this.intent == "done_for_now"}})
-}
-
-test MathOperation {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-      {
-        "type": "user_input",
-        "data": "can you multiply 3 and 4?"
-      }
-    "#
-  }
-  @@assert(intent, {{this.intent == "multiply"}})
-}
-
-test LongMath {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-      [
-        {
-          "type": "user_input",
-          "data": "can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result?"
-        },
-        {
-          "type": "tool_call",
-          "data": {
-            "intent": "multiply",
-            "a": 3,
-            "b": 4
-          }
-        },
-        {
-          "type": "tool_response",
-          "data": 12
-        },
-        {
-          "type": "tool_call", 
-          "data": {
-            "intent": "divide",
-            "a": 12,
-            "b": 2
-          }
-        },
-        {
-          "type": "tool_response",
-          "data": 6
-        },
-        {
-          "type": "tool_call",
-          "data": {
-            "intent": "add", 
-            "a": 6,
-            "b": 12
-          }
-        },
-        {
-          "type": "tool_response",
-          "data": 18
-        }
-      ]
-    "#
-  }
-  @@assert(intent, {{this.intent == "done_for_now"}})
-  @@assert(answer, {{"18" in this.message}})
-}
-
-

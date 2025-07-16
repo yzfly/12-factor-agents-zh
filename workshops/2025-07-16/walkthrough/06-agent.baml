@@ -1,22 +1,40 @@
-// human tools are async requests to a human
-type HumanTools = ClarificationRequest | DoneForNow
-
-class ClarificationRequest {
-  intent "request_more_information" @description("you can request more information from me")
-  message string
-}
-
 class DoneForNow {
   intent "done_for_now"
+  message string 
+}
 
-  message string @description(#"
-    message to send to the user about the work that was done. 
-  "#)
+class AddTool {
+    intent "add"
+    a int | float
+    b int | float
+}
+
+class SubtractTool {
+    intent "subtract"
+    a int | float
+    b int | float
+}
+
+class MultiplyTool {
+    intent "multiply"
+    a int | float
+    b int | float
+}
+
+class DivideTool {
+    intent "divide"
+    a int | float
+    b int | float
+}
+
+class ClarificationRequest {
+    intent "request_more_information"
+    message string @description("you can request more information from the user")
 }
 
 function DetermineNextStep(
     thread: string 
-) -> HumanTools | CalculatorTools {
+) -> DoneForNow | AddTool | SubtractTool | MultiplyTool | DivideTool | ClarificationRequest {
     client "openai/gpt-4o"
 
     prompt #"
@@ -30,123 +48,18 @@ function DetermineNextStep(
 
         {{ thread }}
 
+        Before deciding on the next step, think through the situation:
+        1. What has been asked?
+        2. What information do I have?
+        3. What tools are available to me?
+        4. What is the most logical next step?
+
+        <reasoning>
+        Think step by step about what needs to be done next.
+        </reasoning>
+
         What should the next step be?
 
         {{ ctx.output_format }}
-
-        First, always plan out what to do next, for example:
-
-        - ...
-        - ...
-        - ...
-
-        {...} // schema
     "#
 }
-
-test HelloWorld {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-      {
-        "type": "user_input",
-        "data": "hello!"
-      }
-    "#
-  }
-  @@assert(intent, {{this.intent == "request_more_information"}})
-}
-
-test MathOperation {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-      {
-        "type": "user_input",
-        "data": "can you multiply 3 and 4?"
-      }
-    "#
-  }
-  @@assert(intent, {{this.intent == "multiply"}})
-}
-
-test LongMath {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-      [
-        {
-          "type": "user_input",
-          "data": "can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result?"
-        },
-        {
-          "type": "tool_call",
-          "data": {
-            "intent": "multiply",
-            "a": 3,
-            "b": 4
-          }
-        },
-        {
-          "type": "tool_response",
-          "data": 12
-        },
-        {
-          "type": "tool_call", 
-          "data": {
-            "intent": "divide",
-            "a": 12,
-            "b": 2
-          }
-        },
-        {
-          "type": "tool_response",
-          "data": 6
-        },
-        {
-          "type": "tool_call",
-          "data": {
-            "intent": "add", 
-            "a": 6,
-            "b": 12
-          }
-        },
-        {
-          "type": "tool_response",
-          "data": 18
-        }
-      ]
-    "#
-  }
-  @@assert(intent, {{this.intent == "done_for_now"}})
-  @@assert(answer, {{"18" in this.message}})
-}
-
-
-
-test MathOperationWithClarification {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-          [{"type":"user_input","data":"can you multiply 3 and feee9ff10"}]
-      "#
-  }
-  @@assert(intent, {{this.intent == "request_more_information"}})
-}
-
-test MathOperationPostClarification {
-  functions [DetermineNextStep]
-  args {
-    thread #"
-        [
-        {"type":"user_input","data":"can you multiply 3 and FD*(#F&& ?"},
-        {"type":"tool_call","data":{"intent":"request_more_information","message":"It seems like there was a typo or mistake in your request. Could you please clarify or provide the correct numbers you would like to multiply?"}},
-        {"type":"human_response","data":"lets try 12 instead"},
-      ]
-      "#
-  }
-  @@assert(intent, {{this.intent == "multiply"}})
-  @@assert(a, {{this.b == 12}})
-  @@assert(b, {{this.a == 3}})
-}
-        

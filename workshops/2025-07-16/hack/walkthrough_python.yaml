@@ -153,3 +153,183 @@ sections:
           - **Agent Loop**: Continuing until the agent has a final answer
           
           From here, we'll start incorporating more intermediate and advanced concepts for 12-factor agents.
+  
+  - name: baml-tests
+    title: "Chapter 4 - Add Tests to agent.baml"
+    text: "Let's add some tests to our BAML agent."
+    steps:
+      - text: |
+          In this chapter, we'll learn about BAML testing - a powerful feature that helps ensure your agents behave correctly.
+          
+          ## Why Test BAML Functions?
+          
+          - **Catch regressions**: Ensure changes don't break existing behavior
+          - **Document behavior**: Tests serve as living documentation
+          - **Validate edge cases**: Test complex scenarios and conversation flows
+          - **CI/CD integration**: Run tests automatically in your pipeline
+          
+          Let's start with a simple test that checks the agent's ability to handle basic interactions:
+      - fetch_file: {src: ./walkthrough/04-agent.baml, dest: baml_src/agent.baml}
+      - text: |
+          Run the tests to see them in action:
+      - command: "!baml-cli test"
+      - text: |
+          Now let's improve the tests with assertions! Assertions let you verify specific properties of the agent's output.
+          
+          ## BAML Assertion Syntax
+          
+          Assertions use the `@@assert` directive:
+          ```
+          @@assert(name, {{condition}})
+          ```
+          
+          - `name`: A descriptive name for the assertion
+          - `condition`: A boolean expression using `this` to access the output
+      - fetch_file: {src: ./walkthrough/04b-agent.baml, dest: baml_src/agent.baml}
+      - text: |
+          Run the tests again to see assertions in action:
+      - command: "!baml-cli test"
+      - text: |
+          Finally, let's add more complex test cases that test multi-step conversations.
+          
+          These tests simulate an entire conversation flow, including:
+          - User input
+          - Tool calls made by the agent
+          - Tool responses
+          - Final agent response
+      - fetch_file: {src: ./walkthrough/04c-agent.baml, dest: baml_src/agent.baml}
+      - text: |
+          Run the comprehensive test suite:
+      - command: "!baml-cli test"
+      - text: |
+          ## Key Testing Concepts
+          
+          1. **Test Structure**: Each test specifies functions, arguments, and assertions
+          2. **Progressive Testing**: Start simple, then test complex scenarios
+          3. **Conversation History**: Test how the agent handles multi-turn conversations
+          4. **Tool Integration**: Verify the agent correctly uses tools in sequence
+          
+          With these tests in place, you can confidently modify your agent knowing that core functionality is protected by automated tests!
+  
+  - name: human-tools
+    title: "Chapter 5 - Multiple Human Tools"
+    text: |
+      In this section, we'll add support for multiple tools that serve to contact humans.
+    steps:
+      - text: |
+          So far, our agent only returns a final answer with "done_for_now". But what if the agent needs clarification?
+          
+          Let's add a new tool that allows the agent to request more information from the user.
+          
+          ## Why Human-in-the-Loop?
+          
+          - **Handle ambiguous inputs**: When user input is unclear or contains typos
+          - **Request missing information**: When the agent needs more context
+          - **Confirm sensitive operations**: Before performing important actions
+          - **Interactive workflows**: Build conversational agents that engage users
+          
+          First, let's update our BAML file to include a ClarificationRequest tool:
+      - fetch_file: {src: ./walkthrough/05-agent.baml, dest: baml_src/agent.baml}
+      - text: |
+          Now let's update our agent to handle clarification requests:
+      - file: {src: ./walkthrough/05-agent.py}
+      - text: |
+          Finally, let's create a main function that handles human interaction:
+      - file: {src: ./walkthrough/05-main.py}
+      - text: |
+          Let's test with an ambiguous input that should trigger a clarification request:
+      - run_main: {regenerate_baml: true, args: "can you multiply 3 and FD*(#F&&"}
+      - text: |
+          You should see:
+          1. The agent recognizes the input is unclear
+          2. It asks for clarification
+          3. In Colab, you'll be prompted to type a response
+          4. In local testing, an auto-response is provided
+          5. The agent continues with the clarified input
+          
+          ## Interactive Testing in Colab
+          
+          When running in Google Colab, the `input()` function will create an interactive text box where you can type your response. Try different clarifications to see how the agent adapts!
+          
+          ## Key Concepts
+          
+          - **Human Tools**: Special tool types that return control to the human
+          - **Conversation Flow**: The agent can pause execution to get human input
+          - **Context Preservation**: The full conversation history is maintained
+          - **Flexible Handling**: Different behaviors for different environments
+  
+  - name: customize-prompt
+    title: "Chapter 6 - Customize Your Prompt with Reasoning"
+    text: |
+      In this section, we'll explore how to customize the prompt of the agent with reasoning steps.
+      
+      This is core to [factor 2 - own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-2-own-your-prompts.md)
+    steps:
+      - text: |
+          ## Why Add Reasoning to Prompts?
+          
+          Adding explicit reasoning steps to your prompts can significantly improve agent performance:
+          
+          - **Better decisions**: The model thinks through problems step-by-step
+          - **Transparency**: You can see the model's thought process
+          - **Fewer errors**: Structured thinking reduces mistakes
+          - **Debugging**: Easier to identify where reasoning went wrong
+          
+          Let's update our agent prompt to include a reasoning step:
+      - fetch_file: {src: ./walkthrough/06-agent.baml, dest: baml_src/agent.baml}
+      - text: |
+          Now let's test it with a simple calculation to see the reasoning in action:
+      - run_main: {regenerate_baml: true, args: "can you multiply 3 and 4"}
+      - text: |
+          You should notice in the BAML logs (if enabled) that the model now includes reasoning steps before deciding what to do.
+          
+          ## Advanced Prompt Engineering
+          
+          You can enhance your prompts further by:
+          - Adding specific reasoning templates for different tasks
+          - Including examples of good reasoning
+          - Structuring the reasoning with numbered steps
+          - Adding checks for common mistakes
+          
+          The key is to guide the model's thinking process while still allowing flexibility.
+  
+  - name: context-window
+    title: "Chapter 7 - Customize Your Context Window"
+    text: |
+      In this section, we'll explore how to customize the context window of the agent.
+      
+      This is core to [factor 3 - own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-3-own-your-context-window.md)
+    steps:
+      - text: |
+          ## Context Window Serialization
+          
+          How you format your conversation history can significantly impact:
+          - **Token usage**: Some formats are more efficient
+          - **Model understanding**: Clear structure helps the model
+          - **Debugging**: Readable formats help development
+          
+          Let's implement two serialization formats: pretty-printed JSON and XML.
+      - file: {src: ./walkthrough/07-agent.py}
+      - text: |
+          Now let's create a main function that can switch between formats:
+      - file: {src: ./walkthrough/07-main.py}
+      - text: |
+          Let's test with JSON format first:
+      - run_main: {regenerate_baml: true, args: "can you multiply 3 and 4, then divide the result by 2", kwargs: {use_xml: false}}
+      - text: |
+          Now let's try the same with XML format:
+      - run_main: {regenerate_baml: false, args: "can you multiply 3 and 4, then divide the result by 2", kwargs: {use_xml: true}}
+      - text: |
+          ## XML vs JSON Trade-offs
+          
+          **XML Benefits**:
+          - More token-efficient for nested data
+          - Clear hierarchy with opening/closing tags
+          - Better for long conversations
+          
+          **JSON Benefits**:
+          - Familiar to most developers
+          - Easy to parse and debug
+          - Native to JavaScript/Python
+          
+          Choose based on your specific needs and token constraints!

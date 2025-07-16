@@ -3,9 +3,33 @@ class DoneForNow {
   message string 
 }
 
+class AddTool {
+    intent "add"
+    a int | float
+    b int | float
+}
+
+class SubtractTool {
+    intent "subtract"
+    a int | float
+    b int | float
+}
+
+class MultiplyTool {
+    intent "multiply"
+    a int | float
+    b int | float
+}
+
+class DivideTool {
+    intent "divide"
+    a int | float
+    b int | float
+}
+
 function DetermineNextStep(
     thread: string 
-) -> CalculatorTools | DoneForNow {
+) -> DoneForNow | AddTool | SubtractTool | MultiplyTool | DivideTool {
     client "openai/gpt-4o"
 
     prompt #"
@@ -37,15 +61,11 @@ test HelloWorld {
   }
 }
 
-test MathOperation {
+test SimpleMath {
   functions [DetermineNextStep]
   args {
     thread #"
-      {
-        "type": "user_input",
-        "data": "can you multiply 3 and 4?"
-      }
+      [{"type": "user_input", "data": "can you multiply 3 and 4"}]
     "#
   }
 }
-

@@ -3,10 +3,34 @@ class DoneForNow {
   message string 
 }
 
+class AddTool {
+    intent "add"
+    a int | float
+    b int | float
+}
+
+class SubtractTool {
+    intent "subtract"
+    a int | float
+    b int | float
+}
+
+class MultiplyTool {
+    intent "multiply"
+    a int | float
+    b int | float
+}
+
+class DivideTool {
+    intent "divide"
+    a int | float
+    b int | float
+}
+
 function DetermineNextStep(
     thread: string 
-) -> CalculatorTools | DoneForNow {
-    client "openai/gpt-4o" 
+) -> DoneForNow | AddTool | SubtractTool | MultiplyTool | DivideTool {
+    client "openai/gpt-4o"
 
     prompt #"
         {{ _.role("system") }}
@@ -35,19 +59,17 @@ test HelloWorld {
       }
     "#
   }
-  @@assert(hello, {{this.intent == "done_for_now"}})
+  @@assert(intent_check, {{this.intent == "done_for_now"}})
 }
 
-test MathOperation {
+test SimpleMath {
   functions [DetermineNextStep]
   args {
     thread #"
-      {
-        "type": "user_input",
-        "data": "can you multiply 3 and 4?"
-      }
+      [{"type": "user_input", "data": "can you multiply 3 and 4"}]
     "#
   }
-  @@assert(math_operation, {{this.intent == "multiply"}})
+  @@assert(intent_check, {{this.intent == "multiply"}})
+  @@assert(a_check, {{this.a == 3}})
+  @@assert(b_check, {{this.b == 4}})
 }
-
