@@ -1512,7 +1512,13 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "jupyter" },
+    { name = "nbformat" },
+    { name = "pyyaml" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "jupyter", specifier = ">=1.1.1" }]
+requires-dist = [
+    { name = "jupyter", specifier = ">=1.1.1" },
+    { name = "nbformat", specifier = ">=5.10.4" },
+    { name = "pyyaml", specifier = ">=6.0.2" },
+]

@@ -1,0 +1,13 @@
+title: "Test Walkthrough"
+text: "This is a test walkthrough to verify the script works."
+
+targets:
+  - ipynb: "./test_output.ipynb"
+
+sections:
+  - name: test-section
+    title: "Test Section"
+    text: "This is a test section."
+    steps:
+      - text: "This is a test markdown cell"
+      - command: "echo 'Hello from command!'"
