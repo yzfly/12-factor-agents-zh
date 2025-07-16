@@ -20,14 +20,20 @@ Don't worry too much about this setup code - it will make sense later! For now, 
 - The `get_baml_client()` function will be used to interact with AI models"""
     nb.cells.append(new_markdown_cell(explanation))
     
-    # First cell: Install baml-py
-    install_code = "!pip install baml-py"
+    # First cell: Install baml-py and pydantic
+    install_code = "!pip install baml-py==0.202.0 pydantic"
     nb.cells.append(new_code_cell(install_code))
     
     # Second cell: Helper functions
     setup_code = '''import subprocess
-from google.colab import userdata
 import os
+
+# Try to import Google Colab userdata, but don't fail if not in Colab
+try:
+    from google.colab import userdata
+    IN_COLAB = True
+except ImportError:
+    IN_COLAB = False
 
 def baml_generate():
     try:
@@ -53,13 +59,22 @@ def get_baml_client():
     """
     a bunch of fun jank to work around the google colab import cache
     """
-    os.environ['OPENAI_API_KEY'] = userdata.get('OPENAI_API_KEY')
+    # Set API key from Colab secrets or environment
+    if IN_COLAB:
+        os.environ['OPENAI_API_KEY'] = userdata.get('OPENAI_API_KEY')
+    elif 'OPENAI_API_KEY' not in os.environ:
+        print("Warning: OPENAI_API_KEY not set. Please set it in your environment.")
     
     baml_generate()
     
-    import importlib
+    # Force delete all baml_client modules from sys.modules
+    import sys
+    modules_to_delete = [key for key in sys.modules.keys() if key.startswith('baml_client')]
+    for module in modules_to_delete:
+        del sys.modules[module]
+    
+    # Now import fresh
     import baml_client
-    importlib.reload(baml_client)
     return baml_client.sync_client.b
 '''
     nb.cells.append(new_code_cell(setup_code))
@@ -125,7 +140,14 @@ def process_step(nb, step, base_path, current_functions):
         regenerate = step['run_main'].get('regenerate_baml', False)
         if regenerate:
             nb.cells.append(new_code_cell("baml_generate()"))
-        nb.cells.append(new_code_cell("main()"))
+        
+        # Check if args are provided
+        args = step['run_main'].get('args', '')
+        if args:
+            # Pass the args as a string to main()
+            nb.cells.append(new_code_cell(f'main("{args}")'))
+        else:
+            nb.cells.append(new_code_cell("main()"))
 
 def convert_walkthrough_to_notebook(yaml_path, output_path):
     """Convert walkthrough.yaml to Jupyter notebook."""

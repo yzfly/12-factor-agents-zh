@@ -4,3 +4,4 @@ package.json
 package-lock.json
 tsconfig.json
 build/
+tmp/

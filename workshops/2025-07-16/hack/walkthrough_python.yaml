@@ -28,6 +28,33 @@ sections:
       - text: |
           In this chapter, we'll integrate BAML to create an AI agent that can respond to user input.
           
+          ## What is BAML?
+          
+          BAML (Boundary Markup Language) is a domain-specific language designed to help developers build reliable AI workflows and agents. Created by [BoundaryML](https://www.boundaryml.com/) (a Y Combinator W23 company), BAML adds the engineering to prompt engineering.
+          
+          ### Why BAML?
+          
+          - **Type-safe outputs**: Get fully type-safe outputs from LLMs, even when streaming
+          - **Language agnostic**: Works with Python, TypeScript, Ruby, Go, and more
+          - **LLM agnostic**: Works with any LLM provider (OpenAI, Anthropic, etc.)
+          - **Better performance**: State-of-the-art structured outputs that outperform even OpenAI's native function calling
+          - **Developer-friendly**: Native VSCode extension with syntax highlighting, autocomplete, and interactive playground
+          
+          ### Learn More
+          
+          - 📚 [Official Documentation](https://docs.boundaryml.com/home)
+          - 💻 [GitHub Repository](https://github.com/BoundaryML/baml)
+          - 🎯 [What is BAML?](https://docs.boundaryml.com/guide/introduction/what-is-baml)
+          - 📖 [BAML Examples](https://github.com/BoundaryML/baml-examples)
+          - 🏢 [Company Website](https://www.boundaryml.com/)
+          - 📰 [Blog: AI Agents Need a New Syntax](https://www.boundaryml.com/blog/ai-agents-need-new-syntax)
+          
+          BAML turns prompt engineering into schema engineering, where you focus on defining the structure of your data rather than wrestling with prompts. This approach leads to more reliable and maintainable AI applications.
+          
+          ### Note on Developer Experience
+          
+          BAML works much better in VS Code with their official extension, which provides syntax highlighting, autocomplete, inline testing, and an interactive playground. However, for this notebook tutorial, we'll work with BAML files directly without the enhanced IDE features.
+          
           First, let's set up BAML support in our notebook.
       - baml_setup: true
       - text: |
@@ -38,11 +65,91 @@ sections:
       - text: |
           Next, we need to define the BAML function that our agent will use.
           
+          ### Understanding BAML Syntax
+          
+          BAML files define:
+          - **Classes**: Structured output schemas (like `DoneForNow` below)
+          - **Functions**: AI-powered functions that take inputs and return structured outputs
+          - **Tests**: Example inputs/outputs to validate your prompts
+          
           This BAML file defines what our agent can do:
-      - fetch_file: {src: ./walkthrough/01-agent.baml, dest: baml_src/01-agent.baml}
+      - fetch_file: {src: ./walkthrough/01-agent.baml, dest: baml_src/agent.baml}
       - text: |
-          Now let's create our main function that simulates command-line arguments:
+          Now let's create our main function that accepts a message parameter:
       - file: {src: ./walkthrough/01-main.py}
       - text: |
-          Let's test our agent! You can modify the sys.argv line in the cell above to send different messages.
-      - run_main: {regenerate_baml: true}
+          Let's test our agent! Try calling main() with different messages:
+          - `main("What's the weather like?")`
+          - `main("Tell me a joke")`
+          - `main("How are you doing today?")`
+      - run_main: {regenerate_baml: true, args: "Hello from the Python notebook!"}
+  
+  - name: calculator-tools
+    title: "Chapter 2 - Add Calculator Tools"
+    text: "Let's add some calculator tools to our agent."
+    steps:
+      - text: |
+          Let's start by adding a tool definition for the calculator.
+          
+          These are simple structured outputs that we'll ask the model to
+          return as a "next step" in the agentic loop.
+          
+      - fetch_file: {src: ./walkthrough/02-tool_calculator.baml, dest: baml_src/tool_calculator.baml}
+      - text: |
+          Now, let's update the agent's DetermineNextStep method to
+          expose the calculator tools as potential next steps.
+          
+      - fetch_file: {src: ./walkthrough/02-agent.baml, dest: baml_src/agent.baml}
+      - text: |
+          Now let's update our main function to show the tool call:
+      - file: {src: ./walkthrough/02-main.py}
+      - text: |
+          Let's try out the calculator! The agent should recognize that you want to perform a calculation
+          and return the appropriate tool call instead of just a message.
+      - run_main: {regenerate_baml: true, args: "can you add 3 and 4"}
+  
+  - name: tool-loop
+    title: "Chapter 3 - Process Tool Calls in a Loop"
+    text: "Now let's add a real agentic loop that can run the tools and get a final answer from the LLM."
+    steps:
+      - text: |
+          In this chapter, we'll enhance our agent to process tool calls in a loop. This means:
+          - The agent can call multiple tools in sequence
+          - Each tool result is fed back to the agent
+          - The agent continues until it has a final answer
+          
+          Let's update our agent to handle tool calls properly:
+      - file: {src: ./walkthrough/03-agent.py}
+      - text: |
+          Now let's update our main function to use the new agent loop:
+      - file: {src: ./walkthrough/03-main.py}
+      - text: |
+          Let's try it out! The agent should now call the tool and return the calculated result:
+      - run_main: {regenerate_baml: true, args: "can you add 3 and 4"}
+      - text: |
+          You should see the agent:
+          1. Recognize it needs to use the add tool
+          2. Call the tool with the correct parameters
+          3. Get the result (7)
+          4. Generate a final response incorporating the result
+          
+          For more complex calculations, we need to handle all calculator operations. Let's add support for subtract, multiply, and divide:
+      - file: {src: ./walkthrough/03b-agent.py}
+      - text: |
+          Now let's test subtraction:
+      - run_main: {regenerate_baml: false, args: "can you subtract 3 from 4"}
+      - text: |
+          Test multiplication:
+      - run_main: {regenerate_baml: false, args: "can you multiply 3 and 4"}
+      - text: |
+          Finally, let's test a complex multi-step calculation:
+      - run_main: {regenerate_baml: false, args: "can you multiply 3 and 4, then divide the result by 2 and then add 12 to that result"}
+      - text: |
+          Congratulations! You've taken your first step into hand-rolling an agent loop.
+          
+          Key concepts you've learned:
+          - **Thread Management**: Tracking conversation history and tool calls
+          - **Tool Execution**: Processing different tool types and returning results
+          - **Agent Loop**: Continuing until the agent has a final answer
+          
+          From here, we'll start incorporating more intermediate and advanced concepts for 12-factor agents.
