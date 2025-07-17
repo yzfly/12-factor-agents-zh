@@ -11,7 +11,7 @@ Build your own control structures that make sense for your specific use case. Sp
 
 - summarization or caching of tool call results
 - LLM-as-judge on structured output
-- context window compaction or other [memory management](https://github.com/humanlayer/12-factor-agents/blob/main/content/appendix-14-everything-is-context-engineering.md)
+- context window compaction or other [memory management](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)
 - logging, tracing, and metrics
 - client-side rate limiting
 - durable sleep / pause / "wait for event"
