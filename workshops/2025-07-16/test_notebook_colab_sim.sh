@@ -64,6 +64,11 @@ try:
     ep.preprocess(nb, {'metadata': {'path': '.'}})
     print("\n✅ Notebook executed successfully!")
     
+    # Save the executed notebook back to disk
+    with open('test_notebook.ipynb', 'w') as f:
+        nbformat.write(nb, f)
+    print("💾 Executed notebook saved with outputs")
+    
     # Show final directory structure
     print("\n📁 Final directory structure:")
     for root, dirs, files in os.walk('.'):
@@ -85,7 +90,7 @@ EOF
 
 # Run the notebook
 echo "🏃 Running notebook in clean environment..."
-python run_notebook.py
+source venv/bin/activate && python run_notebook.py
 
 # Check what BAML files were created
 echo -e "\n📄 BAML files created:"

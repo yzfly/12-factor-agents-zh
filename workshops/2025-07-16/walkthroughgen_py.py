@@ -83,86 +83,6 @@ def get_baml_client():
     init_code = "!baml-cli init"
     nb.cells.append(new_code_cell(init_code))
     
-    # Fourth cell: Add BAML logging helper
-    logging_helper = '''# Helper function to capture BAML logs in notebook output
-import os
-import sys
-from IPython.utils.capture import capture_output
-import contextlib
-
-def run_with_baml_logs(func, *args, **kwargs):
-    """Run a function and capture BAML logs in the notebook output."""
-    # Ensure BAML_LOG is set
-    if 'BAML_LOG' not in os.environ:
-        os.environ['BAML_LOG'] = 'info'
-    
-    print(f"Running with BAML_LOG={os.environ.get('BAML_LOG')}...")
-    
-    # Capture both stdout and stderr
-    with capture_output() as captured:
-        result = func(*args, **kwargs)
-    
-    # Display the result first
-    if result is not None:
-        print("=== Result ===")
-        print(result)
-    
-    # Display captured stdout if any
-    if captured.stdout:
-        print("\\n=== Output ===")
-        print(captured.stdout)
-    
-    # Display BAML logs from stderr
-    if captured.stderr:
-        print("\\n=== BAML Logs ===")
-        # Format the logs for better readability
-        log_lines = captured.stderr.strip().split('\\n')
-        for line in log_lines:
-            if 'reasoning' in line.lower() or '<reasoning>' in line:
-                print(f"🤔 {line}")
-            elif 'error' in line.lower():
-                print(f"❌ {line}")
-            elif 'warn' in line.lower():
-                print(f"⚠️  {line}")
-            else:
-                print(f"   {line}")
-    
-    return result
-
-# Alternative: Force stderr to stdout redirection
-@contextlib.contextmanager
-def redirect_stderr_to_stdout():
-    """Context manager to redirect stderr to stdout."""
-    old_stderr = sys.stderr
-    sys.stderr = sys.stdout
-    try:
-        yield
-    finally:
-        sys.stderr = old_stderr
-
-def run_with_baml_logs_redirect(func, *args, **kwargs):
-    """Run a function with stderr redirected to stdout for immediate display."""
-    if 'BAML_LOG' not in os.environ:
-        os.environ['BAML_LOG'] = 'info'
-    
-    print(f"Running with BAML_LOG={os.environ.get('BAML_LOG')} (stderr→stdout)...")
-    
-    with redirect_stderr_to_stdout():
-        result = func(*args, **kwargs)
-    
-    if result is not None:
-        print("\\n=== Result ===")
-        print(result)
-    
-    return result
-
-# Set BAML log level (options: error, warn, info, debug, trace)
-os.environ['BAML_LOG'] = 'info'
-print("BAML logging helpers loaded!")
-print("- Use run_with_baml_logs() to capture and display logs after execution")
-print("- Use run_with_baml_logs_redirect() to see logs in real-time as they're generated")
-'''
-    nb.cells.append(new_code_cell(logging_helper))
 
 def process_step(nb, step, base_path, current_functions, section_name=None):
     """Process different step types."""
@@ -244,18 +164,8 @@ def process_step(nb, step, base_path, current_functions, section_name=None):
         else:
             main_call = "main()"
         
-        # Check if we should use logging wrapper
-        use_logging = step['run_main'].get('show_logs', False)
-        
-        if use_logging:
-            # Use logging wrapper
-            if call_parts:
-                nb.cells.append(new_code_cell(f'run_with_baml_logs(main, {", ".join(call_parts)})'))
-            else:
-                nb.cells.append(new_code_cell('run_with_baml_logs(main)'))
-        else:
-            # Normal execution without logging
-            nb.cells.append(new_code_cell(main_call))
+        # Execute the main function call
+        nb.cells.append(new_code_cell(main_call))
 
 def convert_walkthrough_to_notebook(yaml_path, output_path):
     """Convert walkthrough.yaml to Jupyter notebook."""

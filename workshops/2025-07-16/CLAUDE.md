@@ -1,9 +1,9 @@
 # Workshop 2025-07-16: Python/Jupyter Notebook Implementation
 
-• **Main Tool**: `hack/walkthroughgen_py.py` - Converts TypeScript walkthrough to Jupyter notebooks
-• **Config**: `hack/walkthrough_python.yaml` - Defines notebook structure and content
-• **Output**: `hack/workshop_final.ipynb` - Generated notebook with Chapters 0-7
-• **Testing**: `hack/test_notebook_colab_sim.sh` - Simulates Google Colab environment
+• **Main Tool**: `walkthroughgen_py.py` - Converts TypeScript walkthrough to Jupyter notebooks
+• **Config**: `walkthrough.yaml` - Defines notebook structure and content
+• **Output**: `workshop_final.ipynb` - Generated notebook with Chapters 0-7
+• **Testing**: `test_notebook_colab_sim.sh` - Simulates Google Colab environment
 
 ## Key Implementation Learnings
 
@@ -53,15 +53,15 @@
 
 ## Testing Commands
 
-• Generate notebook: `uv run python hack/walkthroughgen_py.py hack/walkthrough_python.yaml -o hack/test.ipynb`
-• Full Colab sim: `cd hack && ./test_notebook_colab_sim.sh`
+• Generate notebook: `uv run python walkthroughgen_py.py walkthrough.yaml -o test.ipynb`
+• Full Colab sim: `./test_notebook_colab_sim.sh`
 • Run BAML tests: `baml-cli test` (from directory with baml_src)
 
 ## File Structure
 
 • `walkthrough/*.py` - Python implementations of each chapter's code
 • `walkthrough/*.baml` - BAML files fetched from GitHub during notebook execution
-• `hack/walkthroughgen_py.py` - Main conversion tool
-• `hack/walkthrough_python.yaml` - Notebook definition with all chapters
-• `hack/test_notebook_colab_sim.sh` - Full Colab environment simulation
-• `hack/workshop_final.ipynb` - Final generated notebook ready for workshop
+• `walkthroughgen_py.py` - Main conversion tool
+• `walkthrough.yaml` - Notebook definition with all chapters
+• `test_notebook_colab_sim.sh` - Full Colab environment simulation
+• `workshop_final.ipynb` - Final generated notebook ready for workshop

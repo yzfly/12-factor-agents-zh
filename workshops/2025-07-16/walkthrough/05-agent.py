@@ -1,9 +1,13 @@
 # Agent implementation with clarification support
 import json
 
-def agent_loop(thread, clarification_handler):
-    """Run the agent loop until we get a final answer."""
-    while True:
+def agent_loop(thread, clarification_handler, max_iterations=3):
+    """Run the agent loop until we get a final answer (max 3 iterations)."""
+    iteration_count = 0
+    while iteration_count < max_iterations:
+        iteration_count += 1
+        print(f"🔄 Agent loop iteration {iteration_count}/{max_iterations}")
+        
         # Get the client
         baml_client = get_baml_client()
         
@@ -63,6 +67,9 @@ def agent_loop(thread, clarification_handler):
                 })
         else:
             return "Error: Unexpected result type"
+    
+    # If we've reached max iterations without a final answer
+    return f"Agent reached maximum iterations ({max_iterations}) without completing the task."
 
 class Thread:
     """Simple thread to track conversation history."""
