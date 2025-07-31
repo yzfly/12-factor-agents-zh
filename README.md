@@ -18,7 +18,12 @@
 
 <p></p>
 
-*秉承[12因子应用](https://12factor.net/)的精神*。*本项目的源代码在 https://github.com/humanlayer/12-factor-agents 公开，我欢迎您的反馈和贡献。让我们一起探索！*
+*秉承[12因子应用](https://12factor.net/)的精神*。
+
+> **📋 关于本翻译版本**  
+> **原文**：https://github.com/humanlayer/12-factor-agents  
+> **中文翻译**：云中江树  
+> *本项目源代码公开，欢迎您的反馈和贡献。让我们一起探索！*
 
 > [!TIP]
 > 错过了AI工程师世界博览会？[在这里观看演讲](https://www.youtube.com/watch?v=8kMaTybvDUw)
