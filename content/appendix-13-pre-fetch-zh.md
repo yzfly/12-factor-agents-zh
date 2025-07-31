@@ -1,6 +1,6 @@
 ### 因子13 - 预取所有你可能需要的上下文
 
-如果你的模型很有可能调用工具X，不要浪费token往返让模型去获取它，也就是说，与其使用像这样的伪提示：
+如果你的模型很有可能调用工具 X，不要浪费 token 往返让模型去获取它，也就是说，与其使用像这样的伪 Prompt：
 
 ```jinja
 When looking at deployments, you will likely want to fetch the list of published git tags,
@@ -111,7 +111,7 @@ while True:
     # ...
 ```
 
-或者甚至只是将标签包含在线程中，并从提示模板中删除特定参数：
+或者甚至只是将标签包含在线程中，并从 Prompt 模板中删除特定参数：
 
 ```diff
 thread = {"events": [initial_message]}
@@ -146,6 +146,6 @@ while True:
 
 > #### 如果你已经知道你希望模型调用什么工具，就确定性地调用它们，让模型做找出如何使用它们输出的困难部分
 
-再次强调，AI工程完全是关于[上下文工程](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)。
+再次强调，AI 工程完全是关于[上下文工程](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)。
 
 [← 无状态归约器](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md) | [延伸阅读 →](https://github.com/humanlayer/12-factor-agents/blob/main/README.md#related-resources)

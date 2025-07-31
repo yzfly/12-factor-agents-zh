@@ -1,8 +1,8 @@
 [← 返回README](https://github.com/humanlayer/12-factor-agents/blob/main/README.md)
 
-### 12. 将你的智能体设计为无状态归约器
+### 12. 将你的 Agent 设计为无状态归约器
 
-好的，我们此时已经超过1000行markdown了。这个主要是为了好玩。
+好的，我们此时已经超过 1000 行 markdown 了。这个主要是为了好玩。
 
 ![1c0-stateless-reducer](https://github.com/humanlayer/12-factor-agents/blob/main/img/1c0-stateless-reducer.png)
 

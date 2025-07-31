@@ -2,10 +2,10 @@
 
 ### 9. 将错误压缩到上下文窗口
 
-这个因子比较简单但值得一提。智能体的好处之一是"自我修复" - 对于短任务，LLM可能调用一个失败的工具。优秀的LLM有相当大的机会读取错误消息或堆栈跟踪，并找出在后续工具调用中需要更改什么。
+这个因子比较简单但值得一提。Agent 的好处之一是"自我修复" - 对于短任务，大语言模型可能调用一个失败的工具。优秀的大语言模型有相当大的机会读取错误消息或堆栈跟踪，并找出在后续 Tool Calling 中需要更改什么。
 
 
-大多数框架都实现了这一点，但你可以只做这一点而不做其他11个因子中的任何一个。这里是一个例子：
+大多数框架都实现了这一点，但你可以只做这一点而不做其他 11 个因子中的任何一个。这里是一个例子：
 
 
 ```python
@@ -28,7 +28,7 @@ while True:
     # loop, or do whatever else here to try to recover
 ```
 
-你可能想为特定的工具调用实现一个错误计数器，将单个工具的尝试次数限制在大约3次，或者任何其他对你的用例有意义的逻辑。
+你可能想为特定的 Tool Calling 实现一个错误计数器，将单个工具的尝试次数限制在大约 3 次，或者任何其他对你的用例有意义的逻辑。
 
 ```python
 consecutive_errors = 0
@@ -73,13 +73,13 @@ while True:
 
 好处：
 
-1. **自我修复**：LLM可以读取错误消息并找出在后续工具调用中需要更改什么
-2. **持久性**：即使一个工具调用失败，智能体也可以继续运行
+1. **自我修复**：大语言模型可以读取错误消息并找出在后续 Tool Calling 中需要更改什么
+2. **持久性**：即使一个 Tool Calling 失败，Agent 也可以继续运行
 
-我确信你会发现，如果你过度使用这个功能，你的智能体会开始失控，可能会一遍又一遍地重复同样的错误。
+我确信你会发现，如果你过度使用这个功能，你的 Agent 会开始失控，可能会一遍又一遍地重复同样的错误。
 
-这就是[因子8 - 掌控你的控制流](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md)和[因子3 - 掌控你的上下文构建](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)发挥作用的地方 - 你不需要只是把原始错误放回去，你可以完全重构它的表示方式，从上下文窗口中删除以前的事件，或者任何你发现有效的确定性方法来让智能体回到正轨。
+这就是[因子 8 - 掌控你的控制流](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md)和[因子 3 - 掌控你的上下文构建](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)发挥作用的地方 - 你不需要只是把原始错误放回去，你可以完全重构它的表示方式，从上下文窗口中删除以前的事件，或者任何你发现有效的确定性方法来让 Agent 回到正轨。
 
-但防止错误失控的第一方法是采用[因子10 - 小而专注的智能体](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)。
+但防止错误失控的第一方法是采用[因子 10 - 小而专注的 Agent](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)。
 
 [← 掌控你的控制流](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md) | [小而专注的智能体 →](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
