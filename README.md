@@ -1,123 +1,125 @@
-# 12-Factor Agents - Principles for building reliable LLM applications
+# 12因子智能体 - 构建可靠LLM应用程序的原则
 
 <div align="center">
 <a href="https://www.apache.org/licenses/LICENSE-2.0">
-        <img src="https://img.shields.io/badge/Code-Apache%202.0-blue.svg" alt="Code License: Apache 2.0"></a>
+        <img src="https://img.shields.io/badge/Code-Apache%202.0-blue.svg" alt="代码许可证: Apache 2.0"></a>
 <a href="https://creativecommons.org/licenses/by-sa/4.0/">
-        <img src="https://img.shields.io/badge/Content-CC%20BY--SA%204.0-lightgrey.svg" alt="Content License: CC BY-SA 4.0"></a>
+        <img src="https://img.shields.io/badge/Content-CC%20BY--SA%204.0-lightgrey.svg" alt="内容许可证: CC BY-SA 4.0"></a>
 <a href="https://humanlayer.dev/discord">
-    <img src="https://img.shields.io/badge/chat-discord-5865F2" alt="Discord Server"></a>
+    <img src="https://img.shields.io/badge/chat-discord-5865F2" alt="Discord服务器"></a>
 <a href="https://www.youtube.com/watch?v=8kMaTybvDUw">
     <img src="https://img.shields.io/badge/aidotengineer-conf_talk_(17m)-white" alt="YouTube
-Deep Dive"></a>
+深度解析"></a>
 <a href="https://www.youtube.com/watch?v=yxJDyQ8v6P0">
     <img src="https://img.shields.io/badge/youtube-deep_dive-crimson" alt="YouTube
-Deep Dive"></a>
+深度解析"></a>
     
 </div>
 
 <p></p>
 
-*In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*
+*秉承[12因子应用](https://12factor.net/)的精神*。*本项目的源代码在 https://github.com/humanlayer/12-factor-agents 公开，我欢迎您的反馈和贡献。让我们一起探索！*
 
 > [!TIP]
-> Missed the AI Engineer World's Fair? [Catch the talk here](https://www.youtube.com/watch?v=8kMaTybvDUw)
+> 错过了AI工程师世界博览会？[在这里观看演讲](https://www.youtube.com/watch?v=8kMaTybvDUw)
 >
-> Looking for Context Engineering? [Jump straight to factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)
+> 正在寻找上下文工程？[直接跳转到因子3](./content/factor-03-own-your-context-window-zh.md)
 >
-> Want to contribute to `npx/uvx create-12-factor-agent` - check out [the discussion thread](https://github.com/humanlayer/12-factor-agents/discussions/61)
+> 想要为 `npx/uvx create-12-factor-agent` 做贡献 - 查看[讨论帖](https://github.com/humanlayer/12-factor-agents/discussions/61)
+>
+> 想要阅读英文版本？[English Version](./README-en.md)
 
 
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=2acad99a-c2d9-48df-86f5-9ca8061b7bf9" />
 
-<a href="#visual-nav"><img width="907" alt="Screenshot 2025-04-03 at 2 49 07 PM" src="https://github.com/user-attachments/assets/23286ad8-7bef-4902-b371-88ff6a22e998" /></a>
+<a href="#visual-nav"><img width="907" alt="Screenshot 2025-04-03 at 2 49 07 PM" src="https://github.com/user-attachments/assets/23286ad8-7bef-4902-b371-88ff6a22e998" /></a>
 
 
-Hi, I'm Dex. I've been [hacking](https://youtu.be/8bIHcttkOTE) on [AI agents](https://theouterloop.substack.com) for [a while](https://humanlayer.dev). 
+大家好，我是Dex。我在[AI智能体](https://theouterloop.substack.com)方面[钻研](https://youtu.be/8bIHcttkOTE)了[很长时间](https://humanlayer.dev)。
 
 
-**I've tried every agent framework out there**, from the plug-and-play crew/langchains to the "minimalist" smolagents of the world to the "production grade" langraph, griptape, etc. 
+**我已经尝试过市面上的每一个智能体框架**，从即插即用的crew/langchains到世界上的"极简主义"smolagents，再到"生产级"的langraph、griptape等等。
 
-**I've talked to a lot of really strong founders**, in and out of YC, who are all building really impressive things with AI. Most of them are rolling the stack themselves. I don't see a lot of frameworks in production customer-facing agents.
+**我与许多非常强大的创始人交谈过**，无论是否来自YC，他们都在用AI构建非常令人印象深刻的产品。他们中的大多数都在自己构建技术栈。我没有看到很多框架在生产环境的面向客户的智能体中使用。
 
-**I've been surprised to find** that most of the products out there billing themselves as "AI Agents" are not all that agentic. A lot of them are mostly deterministic code, with LLM steps sprinkled in at just the right points to make the experience truly magical.
+**我惊讶地发现**，大多数宣传自己为"AI智能体"的产品实际上并没有那么智能化。它们中的很多主要是确定性代码，只是在恰当的地方撒上LLM步骤，让体验变得真正神奇。
 
-Agents, at least the good ones, don't follow the ["here's your prompt, here's a bag of tools, loop until you hit the goal"](https://www.anthropic.com/engineering/building-effective-agents#agents) pattern. Rather, they are comprised of mostly just software. 
+智能体，至少是好的智能体，不遵循["这是你的提示，这是一袋工具，循环直到达到目标"](https://www.anthropic.com/engineering/building-effective-agents#agents)的模式。相反，它们主要由软件组成。
 
-So, I set out to answer:
+因此，我开始回答：
 
-> ### **What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?**
+> ### **我们可以使用什么原则来构建真正足够好的LLM驱动软件，将其交到生产环境客户手中？**
 
-Welcome to 12-factor agents. As every Chicago mayor since Daley has consistently plastered all over the city's major airports, we're glad you're here.
+欢迎来到12因子智能体。正如芝加哥自戴利以来的每一任市长一直在该市主要机场贴满的标语，我们很高兴您来到这里。
 
-*Special thanks to [@iantbutler01](https://github.com/iantbutler01), [@tnm](https://github.com/tnm), [@hellovai](https://www.github.com/hellovai), [@stantonk](https://www.github.com/stantonk), [@balanceiskey](https://www.github.com/balanceiskey), [@AdjectiveAllison](https://www.github.com/AdjectiveAllison), [@pfbyjy](https://www.github.com/pfbyjy), [@a-churchill](https://www.github.com/a-churchill), and the SF MLOps community for early feedback on this guide.*
+*特别感谢[@iantbutler01](https://github.com/iantbutler01)、[@tnm](https://github.com/tnm)、[@hellovai](https://www.github.com/hellovai)、[@stantonk](https://www.github.com/stantonk)、[@balanceiskey](https://www.github.com/balanceiskey)、[@AdjectiveAllison](https://www.github.com/AdjectiveAllison)、[@pfbyjy](https://www.github.com/pfbyjy)、[@a-churchill](https://www.github.com/a-churchill)和旧金山MLOps社区对本指南的早期反馈。*
 
-## The Short Version: The 12 Factors
+## 简化版本：12个因子
 
-Even if LLMs [continue to get exponentially more powerful](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md#what-if-llms-get-smarter), there will be core engineering techniques that make LLM-powered software more reliable, more scalable, and easier to maintain.
+即使LLM[继续呈指数级增长](./content/factor-10-small-focused-agents-zh.md#what-if-llms-get-smarter)，也会有核心工程技术使LLM驱动的软件更可靠、更可扩展、更易于维护。
 
-- [How We Got Here: A Brief History of Software](https://github.com/humanlayer/12-factor-agents/blob/main/content/brief-history-of-software.md)
-- [Factor 1: Natural Language to Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-01-natural-language-to-tool-calls.md)
-- [Factor 2: Own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-02-own-your-prompts.md)
-- [Factor 3: Own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)
-- [Factor 4: Tools are just structured outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-04-tools-are-structured-outputs.md)
-- [Factor 5: Unify execution state and business state](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-05-unify-execution-state.md)
-- [Factor 6: Launch/Pause/Resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-06-launch-pause-resume.md)
-- [Factor 7: Contact humans with tool calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-07-contact-humans-with-tools.md)
-- [Factor 8: Own your control flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md)
-- [Factor 9: Compact Errors into Context Window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-09-compact-errors.md)
-- [Factor 10: Small, Focused Agents](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
-- [Factor 11: Trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
-- [Factor 12: Make your agent a stateless reducer](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md)
+- [我们如何走到这里：软件简史](./content/brief-history-of-software-zh.md)
+- [因子1：自然语言到工具调用](./content/factor-01-natural-language-to-tool-calls-zh.md)
+- [因子2：掌控你的提示](./content/factor-02-own-your-prompts-zh.md)
+- [因子3：掌控你的上下文窗口](./content/factor-03-own-your-context-window-zh.md)
+- [因子4：工具只是结构化输出](./content/factor-04-tools-are-structured-outputs-zh.md)
+- [因子5：统一执行状态和业务状态](./content/factor-05-unify-execution-state-zh.md)
+- [因子6：使用简单API启动/暂停/恢复](./content/factor-06-launch-pause-resume-zh.md)
+- [因子7：通过工具调用联系人类](./content/factor-07-contact-humans-with-tools-zh.md)
+- [因子8：掌控你的控制流](./content/factor-08-own-your-control-flow-zh.md)
+- [因子9：将错误压缩到上下文窗口](./content/factor-09-compact-errors-zh.md)
+- [因子10：小型、专注的智能体](./content/factor-10-small-focused-agents-zh.md)
+- [因子11：从任何地方触发，在用户所在的地方与他们见面](./content/factor-11-trigger-from-anywhere-zh.md)
+- [因子12：让你的智能体成为无状态化简器](./content/factor-12-stateless-reducer-zh.md)
 
-### Visual Nav
+### 可视化导航
 
 |    |    |    |
 |----|----|-----|
-|[![factor 1](https://github.com/humanlayer/12-factor-agents/blob/main/img/110-natural-language-tool-calls.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-01-natural-language-to-tool-calls.md) | [![factor 2](https://github.com/humanlayer/12-factor-agents/blob/main/img/120-own-your-prompts.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-02-own-your-prompts.md) | [![factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md) |
-|[![factor 4](https://github.com/humanlayer/12-factor-agents/blob/main/img/140-tools-are-just-structured-outputs.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-04-tools-are-structured-outputs.md) | [![factor 5](https://github.com/humanlayer/12-factor-agents/blob/main/img/150-unify-state.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-05-unify-execution-state.md) | [![factor 6](https://github.com/humanlayer/12-factor-agents/blob/main/img/160-pause-resume-with-simple-apis.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-06-launch-pause-resume.md) |
-| [![factor 7](https://github.com/humanlayer/12-factor-agents/blob/main/img/170-contact-humans-with-tools.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-07-contact-humans-with-tools.md) | [![factor 8](https://github.com/humanlayer/12-factor-agents/blob/main/img/180-control-flow.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md) | [![factor 9](https://github.com/humanlayer/12-factor-agents/blob/main/img/190-factor-9-errors-static.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-09-compact-errors.md) |
-| [![factor 10](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a0-small-focused-agents.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md) | [![factor 11](https://github.com/humanlayer/12-factor-agents/blob/main/img/1b0-trigger-from-anywhere.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md) | [![factor 12](https://github.com/humanlayer/12-factor-agents/blob/main/img/1c0-stateless-reducer.png)](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md) |
+|[![因子1](https://github.com/humanlayer/12-factor-agents/blob/main/img/110-natural-language-tool-calls.png)](./content/factor-01-natural-language-to-tool-calls-zh.md) | [![因子2](https://github.com/humanlayer/12-factor-agents/blob/main/img/120-own-your-prompts.png)](./content/factor-02-own-your-prompts-zh.md) | [![因子3](https://github.com/humanlayer/12-factor-agents/blob/main/img/130-own-your-context-building.png)](./content/factor-03-own-your-context-window-zh.md) |
+|[![因子4](https://github.com/humanlayer/12-factor-agents/blob/main/img/140-tools-are-just-structured-outputs.png)](./content/factor-04-tools-are-structured-outputs-zh.md) | [![因子5](https://github.com/humanlayer/12-factor-agents/blob/main/img/150-unify-state.png)](./content/factor-05-unify-execution-state-zh.md) | [![因子6](https://github.com/humanlayer/12-factor-agents/blob/main/img/160-pause-resume-with-simple-apis.png)](./content/factor-06-launch-pause-resume-zh.md) |
+| [![因子7](https://github.com/humanlayer/12-factor-agents/blob/main/img/170-contact-humans-with-tools.png)](./content/factor-07-contact-humans-with-tools-zh.md) | [![因子8](https://github.com/humanlayer/12-factor-agents/blob/main/img/180-control-flow.png)](./content/factor-08-own-your-control-flow-zh.md) | [![因子9](https://github.com/humanlayer/12-factor-agents/blob/main/img/190-factor-9-errors-static.png)](./content/factor-09-compact-errors-zh.md) |
+| [![因子10](https://github.com/humanlayer/12-factor-agents/blob/main/img/1a0-small-focused-agents.png)](./content/factor-10-small-focused-agents-zh.md) | [![因子11](https://github.com/humanlayer/12-factor-agents/blob/main/img/1b0-trigger-from-anywhere.png)](./content/factor-11-trigger-from-anywhere-zh.md) | [![因子12](https://github.com/humanlayer/12-factor-agents/blob/main/img/1c0-stateless-reducer.png)](./content/factor-12-stateless-reducer-zh.md) |
 
-## How we got here
+## 我们如何走到这里
 
-For a deeper dive on my agent journey and what led us here, check out [A Brief History of Software](https://github.com/humanlayer/12-factor-agents/blob/main/content/brief-history-of-software.md) - a quick summary here:
+要更深入地了解我的智能体之旅以及什么引导我们来到这里，请查看[软件简史](./content/brief-history-of-software-zh.md) - 这里是一个快速总结：
 
-### The promise of agents
+### 智能体的承诺
 
-We're gonna talk a lot about Directed Graphs (DGs) and their Acyclic friends, DAGs. I'll start by pointing out that...well...software is a directed graph. There's a reason we used to represent programs as flow charts.
+我们将大量讨论有向图(DG)和它们的无环朋友DAG。我首先要指出的是...软件就是一个有向图。我们过去用流程图表示程序是有原因的。
 
 ![010-software-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/010-software-dag.png)
 
-### From code to DAGs
+### 从代码到DAG
 
-Around 20 years ago, we started to see DAG orchestrators become popular. We're talking classics like [Airflow](https://airflow.apache.org/), [Prefect](https://www.prefect.io/), some predecessors, and some newer ones like ([dagster](https://dagster.io/), [inggest](https://www.inngest.com/), [windmill](https://www.windmill.dev/)). These followed the same graph pattern, with the added benefit of observability, modularity, retries, administration, etc.
+大约20年前，我们开始看到DAG编排器变得流行。我们说的是经典工具如[Airflow](https://airflow.apache.org/)、[Prefect](https://www.prefect.io/)、一些前身以及一些较新的工具如([dagster](https://dagster.io/)、[inngest](https://www.inngest.com/)、[windmill](https://www.windmill.dev/))。这些遵循相同的图模式，额外的好处是可观察性、模块化、重试、管理等。
 
 ![015-dag-orchestrators](https://github.com/humanlayer/12-factor-agents/blob/main/img/015-dag-orchestrators.png)
 
-### The promise of agents
+### 智能体的承诺
 
-I'm not the first [person to say this](https://youtu.be/Dc99-zTMyMg?si=bcT0hIwWij2mR-40&t=73), but my biggest takeaway when I started learning about agents, was that you get to throw the DAG away. Instead of software engineers coding each step and edge case, you can give the agent a goal and a set of transitions:
+我不是第一个[这样说的人](https://youtu.be/Dc99-zTMyMg?si=bcT0hIwWij2mR-40&t=73)，但当我开始学习智能体时，我最大的收获是你可以抛弃DAG。软件工程师不需要编码每个步骤和边缘情况，你可以给智能体一个目标和一组转换：
 
 ![025-agent-dag](https://github.com/humanlayer/12-factor-agents/blob/main/img/025-agent-dag.png)
 
-And let the LLM make decisions in real time to figure out the path
+让LLM实时做决定来找出路径
 
 ![026-agent-dag-lines](https://github.com/humanlayer/12-factor-agents/blob/main/img/026-agent-dag-lines.png)
 
-The promise here is that you write less software, you just give the LLM the "edges" of the graph and let it figure out the nodes. You can recover from errors, you can write less code, and you may find that LLMs find novel solutions to problems.
+这里的承诺是你写更少的软件，你只需给LLM图的"边缘"，让它找出节点。你可以从错误中恢复，你可以写更少的代码，你可能会发现LLM为问题找到新颖的解决方案。
 
 
-### Agents as loops
+### 智能体作为循环
 
-As we'll see later, it turns out this doesn't quite work.
+正如我们稍后将看到的，事实证明这并不完全有效。
 
-Let's dive one step deeper - with agents you've got this loop consisting of 3 steps:
+让我们深入一步 - 对于智能体，你有这个由3个步骤组成的循环：
 
-1. LLM determines the next step in the workflow, outputting structured json ("tool calling")
-2. Deterministic code executes the tool call
-3. The result is appended to the context window 
-4. Repeat until the next step is determined to be "done"
+1. LLM确定工作流中的下一步，输出结构化json（"工具调用"）
+2. 确定性代码执行工具调用
+3. 结果被附加到上下文窗口
+4. 重复直到下一步被确定为"完成"
 
 ```python
 initial_event = {"message": "..."}
@@ -133,134 +135,132 @@ while True:
   context.append(result)
 ```
 
-Our initial context is just the starting event (maybe a user message, maybe a cron fired, maybe a webhook, etc), and we ask the llm to choose the next step (tool) or to determine that we're done.
+我们的初始上下文只是起始事件（可能是用户消息，可能是cron触发，可能是webhook等），我们请求llm选择下一步（工具）或确定我们已经完成。
 
-Here's a multi-step example:
+这里是一个多步骤示例：
 
 [![027-agent-loop-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)](https://github.com/user-attachments/assets/3beb0966-fdb1-4c12-a47f-ed4e8240f8fd)
 
 <details>
-<summary><a href="https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif">GIF Version</a></summary>
+<summary><a href="https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif">GIF版本</a></summary>
 
 ![027-agent-loop-animation](https://github.com/humanlayer/12-factor-agents/blob/main/img/027-agent-loop-animation.gif)]
 
 </details>
 
-## Why 12-factor agents?
+## 为什么要12因子智能体？
 
-At the end of the day, this approach just doesn't work as well as we want it to.
+归根结底，这种方法并不能如我们希望的那样有效。
 
-In building HumanLayer, I've talked to at least 100 SaaS builders (mostly technical founders) looking to make their existing product more agentic. The journey usually goes something like:
+在构建HumanLayer的过程中，我与至少100个SaaS构建者（主要是技术创始人）交谈，他们希望让他们现有的产品更具智能化。这个旅程通常是这样的：
 
-1. Decide you want to build an agent
-2. Product design, UX mapping, what problems to solve
-3. Want to move fast, so grab $FRAMEWORK and *get to building*
-4. Get to 70-80% quality bar 
-5. Realize that 80% isn't good enough for most customer-facing features
-6. Realize that getting past 80% requires reverse-engineering the framework, prompts, flow, etc.
-7. Start over from scratch
+1. 决定你想要构建一个智能体
+2. 产品设计、UX映射、要解决什么问题
+3. 想要快速行动，所以抓取$框架并*开始构建*
+4. 达到70-80%的质量标准
+5. 意识到80%对大多数面向客户的功能来说还不够好
+6. 意识到超过80%需要逆向工程框架、提示、流程等
+7. 从头开始重新开始
 
 <details>
-<summary>Random Disclaimers</summary>
+<summary>随机免责声明</summary>
 
-**DISCLAIMER**: I'm not sure the exact right place to say this, but here seems as good as any: **this in BY NO MEANS meant to be a dig on either the many frameworks out there, or the pretty dang smart people who work on them**. They enable incredible things and have accelerated the AI ecosystem. 
+**免责声明**：我不确定在哪里说这个合适，但这里似乎是一个好地方：**这绝不是对市面上众多框架或在这些框架上工作的相当聪明的人的贬低**。它们实现了令人难以置信的事情，并加速了AI生态系统的发展。
 
-I hope that one outcome of this post is that agent framework builders can learn from the journeys of myself and others, and make frameworks even better. 
+我希望这篇文章的一个结果是智能体框架构建者可以从我和其他人的旅程中学习，并使框架变得更好。
 
-Especially for builders who want to move fast but need deep control.
+特别是对于想要快速行动但需要深度控制的构建者。
 
-**DISCLAIMER 2**: I'm not going to talk about MCP. I'm sure you can see where it fits in.
+**免责声明2**：我不打算讨论MCP。我相信你能看出它的适用之处。
 
-**DISCLAIMER 3**: I'm using mostly typescript, for [reasons](https://www.linkedin.com/posts/dexterihorthy_llms-typescript-aiagents-activity-7290858296679313408-Lh9e?utm_source=share&utm_medium=member_desktop&rcm=ACoAAA4oHTkByAiD-wZjnGsMBUL_JT6nyyhOh30) but all this stuff works in python or any other language you prefer. 
+**免责声明3**：我主要使用TypeScript，出于[某些原因](https://www.linkedin.com/posts/dexterihorthy_llms-typescript-aiagents-activity-7290858296679313408-Lh9e?utm_source=share&utm_medium=member_desktop&rcm=ACoAAA4oHTkByAiD-wZjnGsMBUL_JT6nyyhOh30)，但所有这些东西在Python或你偏好的任何其他语言中都有效。
 
 
-Anyways back to the thing...
+总之回到正题...
 
 </details>
 
-### Design Patterns for great LLM applications
+### 出色LLM应用程序的设计模式
 
-After digging through hundreds of AI libriaries and working with dozens of founders, my instinct is this:
+在深入研究数百个AI库并与数十位创始人合作后，我的直觉是：
 
-1. There are some core things that make agents great
-2. Going all in on a framework and building what is essentially a greenfield rewrite may be counter-productive
-3. There are some core principles that make agents great, and you will get most/all of them if you pull in a framework
-4. BUT, the fastest way I've seen for builders to get high-quality AI software in the hands of customers is to take small, modular concepts from agent building, and incorporate them into their existing product
-5. These modular concepts from agents can be defined and applied by most skilled software engineers, even if they don't have an AI background
+1. 有一些核心因素使智能体出色
+2. 全力投入框架并构建本质上是绿地重写可能适得其反
+3. 有一些核心原则使智能体出色，如果你引入框架，你将获得其中的大部分/全部
+4. 但是，我见过构建者将高质量AI软件交到客户手中的最快方式是从智能体构建中采用小而模块化的概念，并将它们整合到现有产品中
+5. 这些来自智能体的模块化概念可以由大多数熟练的软件工程师定义和应用，即使他们没有AI背景
 
-> #### The fastest way I've seen for builders to get good AI software in the hands of customers is to take small, modular concepts from agent building, and incorporate them into their existing product
-
-
-## The 12 Factors (again)
+> #### 我见过构建者将优秀AI软件交到客户手中的最快方式是从智能体构建中采用小而模块化的概念，并将它们整合到现有产品中
 
 
-- [How We Got Here: A Brief History of Software](https://github.com/humanlayer/12-factor-agents/blob/main/content/brief-history-of-software.md)
-- [Factor 1: Natural Language to Tool Calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-01-natural-language-to-tool-calls.md)
-- [Factor 2: Own your prompts](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-02-own-your-prompts.md)
-- [Factor 3: Own your context window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)
-- [Factor 4: Tools are just structured outputs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-04-tools-are-structured-outputs.md)
-- [Factor 5: Unify execution state and business state](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-05-unify-execution-state.md)
-- [Factor 6: Launch/Pause/Resume with simple APIs](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-06-launch-pause-resume.md)
-- [Factor 7: Contact humans with tool calls](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-07-contact-humans-with-tools.md)
-- [Factor 8: Own your control flow](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md)
-- [Factor 9: Compact Errors into Context Window](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-09-compact-errors.md)
-- [Factor 10: Small, Focused Agents](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-10-small-focused-agents.md)
-- [Factor 11: Trigger from anywhere, meet users where they are](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-11-trigger-from-anywhere.md)
-- [Factor 12: Make your agent a stateless reducer](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-12-stateless-reducer.md)
+## 12个因子（再次）
 
-## Honorable Mentions / other advice
 
-- [Factor 13: Pre-fetch all the context you might need](https://github.com/humanlayer/12-factor-agents/blob/main/content/appendix-13-pre-fetch.md)
+- [我们如何走到这里：软件简史](./content/brief-history-of-software-zh.md)
+- [因子1：自然语言到工具调用](./content/factor-01-natural-language-to-tool-calls-zh.md)
+- [因子2：掌控你的提示](./content/factor-02-own-your-prompts-zh.md)
+- [因子3：掌控你的上下文窗口](./content/factor-03-own-your-context-window-zh.md)
+- [因子4：工具只是结构化输出](./content/factor-04-tools-are-structured-outputs-zh.md)
+- [因子5：统一执行状态和业务状态](./content/factor-05-unify-execution-state-zh.md)
+- [因子6：使用简单API启动/暂停/恢复](./content/factor-06-launch-pause-resume-zh.md)
+- [因子7：通过工具调用联系人类](./content/factor-07-contact-humans-with-tools-zh.md)
+- [因子8：掌控你的控制流](./content/factor-08-own-your-control-flow-zh.md)
+- [因子9：将错误压缩到上下文窗口](./content/factor-09-compact-errors-zh.md)
+- [因子10：小型、专注的智能体](./content/factor-10-small-focused-agents-zh.md)
+- [因子11：从任何地方触发，在用户所在的地方与他们见面](./content/factor-11-trigger-from-anywhere-zh.md)
+- [因子12：让你的智能体成为无状态化简器](./content/factor-12-stateless-reducer-zh.md)
 
-## Related Resources
+## 荣誉提及/其他建议
 
-- Contribute to this guide [here](https://github.com/humanlayer/12-factor-agents)
-- [I talked about a lot of this on an episode of the Tool Use podcast](https://youtu.be/8bIHcttkOTE) in March 2025
-- I write about some of this stuff at [The Outer Loop](https://theouterloop.substack.com)
-- I do [webinars about Maximizing LLM Performance](https://github.com/hellovai/ai-that-works/tree/main) with [@hellovai](https://github.com/hellovai)
-- We build OSS agents with this methodology under [got-agents/agents](https://github.com/got-agents/agents)
-- We ignored all our own advice and built a [framework for running distributed agents in kubernetes](https://github.com/humanlayer/kubechain)
-- Other links from this guide:
-  - [12 Factor Apps](https://12factor.net)
-  - [Building Effective Agents (Anthropic)](https://www.anthropic.com/engineering/building-effective-agents#agents)
-  - [Prompts are Functions](https://thedataexchange.media/baml-revolution-in-ai-engineering/ )
-  - [Library patterns: Why frameworks are evil](https://tomasp.net/blog/2015/library-frameworks/)
-  - [The Wrong Abstraction](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction)
-  - [Mailcrew Agent](https://github.com/dexhorthy/mailcrew)
-  - [Mailcrew Demo Video](https://www.youtube.com/watch?v=f_cKnoPC_Oo)
-  - [Chainlit Demo](https://x.com/chainlit_io/status/1858613325921480922)
-  - [TypeScript for LLMs](https://www.linkedin.com/posts/dexterihorthy_llms-typescript-aiagents-activity-7290858296679313408-Lh9e)
-  - [Schema Aligned Parsing](https://www.boundaryml.com/blog/schema-aligned-parsing)
-  - [Function Calling vs Structured Outputs vs JSON Mode](https://www.vellum.ai/blog/when-should-i-use-function-calling-structured-outputs-or-json-mode)
-  - [BAML on GitHub](https://github.com/boundaryml/baml)
-  - [OpenAI JSON vs Function Calling](https://docs.llamaindex.ai/en/stable/examples/llm/openai_json_vs_function_calling/)
-  - [Outer Loop Agents](https://theouterloop.substack.com/p/openais-realtime-api-is-a-step-towards)
+- [因子13：预取你可能需要的所有上下文](./content/appendix-13-pre-fetch-zh.md)
+
+## 相关资源
+
+- 在[这里](https://github.com/humanlayer/12-factor-agents)为本指南做贡献
+- [我在2025年3月的Tool Use播客节目中谈论了其中的很多内容](https://youtu.be/8bIHcttkOTE)
+- 我在[The Outer Loop](https://theouterloop.substack.com)写一些这方面的内容
+- 我与[@hellovai](https://github.com/hellovai)一起做[关于最大化LLM性能的网络研讨会](https://github.com/hellovai/ai-that-works/tree/main)
+- 我们用这种方法在[got-agents/agents](https://github.com/got-agents/agents)下构建OSS智能体
+- 我们忽略了自己所有的建议，构建了一个[在kubernetes中运行分布式智能体的框架](https://github.com/humanlayer/kubechain)
+- 本指南的其他链接：
+  - [12因子应用](https://12factor.net)
+  - [构建有效的智能体(Anthropic)](https://www.anthropic.com/engineering/building-effective-agents#agents)
+  - [提示即函数](https://thedataexchange.media/baml-revolution-in-ai-engineering/ )
+  - [库模式：为什么框架是邪恶的](https://tomasp.net/blog/2015/library-frameworks/)
+  - [错误的抽象](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction)
+  - [Mailcrew智能体](https://github.com/dexhorthy/mailcrew)
+  - [Mailcrew演示视频](https://www.youtube.com/watch?v=f_cKnoPC_Oo)
+  - [Chainlit演示](https://x.com/chainlit_io/status/1858613325921480922)
+  - [LLM的TypeScript](https://www.linkedin.com/posts/dexterihorthy_llms-typescript-aiagents-activity-7290858296679313408-Lh9e)
+  - [模式对齐解析](https://www.boundaryml.com/blog/schema-aligned-parsing)
+  - [函数调用 vs 结构化输出 vs JSON模式](https://www.vellum.ai/blog/when-should-i-use-function-calling-structured-outputs-or-json-mode)
+  - [GitHub上的BAML](https://github.com/boundaryml/baml)
+  - [OpenAI JSON vs 函数调用](https://docs.llamaindex.ai/en/stable/examples/llm/openai_json_vs_function_calling/)
+  - [外层循环智能体](https://theouterloop.substack.com/p/openais-realtime-api-is-a-step-towards)
   - [Airflow](https://airflow.apache.org/)
   - [Prefect](https://www.prefect.io/)
   - [Dagster](https://dagster.io/)
   - [Inngest](https://www.inngest.com/)
   - [Windmill](https://www.windmill.dev/)
-  - [The AI Agent Index (MIT)](https://aiagentindex.mit.edu/)
-  - [NotebookLM on Finding Model Capability Boundaries](https://open.substack.com/pub/swyx/p/notebooklm?selection=08e1187c-cfee-4c63-93c9-71216640a5f8)
+  - [AI智能体指数(MIT)](https://aiagentindex.mit.edu/)
+  - [NotebookLM关于寻找模型能力边界](https://open.substack.com/pub/swyx/p/notebooklm?selection=08e1187c-cfee-4c63-93c9-71216640a5f8)
 
-## Contributors
+## 贡献者
 
-Thanks to everyone who has contributed to 12-factor agents!
+感谢所有为12因子智能体做出贡献的人！
 
 [<img src="https://avatars.githubusercontent.com/u/3730605?v=4&s=80" width="80px" alt="dexhorthy" />](https://github.com/dexhorthy) [<img src="https://avatars.githubusercontent.com/u/50557586?v=4&s=80" width="80px" alt="Sypherd" />](https://github.com/Sypherd) [<img src="https://avatars.githubusercontent.com/u/66259401?v=4&s=80" width="80px" alt="tofaramususa" />](https://github.com/tofaramususa) [<img src="https://avatars.githubusercontent.com/u/18105223?v=4&s=80" width="80px" alt="a-churchill" />](https://github.com/a-churchill) [<img src="https://avatars.githubusercontent.com/u/4084885?v=4&s=80" width="80px" alt="Elijas" />](https://github.com/Elijas) [<img src="https://avatars.githubusercontent.com/u/39267118?v=4&s=80" width="80px" alt="hugolmn" />](https://github.com/hugolmn) [<img src="https://avatars.githubusercontent.com/u/1882972?v=4&s=80" width="80px" alt="jeremypeters" />](https://github.com/jeremypeters)
 
 [<img src="https://avatars.githubusercontent.com/u/380402?v=4&s=80" width="80px" alt="kndl" />](https://github.com/kndl) [<img src="https://avatars.githubusercontent.com/u/16674643?v=4&s=80" width="80px" alt="maciejkos" />](https://github.com/maciejkos) [<img src="https://avatars.githubusercontent.com/u/85041180?v=4&s=80" width="80px" alt="pfbyjy" />](https://github.com/pfbyjy) [<img src="https://avatars.githubusercontent.com/u/36044389?v=4&s=80" width="80px" alt="0xRaduan" />](https://github.com/0xRaduan) [<img src="https://avatars.githubusercontent.com/u/7169731?v=4&s=80" width="80px" alt="zyuanlim" />](https://github.com/zyuanlim) [<img src="https://avatars.githubusercontent.com/u/15862501?v=4&s=80" width="80px" alt="lombardo-chcg" />](https://github.com/lombardo-chcg) [<img src="https://avatars.githubusercontent.com/u/160066852?v=4&s=80" width="80px" alt="sahanatvessel" />](https://github.com/sahanatvessel)
 
-## Versions
+## 版本
 
 
-This is the current version of 12-factor agents, version 1.0. There is a draft of version 1.1  on the [v1.1 branch](https://github.com/humanlayer/12-factor-agents/tree/v1.1). There are a few [Issues to track work on v1.1](https://github.com/humanlayer/12-factor-agents/issues?q=is%3Aissue%20state%3Aopen%20label%3Aversion%3A%3A1.1).
+这是12因子智能体的当前版本，版本1.0。在[v1.1分支](https://github.com/humanlayer/12-factor-agents/tree/v1.1)上有版本1.1的草案。有一些[问题来跟踪v1.1的工作](https://github.com/humanlayer/12-factor-agents/issues?q=is%3Aissue%20state%3Aopen%20label%3Aversion%3A%3A1.1)。
 
  
-## License
+## 许可证
 
-All content and images are licensed under a <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0 License</a>
+所有内容和图像都在<a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0许可证</a>下授权
 
-Code is licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 License</a>
-
-
+代码在<a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0许可证</a>下授权
